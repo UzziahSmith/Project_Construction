@@ -1,11 +1,24 @@
 package com.job_tracker.database_interaction;
 
+import com.job_tracker.attribute_creation.*;
 import com.job_tracker.jdbc.Connection_Execute;
 import java.lang.Integer;
 
 public class Add_DB {
 	
-//	private static int Field_Counter(String schema, String table) {}
+	public static java.lang.Integer Record_Counter(String url, String username, String password, String schema, String table) {
+		// Setup sql command statement to count records.
+		String sql_statement = String.format("SELECT COUNT(*) FROM %s.%s", schema, table);
+		
+		Integer schema_count = Connection_Execute.Int_Query_Database(url, username, password, sql_statement);
+		if(schema_count != null) {
+			System.out.println("Successfully counted " + schema_count + " records");
+			return schema_count;
+		} else {
+			System.out.println("Failed to count records.");
+			return null;
+		}
+	}
 	
 	public static java.lang.Integer Schema_Business_Counter(String url, String username, String password) {
 		//SQL command to count the databases in MySQL
@@ -25,13 +38,15 @@ public class Add_DB {
 	private static String Create_ID(char prefix, int count) {
 		//converts int count to string and return an id with a count and a prefix
 		Integer new_count = Integer.valueOf(count+1);
-		String return_string = String.valueOf(prefix) + String.valueOf(new_count);
+		String string_new_count = String.valueOf(new_count);
+		String return_string = prefix + string_new_count;
 		return return_string;
 	}
 	
 	public static boolean Business_Schema(String business_name, String url, String username, String password) {
 		// SQL command to create a database in MySQL
 		String db_url = String.format("%s/%s", url, business_name);
+		// Creates SQL commands that outlines the creation of each table.
 		String sql_statement_business = String.format("CREATE DATABASE IF NOT EXISTS %s", business_name);
 		String sql_statement_table_clients = "CREATE TABLE clients ("
 				+ "client_id VARCHAR(7), "
@@ -116,14 +131,80 @@ public class Add_DB {
 		}
 	}
 	
-//	public static boolean Client(String first_name, String surname, String address, int phone_number, boolean previous_client) {}
+	public static boolean Client(String url, String username, String password, String schema, String first_name, String surname, int phone_number, boolean previous_client) {
+		int client_count = Record_Counter(url, username, password, schema, "clients");
+		String id = Create_ID('C', client_count);
+		Client new_client = new Client(id, first_name, surname, phone_number, previous_client);
+		String sql_statement = "INSERT INTO " + schema + ".clients (client_id, first_name, surname, phone_number, previous_client) "
+				+ "VALUES (" + "'" + new_client.id + "'" + "," + "'" + new_client.first_name + "'" + "," + "'" + new_client.surname + "'" + ","
+						+ "" + new_client.phone_number + "," + new_client.previous_client + ")";
+		if(Connection_Execute.Command_Database(url, username, password, sql_statement)) {
+			System.out.println("Successfully created Client: " + new_client.first_name + " " + new_client.surname);
+			return true;
+		} else {
+			System.out.println("Failed to create Client: " +  new_client.first_name + " " + new_client.surname);
+			return false;
+		}
+	}
 	
-//	public static boolean Employee(String first_name, String surname, int phone_number, String trade_id) {}	
+	public static boolean Trade(String url, String username, String password, String schema, String title) {
+		int trade_count = Record_Counter(url, username, password, schema, "trades");
+		String id = Create_ID('T', trade_count);
+		Trade new_trade = new Trade(id, title);
+		String sql_statement = "INSERT INTO " + schema + ".trades (trade_id, title) "
+				+ "VALUES (" + "'" + new_trade.id + "'" + "," + "'" + new_trade.title + "'" + ")";
+		if(Connection_Execute.Command_Database(url, username, password, sql_statement)) {
+			System.out.println("Successfully created Trade: " + new_trade.title);
+			return true;
+		} else {
+			System.out.println("Failed to create Trade: " + new_trade.title);
+			return false;
+		}
+	}
 	
-//	public static boolean Trade(String title) {}
-	
-//	public static boolean Location(String location_address, String client_id) {}
+	public static boolean Employee(String url, String username, String password, String schema, String first_name, String surname, int phone_number, String trade_id) {
+		int employee_count = Record_Counter(url, username, password, schema, "employees");
+		String id = Create_ID('E', employee_count);
+		Employee new_employee = new Employee(id, first_name, surname, phone_number, trade_id);
+		String sql_statement = "INSERT INTO " + schema + ".employees (employee_id, first_name, surname, phone_number, trade_id) "
+				+ "VALUES (" + "'" + new_employee.id + "'" + "," + "'" + new_employee.first_name + "'" + "," + "'" + new_employee.surname + "'" + ","
+						+ "" + new_employee.phone_number + "," + new_employee.trade_id + ")";
+		if(Connection_Execute.Command_Database(url, username, password, sql_statement)) {
+			System.out.println("Successfully created Employee: " + new_employee.first_name + " " + new_employee.surname);
+			return true;
+		} else {
+			System.out.println("Failed to create Employee: " + new_employee.first_name + " " + new_employee.surname);
+			return false;
+		}
+	}	
+		
+	public static boolean Location(String url, String username, String password, String schema, String street_number, String street_name, int postcode, String client_id) {
+		Location new_location = new Location(street_number, street_name, postcode, client_id);
+		String sql_statement = "INSERT INTO " + schema + ".locations (street_number, street_name, postcode, client_id) "
+				+ "VALUES (" + "'" + new_location.street_number + "'" + "," + "'" + new_location.street_name + "'" + "," + new_location.postcode + ","
+						+ "" + "'" + new_location.client_id + "'" + ")";
+		if(Connection_Execute.Command_Database(url, username, password, sql_statement)) {
+			System.out.println("Successfully created Location: " + new_location.street_number + " " + new_location.street_name + ", " + new_location.postcode);
+			return true;
+		} else {
+			System.out.println("Failed to create Location: " + new_location.street_number + " " + new_location.street_name + ", " + new_location.postcode);
+			return false;
+		}
+	}
 
-//	public static boolean Appointment(String client_id, String employee_id, int time, String date, String brief) {}
-	
+	public static boolean Appointment(String url, String username, String password, String schema, int time, String date, String brief, String client_id, String employee_id) {
+		int appointment_count = Record_Counter(url, username, password, schema, "appointments");
+		String id = Create_ID('A', appointment_count);
+		Appointment new_appointment = new Appointment(id, time, date, brief, client_id, employee_id);
+		String sql_statement = "INSERT INTO " + schema + ".appointments (appointment_id, time, date, brief, client_id, brief_id) "
+				+ "VALUES (" + "'" + new_appointment.id + "'" + "," + new_appointment.time + "," + new_appointment.date + ","
+						+ "" + "'" + new_appointment.brief + "'" + "," + "'" + new_appointment.client_id + "'" + "," + "'" + new_appointment.employee_id + "'" + ")";
+		if(Connection_Execute.Command_Database(url, username, password, sql_statement)) {
+			System.out.println("Successfully created Appointment: " + new_appointment.id);
+			return true;
+		} else {
+			System.out.println("Failed to create Appointment: " + new_appointment.id);
+			return false;
+		}
+	}	
 }

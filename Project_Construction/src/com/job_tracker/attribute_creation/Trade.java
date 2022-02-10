@@ -1,11 +1,11 @@
 package com.job_tracker.attribute_creation;
 
 public class Trade {
-	String ID;
-	String title;
+	public String id;
+	public String title;
 	
-	private Trade(String ID, String title){
-		this.ID = ID;
+	public Trade(String id, String title){
+		this.id = id;
 		this.title = title;
 	}
 }
