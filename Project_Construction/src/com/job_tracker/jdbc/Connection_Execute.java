@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 
 public class Connection_Execute {
 	public static boolean Command_Database(String url, String username, String password, String sql_statement) {
@@ -29,4 +30,29 @@ public class Connection_Execute {
 			return null;
 		}
 	}
+	
+	public static String String_Query_Database(String url, String username, String password, String query_statement) {
+		// creates an object and tries to establish a connection with the SQL server, implements statement then returns string.
+		try(Connection conn = DriverManager.getConnection(url, username, password); PreparedStatement statement = conn.prepareStatement(query_statement)) {
+			ResultSet result_set = statement.executeQuery();
+			result_set.next();
+			String string_retrieval = result_set.getString(1);
+			return string_retrieval;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+//	public static ArrayList<ResultSet> ResultSet_Query_Database(String url, String username, String password, String query_statement) {
+//		// creates an object and tries to establish a connection with the SQL server, implements statement then returns string.
+//		try(Connection conn = DriverManager.getConnection(url, username, password); PreparedStatement statement = conn.prepareStatement(query_statement)) {
+//			ResultSet result_set = statement.executeQuery();
+//			result_set.next();
+//			return result_set;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return null;
+//		}
+//	}
 }

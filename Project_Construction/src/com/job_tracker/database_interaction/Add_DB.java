@@ -6,7 +6,7 @@ import java.lang.Integer;
 
 public class Add_DB {
 	
-	public static java.lang.Integer Record_Counter(String url, String username, String password, String schema, String table) {
+	private static java.lang.Integer Record_Counter(String url, String username, String password, String schema, String table) {
 		// Setup sql command statement to count records.
 		String sql_statement = String.format("SELECT COUNT(*) FROM %s.%s", schema, table);
 		
@@ -76,14 +76,20 @@ public class Add_DB {
 				+ "FOREIGN KEY (client_id) REFERENCES clients(client_id))";	
 		String sql_statement_table_appointments = "CREATE TABLE appointments ("
 				+ "appointment_id VARCHAR(14), "
-				+ "time TIME, "
-				+ "date DATE, "
+				+ "time VARCHAR(5), "
+				+ "date VARCAHR(10), "
 				+ "brief VARCHAR(999), "
 				+ "client_id VARCHAR(7), "
 				+ "employee_id VARCHAR(7), "
+				+ "street_number VARCHAR(7), "
+				+ "street_name VARCHAR(50), "
+				+ "postcode INT(4), "
 				+ "PRIMARY KEY (appointment_id), "
 				+ "FOREIGN KEY (client_id) REFERENCES clients(client_id), "
-				+ "FOREIGN KEY (employee_id) REFERENCES employees(employee_id))";
+				+ "FOREIGN KEY (employee_id) REFERENCES employees(employee_id), "
+				+ "FOREIGN KEY (street_number) REFERENCES locations(street_number), "
+				+ "FOREIGN KEY (street_name) REFERENCES locations(street_name), "
+				+ "FOREIGN KEY (postcode) REFERENCES locations(postcode))";
 		
 		// establishes connection with the server, processes statement, then tests whether it was successful or not.
 		if(Connection_Execute.Command_Database(url, username, password, sql_statement_business)) {
@@ -131,7 +137,7 @@ public class Add_DB {
 		}
 	}
 	
-	public static boolean Client(String url, String username, String password, String schema, String first_name, String surname, int phone_number, boolean previous_client) {
+	public static boolean Client(String url, String username, String password, String schema, String first_name, String surname, String phone_number, boolean previous_client) {
 		int client_count = Record_Counter(url, username, password, schema, "clients");
 		String id = Create_ID('C', client_count);
 		Client new_client = new Client(id, first_name, surname, phone_number, previous_client);
@@ -162,13 +168,13 @@ public class Add_DB {
 		}
 	}
 	
-	public static boolean Employee(String url, String username, String password, String schema, String first_name, String surname, int phone_number, String trade_id) {
+	public static boolean Employee(String url, String username, String password, String schema, String first_name, String surname, String phone_number, boolean employed, String trade_id) {
 		int employee_count = Record_Counter(url, username, password, schema, "employees");
 		String id = Create_ID('E', employee_count);
-		Employee new_employee = new Employee(id, first_name, surname, phone_number, trade_id);
+		Employee new_employee = new Employee(id, first_name, surname, phone_number, employed, trade_id);
 		String sql_statement = "INSERT INTO " + schema + ".employees (employee_id, first_name, surname, phone_number, trade_id) "
 				+ "VALUES (" + "'" + new_employee.id + "'" + "," + "'" + new_employee.first_name + "'" + "," + "'" + new_employee.surname + "'" + ","
-						+ "" + new_employee.phone_number + "," + new_employee.trade_id + ")";
+						+ "" + new_employee.phone_number + "," + new_employee.employed + "," + "'" + new_employee.trade_id + "'" + ")";
 		if(Connection_Execute.Command_Database(url, username, password, sql_statement)) {
 			System.out.println("Successfully created Employee: " + new_employee.first_name + " " + new_employee.surname);
 			return true;
@@ -192,13 +198,15 @@ public class Add_DB {
 		}
 	}
 
-	public static boolean Appointment(String url, String username, String password, String schema, int time, String date, String brief, String client_id, String employee_id) {
+	public static boolean Appointment(String url, String username, String password, String schema, String time, String date, String brief, String client_id, String employee_id, String street_number, String street_name, int postcode) {
 		int appointment_count = Record_Counter(url, username, password, schema, "appointments");
 		String id = Create_ID('A', appointment_count);
-		Appointment new_appointment = new Appointment(id, time, date, brief, client_id, employee_id);
-		String sql_statement = "INSERT INTO " + schema + ".appointments (appointment_id, time, date, brief, client_id, brief_id) "
+		Appointment new_appointment = new Appointment(id, time, date, brief, client_id, employee_id, street_number, street_name, postcode);
+		String sql_statement = "INSERT INTO " + schema + ".appointments (appointment_id, time, date, brief, client_id, employee_id, street_number, street_name, postcode) "
 				+ "VALUES (" + "'" + new_appointment.id + "'" + "," + new_appointment.time + "," + new_appointment.date + ","
-						+ "" + "'" + new_appointment.brief + "'" + "," + "'" + new_appointment.client_id + "'" + "," + "'" + new_appointment.employee_id + "'" + ")";
+						+ "" + "'" + new_appointment.brief + "'" + "," + "'" + new_appointment.client_id + "'" + "," + "'"
+								+ "" + new_appointment.employee_id + "'" + "," + "'" + street_number + "'" + "," + "'" + street_name + "'"
+										+ "" + "," + postcode + ")";
 		if(Connection_Execute.Command_Database(url, username, password, sql_statement)) {
 			System.out.println("Successfully created Appointment: " + new_appointment.id);
 			return true;
