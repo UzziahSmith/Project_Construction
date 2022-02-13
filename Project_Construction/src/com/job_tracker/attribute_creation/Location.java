@@ -13,3 +13,4 @@ public class Location {
 		this.client_id = client_id;
 	}
 }
+ 
