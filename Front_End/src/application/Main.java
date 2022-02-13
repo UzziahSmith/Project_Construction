@@ -5,8 +5,6 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 
-import com.job_tracker.jdbc.Connection_Test;
-
 public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
