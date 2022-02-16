@@ -214,6 +214,10 @@ public class Home_Screen_Administrator_UI {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Clients button pressed");
+				Clients_Screen_Administrator_UI client_details_UI_Layout = new Clients_Screen_Administrator_UI();
+				Scene client_details_UI_screen = new Scene(client_details_UI_Layout.get_scene(primary_stage));
+				client_details_UI_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(client_details_UI_screen);
 			}
 		});
 		btn_appointments.setOnAction(new EventHandler<ActionEvent>() {
@@ -236,6 +240,10 @@ public class Home_Screen_Administrator_UI {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Trades button pressed");
+				Trade_List_Screen_Administrator_UI trade_details_UI_layout = new Trade_List_Screen_Administrator_UI();
+				Scene trade_details_UI_screen = new Scene(trade_details_UI_layout.get_scene(primary_stage));
+				trade_details_UI_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(trade_details_UI_screen);
 			}
 		});
 		

@@ -2,6 +2,8 @@ package application;
 
 import java.util.ArrayList;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -45,18 +47,56 @@ public class Employee_Details_Screen_Administrator_UI {
 			}
 		});
 		
-		Label lbl_title = new Label("Administrator: COMPANY_NAME");
+		Label lbl_title = new Label("Employees");
 		lbl_title.setAlignment(Pos.CENTER);
 		lbl_title.setTextAlignment(TextAlignment.CENTER);
 		lbl_title.getStyleClass().add("admin_home_title_text");
 		lbl_title.setId("admin_home_title_text");
 		
 		HBox navigation_button_bar = new HBox();
-		Button navigate_home = new Button("Home");
-		Button navigate_clients = new Button("Clients");
-		Button navigate_appointments = new Button("Appointments");
-		Button navigate_trades = new Button("Trades");
-		navigation_button_bar.getChildren().addAll(navigate_home,navigate_clients,navigate_appointments,navigate_trades);
+		Button btn_navigate_home = new Button("Home");
+		Button btn_navigate_clients = new Button("Clients");
+		Button btn_navigate_appointments = new Button("Appointments");
+		Button btn_navigate_trades = new Button("Trades");
+		
+		btn_navigate_home.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Navigate from Employee_Details_Screen_Administrator_UI to Home_Screen_Administrator_UI.");
+				Home_Screen_Administrator_UI home_screen_layout = new Home_Screen_Administrator_UI();
+				Scene home_screen_screen = new Scene(home_screen_layout.get_scene(primary_stage));
+				home_screen_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(home_screen_screen);
+			}
+		});
+		btn_navigate_clients.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Navigate from Employee_Details_Screen_Administrator_UI to Clients_Screen_Administrator_UI.");
+				Clients_Screen_Administrator_UI clients_screen_layout = new Clients_Screen_Administrator_UI();
+				Scene clients_screen_screen = new Scene(clients_screen_layout.get_scene(primary_stage));
+				clients_screen_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(clients_screen_screen);
+			}
+		});
+		btn_navigate_appointments.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Navigate from Employee_Details_Screen_Administrator_UI to Appointment_List_Administrator_UI.");
+			}
+		});
+		btn_navigate_trades.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Navigate from Employee_Details_Screen_Administrator_UI to Trade_List_Screen_Administrator_UI.");
+				Trade_List_Screen_Administrator_UI trade_details_UI_layout = new Trade_List_Screen_Administrator_UI();
+				Scene trade_details_UI_screen = new Scene(trade_details_UI_layout.get_scene(primary_stage));
+				trade_details_UI_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(trade_details_UI_screen);
+			}
+		});
+		
+		navigation_button_bar.getChildren().addAll(btn_navigate_home,btn_navigate_clients,btn_navigate_appointments,btn_navigate_trades);
 		
 		header.getChildren().addAll(btn_sign_out,lbl_title,navigation_button_bar);
 		return header;
@@ -125,15 +165,17 @@ public class Employee_Details_Screen_Administrator_UI {
 		VBox right_view = new VBox();
 		right_view.setPadding(new Insets(50,250,20,20));
 		
-		Label lbl_employee_list_view_title = new Label("All Employees");
+		Label lbl_employee_list_view_title = new Label("Employees");
 		lbl_employee_list_view_title.setAlignment(Pos.CENTER);
 		lbl_employee_list_view_title.setMaxWidth(Double.MAX_VALUE);
 		lbl_employee_list_view_title.setPadding(new Insets(0,0,20,0));
 		
 		ListView<String> lv_employees = new ListView<String>();
+		ObservableList<String> lv_employee_items = FXCollections.observableArrayList();
 		for(String employee : employees) {
-			lv_employees.getItems().add(employee);
+			lv_employee_items.add(employee);
 		}
+		lv_employees.setItems(lv_employee_items);
 		lv_employees.setPrefSize(300,500);
 		
 		right_view.getChildren().addAll(lbl_employee_list_view_title, lv_employees);
