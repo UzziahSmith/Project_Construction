@@ -1,0 +1,75 @@
+/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+.root {
+	-fx-background-color: linear-gradient(to bottom right,#82a5bf,#8da5b5);
+	-fx-border-color: Black;
+}
+
+#sign_in_label {
+	-fx-font-size: 12px;
+	-fx-font-weight: bold;
+	-fx-text-fill: #cfcfcf;
+}
+
+#sign_in_button {
+	-fx-text-fill: #cfcfcf;
+	-fx-font-family: "Arial Narrow";
+	-fx-font-weight: bold;
+	-fx-background-color: linear-gradient(#61a2b1, #2A5058);
+	-fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.6),5,0.0,0,1);
+}
+
+#sign_in_button:hover {
+	-fx-background-color: linear-gradient(#2A5058, #61a2b1);
+}
+
+#admin_home_screen_button {
+	-fx-background-radius: 10;
+	-fx-border-radius: 10;
+	-fx-font-family: "Arial";
+	-fx-font-weight: bold;
+}
+
+#admin_home_screen_button:hover {
+	-fx-background-color: linear-gradient(#cfcfcf, #787675);
+}
+
+#admin_home_screen_header {
+	-fx-background-color: Gray;
+	-fx-border-color: Black;
+}
+
+#admin_home_screen_vb_appointments {
+	-fx-background-color: White;
+	-fx-border-color: Black;
+}
+
+#admin_home_listview {
+	-fx-font-size: 15px;
+	-fx-border-color: white;
+	-fx-focus-color: transparent;
+	-fx-faint-focus-color: transparent;
+}
+
+#admin_home_listview:filled:selected:focused, #admin_home_listview:filled:selected {
+	-fx-background-color: linear-gradient(#328BDB 0.0%, #207BCF 25.0%, #1973C9 75.0%, #0A65BF 100.0%);
+	-fx-text-fill: white;
+}
+
+#admin_home_listview:even {
+	-fx-background-color: white;
+}
+
+#admin_home_listview:filled:hover {
+	-fx-background-color: #0093ff;
+	-fx-text-fill: white;
+}
+
+#admin_home_listview_label {
+	-fx-font-size: 12px;
+	-fx-font-weight: bold;
+	-fx-text-fill: Black;
+}
+
+#admin_home_title_text {
+	-fx-font-size: 30px; 	
+}
