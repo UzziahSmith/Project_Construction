@@ -4,6 +4,10 @@
 	-fx-border-color: Black;
 }
 
+.label {
+	-fx-font-family: "Arial";
+} 
+
 #sign_in_label {
 	-fx-font-size: 12px;
 	-fx-font-weight: bold;
@@ -72,4 +76,24 @@
 
 #admin_home_title_text {
 	-fx-font-size: 30px; 	
+}
+
+#user_home_title {
+	-fx-font-size: 30px;
+	-fx-font-weight: bold;
+	-fx-text-fill: Black;
+}
+
+#output_user_label {
+	-fx-background-color: white;
+	-fx-border-color: black;
+}
+
+#header_button {
+	-fx-font-family: "Arial";
+	-fx-font-weight: bold;
+}
+
+#header_button:hover {
+	-fx-background-color: linear-gradient(#82a5bf,#8da5b5);
 }

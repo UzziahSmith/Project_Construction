@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -17,37 +18,16 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.TextAlignment;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class Clients_Screen_Administrator_UI {
-	private HBox header(Stage primary_stage) {
-		HBox header = new HBox();
-		header.setPadding(new Insets(20,12,15,12));
-		header.setSpacing(20);
-		header.setPrefHeight(100);
-		header.getStyleClass().add("admin_home_screen_header");
-		header.setId("admin_home_screen_header");
+	
+	Rectangle2D screen_bounds = Screen.getPrimary().getBounds();
+	
+	private BorderPane header(Stage primary_stage) {
 		
-		Button btn_sign_out = new Button("Sign out");
-		btn_sign_out.setPrefSize(75,50);
-		btn_sign_out.setAlignment(Pos.CENTER);
-		btn_sign_out.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				System.out.println("Sign out initiated");
-				Sign_In_UI sign_in_layout = new Sign_In_UI();
-				Scene sign_in_screen = new Scene(sign_in_layout.get_scene(primary_stage));
-				sign_in_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-				primary_stage.setScene(sign_in_screen);
-			}
-		});
-		
-		Label lbl_title = new Label("Clients");
-		lbl_title.setAlignment(Pos.CENTER);
-		lbl_title.setTextAlignment(TextAlignment.CENTER);
-		lbl_title.getStyleClass().add("admin_home_title_text");
-		lbl_title.setId("admin_home_title_text");
+		BorderPane header = UI_Templates.header(primary_stage,"Clients");
 		
 		HBox navigation_button_bar = new HBox();
 		Button btn_navigate_home = new Button("Home");
@@ -64,16 +44,16 @@ public class Clients_Screen_Administrator_UI {
 				primary_stage.setScene(home_screen_screen);
 			}
 		});
-//		btn_navigate_appointments.setOnAction(new EventHandler<ActionEvent>() {
-//			@Override
-//			public void handle(ActionEvent e) {
-//				System.out.println("Navigate from Clients_Screen_Administrator_UI to Appointment_List_Administrator_UI.");
-//				Appointment_List_Administrator_UI appointment_list_layout = new Appointment_List_Administrator_UI();
-//				Scene appointment_list_screen = new Scene(appointment_list_layout.get_scene(primary_stage));
-//				appointment_list_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-//				primary_stage.setScene(appointment_list_screen);
-//			}
-//		});
+		btn_navigate_appointments.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Navigate from Clients_Screen_Administrator_UI to Appointment_List_Administrator_UI.");
+				Appointment_List_UI appointment_list_layout = new Appointment_List_UI();
+				Scene appointment_list_screen = new Scene(appointment_list_layout.get_scene(primary_stage,true));
+				appointment_list_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_list_screen);
+			}
+		});
 		btn_navigate_employees.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
@@ -96,8 +76,7 @@ public class Clients_Screen_Administrator_UI {
 		});
 
 		navigation_button_bar.getChildren().addAll(btn_navigate_home,btn_navigate_appointments,btn_navigate_employees,btn_navigate_trades);
-		
-		header.getChildren().addAll(btn_sign_out,lbl_title,navigation_button_bar);
+		header.setRight(navigation_button_bar);
 		return header;
 	}
 	
@@ -178,12 +157,15 @@ public class Clients_Screen_Administrator_UI {
 	
 	private VBox right_view(ArrayList<String> clients) {
 		VBox right_view = new VBox();
-		right_view.setPadding(new Insets(50,250,20,20));
+		right_view.setPadding(new Insets(Algorithms.dimension_calculator(50.0,true),
+				Algorithms.dimension_calculator(250.0,false),
+				Algorithms.dimension_calculator(20.0,true),
+				Algorithms.dimension_calculator(20.0,false)));
 		
 		Label lbl_clients_list_title = new Label("Clients");
 		lbl_clients_list_title.setAlignment(Pos.CENTER);
 		lbl_clients_list_title.setMaxWidth(Double.MAX_VALUE);
-		lbl_clients_list_title.setPadding(new Insets(0,0,20,0));
+		lbl_clients_list_title.setPadding(new Insets(0,0,Algorithms.dimension_calculator(20.0,true),0));
 		
 		ListView<String> lv_clients = new ListView<String>();
 		ObservableList<String> lv_clients_items = FXCollections.observableArrayList();
@@ -191,7 +173,7 @@ public class Clients_Screen_Administrator_UI {
 			lv_clients_items.add(client);
 		}
 		lv_clients.setItems(lv_clients_items);
-		lv_clients.setPrefSize(300,500);
+		lv_clients.setPrefSize(Algorithms.dimension_calculator(300.0,false),Algorithms.dimension_calculator(500.0,true));
 		right_view.getChildren().addAll(lbl_clients_list_title, lv_clients);
 		
 		return right_view;
@@ -201,7 +183,7 @@ public class Clients_Screen_Administrator_UI {
 		BorderPane border_pane = new BorderPane();
 		
 		ArrayList<String> test_clients_AL = new ArrayList<String>();
-		
+		border_pane.setPrefSize(screen_bounds.getWidth()*0.8,screen_bounds.getHeight()*0.8);
 		border_pane.setTop(header(primary_stage));
 		border_pane.setCenter(centre_view());
 		border_pane.setRight(right_view(test_clients_AL));

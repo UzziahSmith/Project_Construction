@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -17,40 +18,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Popup;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class Home_Screen_User_UI {
-	private HBox header(Stage primary_stage) {
-		HBox header = new HBox();
-		header.setPadding(new Insets(20,12,15,12));
-		header.setSpacing(20);
-		header.setPrefHeight(100);
-		header.getStyleClass().add("admin_home_screen_header");
-		header.setId("admin_home_screen_header");
-		
-		Button btn_sign_out = new Button("Sign out");
-		btn_sign_out.setPrefSize(75,50);
-		btn_sign_out.setAlignment(Pos.CENTER);
-		btn_sign_out.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				System.out.println("Sign out initiated");				
-				Sign_In_UI sign_in_layout = new Sign_In_UI();
-				Scene sign_in_screen = new Scene(sign_in_layout.get_scene(primary_stage));
-				sign_in_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-				primary_stage.setScene(sign_in_screen);
-			}
-		});
-		
-		Label lbl_title = new Label("Administrator: COMPANY_NAME");
-		lbl_title.setAlignment(Pos.CENTER);
-		lbl_title.setMaxHeight(Double.MAX_VALUE);
-		lbl_title.getStyleClass().add("admin_home_title_text");
-		lbl_title.setId("admin_home_title_text");
-		
-		header.getChildren().addAll(btn_sign_out,lbl_title);
-		return header;
-	}
 	
 	private Popup appointment_brief(String client_name, String time, String date, String address, String assigned_employee) {
 		Popup popup = new Popup();
@@ -69,21 +40,33 @@ public class Home_Screen_User_UI {
 		return popup;
 	}
 	
-	private GridPane left_view(Stage primary_stage) {
+	private GridPane centre_view(Stage primary_stage) {
 		GridPane grid = new GridPane();
-		grid.setHgap(50);
-		grid.setVgap(20);
-		grid.setPadding(new Insets(20,20,20,20));
+		grid.setHgap(Algorithms.dimension_calculator(150.0,false));
+		grid.setVgap(Algorithms.dimension_calculator(20.0,true));
+		grid.setPadding(new Insets(Algorithms.dimension_calculator(20.0,true),
+				Algorithms.dimension_calculator(20.0,false),
+				Algorithms.dimension_calculator(20.0,true),
+				Algorithms.dimension_calculator(20.0,false)));
 		
-		Label lbl_todays_appointments = new Label("Today's Appointments");
+		Label lbl_jobs_title = new Label("Jobs");
+		lbl_jobs_title.setAlignment(Pos.CENTER);
+		lbl_jobs_title.setMaxWidth(Double.MAX_VALUE);
+		lbl_jobs_title.getStyleClass().add("user_home_title");
+		lbl_jobs_title.setId("user_home_title");
+		
+		VBox vb_todays_appointments = new VBox();
+		Label lbl_todays_appointments = new Label("Today");
 		lbl_todays_appointments.setAlignment(Pos.CENTER);
 		lbl_todays_appointments.setTextAlignment(TextAlignment.CENTER);
-		lbl_todays_appointments.setPadding(new Insets(30,10,10,10));
+		lbl_todays_appointments.setPadding(new Insets(0,
+				Algorithms.dimension_calculator(10.0,false),
+				Algorithms.dimension_calculator(10.0,true),
+				Algorithms.dimension_calculator(10.0,false)));
 		lbl_todays_appointments.getStyleClass().add("admin_home_listview_label");
 		lbl_todays_appointments.setId("admin_home_listview_label");
-		
 		ListView<String> todays_appointments_list = new ListView<String>();
-		ObservableList<String> todays_appointments_items = FXCollections.observableArrayList("John Green","Celery Adams","Barker Chicken",
+		ObservableList<String> todays_appointments_items = FXCollections.observableArrayList(
 				"John Green","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken",
@@ -101,11 +84,16 @@ public class Home_Screen_User_UI {
 				"John Green","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken");
+				"John Green","Celery Adams","Barker Chicken",
+				"John Green","Celery Adams","Barker Chicken"
+				);
 		todays_appointments_list.setItems(todays_appointments_items);
-		todays_appointments_list.setPrefWidth(75);
-		todays_appointments_list.setPrefHeight(350);
-		todays_appointments_list.setPadding(new Insets(20,100,70,100));
+		todays_appointments_list.setPrefWidth(Algorithms.dimension_calculator(75.0,false));
+		todays_appointments_list.setPrefHeight(Algorithms.dimension_calculator(350.0,true));
+		todays_appointments_list.setPadding(new Insets(Algorithms.dimension_calculator(20.0,true),
+				Algorithms.dimension_calculator(100.0,false),
+				Algorithms.dimension_calculator(70.0,true),
+				Algorithms.dimension_calculator(100.0,false)));
 		todays_appointments_list.getStyleClass().add("admin_home_listview");
 		todays_appointments_list.setId("admin_home_listview");
 		todays_appointments_list.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -129,16 +117,21 @@ public class Home_Screen_User_UI {
 				}
 			}
 		});
+		vb_todays_appointments.getChildren().addAll(lbl_todays_appointments,todays_appointments_list);
 		
-		Label lbl_tomorrows_appointments = new Label("Tomorrow's Appointments");
+		VBox vb_tomorrows_appointments = new VBox();
+		Label lbl_tomorrows_appointments = new Label("Tomorrow");
 		lbl_tomorrows_appointments.setAlignment(Pos.CENTER);
 		lbl_tomorrows_appointments.setTextAlignment(TextAlignment.CENTER);
-		lbl_tomorrows_appointments.setPadding(new Insets(30,10,10,10));
+		lbl_tomorrows_appointments.setPadding(new Insets(0,
+				Algorithms.dimension_calculator(10.0,false),
+				Algorithms.dimension_calculator(10.0,true),
+				Algorithms.dimension_calculator(10.0,false)));
 		lbl_tomorrows_appointments.getStyleClass().add("admin_home_listview_label");
 		lbl_tomorrows_appointments.setId("admin_home_listview_label");
-		
 		ListView<String> tomorrows_appointments_list = new ListView<String>();
-		ObservableList<String> tomorrows_appointments_items = FXCollections.observableArrayList("Uzziah Gary Smith: 9:00AM\nBull Creek","Celery Adams","Barker Chicken",
+		ObservableList<String> tomorrows_appointments_items = FXCollections.observableArrayList(
+				"Uzziah Gary Smith: 9:00AM\nBull Creek","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken",
@@ -156,11 +149,15 @@ public class Home_Screen_User_UI {
 				"John Green","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken");
+				"John Green","Celery Adams","Barker Chicken"
+				);
 		tomorrows_appointments_list.setItems(tomorrows_appointments_items);
-		tomorrows_appointments_list.setPrefWidth(75);
-		tomorrows_appointments_list.setPrefHeight(350);
-		tomorrows_appointments_list.setPadding(new Insets(20,100,50,100));
+		tomorrows_appointments_list.setPrefWidth(Algorithms.dimension_calculator(75.0,false));
+		tomorrows_appointments_list.setPrefHeight(Algorithms.dimension_calculator(350.0,true));
+		tomorrows_appointments_list.setPadding(new Insets(Algorithms.dimension_calculator(20.0,true),
+				Algorithms.dimension_calculator(100.0,false),
+				Algorithms.dimension_calculator(50.0,true),
+				Algorithms.dimension_calculator(100.0,false)));
 		tomorrows_appointments_list.getStyleClass().add("admin_home_listview");
 		tomorrows_appointments_list.setId("admin_home_listview");
 		tomorrows_appointments_list.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -175,41 +172,69 @@ public class Home_Screen_User_UI {
 				} 
 			}
 		});
+		vb_tomorrows_appointments.getChildren().addAll(lbl_tomorrows_appointments,tomorrows_appointments_list);
 		
-		grid.add(lbl_todays_appointments,0,0);;
-		grid.add(todays_appointments_list,0,1);
-		grid.add(lbl_tomorrows_appointments,1,0);
-		grid.add(tomorrows_appointments_list,1,1);
-		
-		return grid;
-	}
-	
-	private VBox right_view(Stage primary_stage) {
-		VBox Vbox = new VBox(3);
-		Vbox.setSpacing(50);
-		Vbox.setPadding(new Insets(100,300,100,0));
+		HBox left_view = new HBox();
+		left_view.setSpacing(Algorithms.dimension_calculator(50.0,false));
+		left_view.getChildren().addAll(vb_todays_appointments,vb_tomorrows_appointments);
 		
 		Label lbl_view_title = new Label("View");
 		lbl_view_title.setAlignment(Pos.CENTER);
 		lbl_view_title.setMaxWidth(Double.MAX_VALUE);
+		lbl_view_title.getStyleClass().add("user_home_title");
+		lbl_view_title.setId("user_home_title");
 		
+		VBox button_vb = new VBox();
+		button_vb.setSpacing(Algorithms.dimension_calculator(70.0,true));
+		button_vb.setPadding(new Insets(Algorithms.dimension_calculator(20.0,true),0,0,0));
 		Button btn_view_assigned_jobs = new Button("Assigned Jobs");
-		btn_view_assigned_jobs.setPrefSize(450,150);
+		btn_view_assigned_jobs.setPrefSize(Algorithms.dimension_calculator(450.0,false),Algorithms.dimension_calculator(150.0,true));
+		btn_view_assigned_jobs.getStyleClass().add("admin_home_screen_button");
+		btn_view_assigned_jobs.setId("admin_home_screen_button");
 		
 		Button btn_view_clients = new Button("Clients");
-		btn_view_clients.setPrefSize(450,150);
+		btn_view_clients.setPrefSize(Algorithms.dimension_calculator(450.0,false),Algorithms.dimension_calculator(150.0,true));
+		btn_view_clients.getStyleClass().add("admin_home_screen_button");
+		btn_view_clients.setId("admin_home_screen_button");
 		
-		Vbox.getChildren().addAll(lbl_view_title, btn_view_assigned_jobs, btn_view_clients);
-		return Vbox;
+		btn_view_assigned_jobs.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Navigate from Home_Screen_User_UI to Appointment_List_UI.");
+				Appointment_List_UI appointment_list_layout = new Appointment_List_UI();
+				Scene appointment_list_screen = new Scene(appointment_list_layout.get_scene(primary_stage,false));
+				appointment_list_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_list_screen);
+			}
+		});
+		btn_view_clients.setOnAction(new EventHandler<ActionEvent>() {
+			@Override 
+			public void handle(ActionEvent e) {
+				System.out.println("Navigate from Home_Screen_User_UI to Clients_Screen_User_UI.");
+				Clients_Screen_User_UI client_screen_layout = new Clients_Screen_User_UI();
+				Scene client_screen_screen = new Scene(client_screen_layout.get_scene(primary_stage));
+				client_screen_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(client_screen_screen);
+			}
+		});
+		button_vb.getChildren().addAll(btn_view_assigned_jobs,btn_view_clients);
+		
+		grid.add(lbl_jobs_title,0,0);
+		grid.add(left_view,0,1);;
+		grid.add(lbl_view_title,2,0);
+		grid.add(button_vb,2,1,1,2);
+		grid.setAlignment(Pos.CENTER);
+		grid.setGridLinesVisible(true);
+		return grid;
 	}
-	
+
 	public BorderPane get_scene(Stage primary_stage) {
 		try {
-			BorderPane border_pane = new BorderPane();			
-			border_pane.setTop(header(primary_stage));
-			border_pane.setRight(right_view(primary_stage));
-			border_pane.setLeft(left_view(primary_stage));
-
+			BorderPane border_pane = new BorderPane();
+			Rectangle2D screen_bounds = Screen.getPrimary().getBounds();
+			border_pane.setPrefSize(screen_bounds.getWidth()*0.8,screen_bounds.getHeight()*0.8);
+			border_pane.setTop(UI_Templates.header(primary_stage, "Administrator: COMPANY_NAME"));
+			border_pane.setCenter(centre_view(primary_stage));
 			return border_pane;
 		} catch(Exception e) {
 			e.printStackTrace();

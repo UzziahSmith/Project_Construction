@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,44 +14,17 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Popup;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class Home_Screen_Administrator_UI {
-	private HBox header(Stage primary_stage) {
-		HBox header = new HBox();
-		header.setPadding(new Insets(20,12,15,12));
-		header.setSpacing(20);
-		header.setPrefHeight(100);
-		header.getStyleClass().add("admin_home_screen_header");
-		header.setId("admin_home_screen_header");
-		
-		Button btn_sign_out = new Button("Sign out");
-		btn_sign_out.setPrefSize(75,50);
-		btn_sign_out.setAlignment(Pos.CENTER);
-		btn_sign_out.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				System.out.println("Sign out initiated");
-				Sign_In_UI sign_in_layout = new Sign_In_UI();
-				Scene sign_in_screen = new Scene(sign_in_layout.get_scene(primary_stage));
-				sign_in_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-				primary_stage.setScene(sign_in_screen);
-			}
-		});
-		
-		Label lbl_title = new Label("Administrator: COMPANY_NAME");
-		lbl_title.setAlignment(Pos.CENTER);
-		lbl_title.setTextAlignment(TextAlignment.CENTER);
-		lbl_title.getStyleClass().add("admin_home_title_text");
-		lbl_title.setId("admin_home_title_text");
-		
-		header.getChildren().addAll(btn_sign_out,lbl_title);
-		return header;
-	}
+	
+	Rectangle2D screen_bounds = Screen.getPrimary().getBounds();
+	double screen_width = screen_bounds.getWidth();
+	double screen_height = screen_bounds.getHeight();
 	
 	private Popup appointment_brief(String client_name, String time, String date, String address, String assigned_employee) {
 		Popup popup = new Popup();
@@ -72,7 +46,7 @@ public class Home_Screen_Administrator_UI {
 	private VBox vb_appointments(Stage primary_stage) {
 		
 		VBox vb_appointments = new VBox();
-		vb_appointments.setPrefWidth(500);
+		vb_appointments.setPrefWidth(screen_width*0.3);
 		vb_appointments.getStyleClass().add("admin_home_screen_vb_appointments");
 		vb_appointments.setId("admin_home_screen_vb_appointments");
 		vb_appointments.setAlignment(Pos.CENTER);
@@ -80,7 +54,7 @@ public class Home_Screen_Administrator_UI {
 		Label lbl_todays_appointments = new Label("Today's Appointments");
 		lbl_todays_appointments.setAlignment(Pos.TOP_CENTER);
 		lbl_todays_appointments.setTextAlignment(TextAlignment.CENTER);
-		lbl_todays_appointments.setPadding(new Insets(30,10,10,10));
+		lbl_todays_appointments.setPadding(new Insets(screen_height*0.028,screen_width*0.0052,screen_height*0.0093,screen_width*0.0052));
 		lbl_todays_appointments.getStyleClass().add("admin_home_listview_label");
 		lbl_todays_appointments.setId("admin_home_listview_label");
 		
@@ -105,9 +79,9 @@ public class Home_Screen_Administrator_UI {
 				"John Green","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken");
 		todays_appointments_list.setItems(todays_appointments_items);
-		todays_appointments_list.setPrefWidth(75);
-		todays_appointments_list.setPrefHeight(350);
-		todays_appointments_list.setPadding(new Insets(20,100,70,100));
+		todays_appointments_list.setPrefWidth(screen_width*0.0695);
+		todays_appointments_list.setPrefHeight(screen_height*0.324);
+		todays_appointments_list.setPadding(new Insets(screen_height*0.0185,screen_width*0.052,screen_height*0.0648,screen_width*0.052));
 		todays_appointments_list.getStyleClass().add("admin_home_listview");
 		todays_appointments_list.setId("admin_home_listview");
 		todays_appointments_list.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -135,7 +109,7 @@ public class Home_Screen_Administrator_UI {
 		Label lbl_tomorrows_appointments = new Label("Tomorrow's Appointments");
 		lbl_tomorrows_appointments.setAlignment(Pos.CENTER);
 		lbl_tomorrows_appointments.setTextAlignment(TextAlignment.CENTER);
-		lbl_tomorrows_appointments.setPadding(new Insets(0,10,10,10));
+		lbl_tomorrows_appointments.setPadding(new Insets(0,screen_width*0.005,screen_height*0.01,screen_width*0.005));
 		lbl_tomorrows_appointments.getStyleClass().add("admin_home_listview_label");
 		lbl_tomorrows_appointments.setId("admin_home_listview_label");
 		
@@ -160,8 +134,8 @@ public class Home_Screen_Administrator_UI {
 				"John Green","Celery Adams","Barker Chicken",
 				"John Green","Celery Adams","Barker Chicken");
 		tomorrows_appointments_list.setItems(tomorrows_appointments_items);
-		tomorrows_appointments_list.setPrefWidth(75);
-		tomorrows_appointments_list.setPrefHeight(350);
+		tomorrows_appointments_list.setPrefWidth(screen_width*0.0695);
+		tomorrows_appointments_list.setPrefHeight(screen_height*0.324);
 		tomorrows_appointments_list.setPadding(new Insets(20,100,50,100));
 		tomorrows_appointments_list.getStyleClass().add("admin_home_listview");
 		tomorrows_appointments_list.setId("admin_home_listview");
@@ -186,9 +160,9 @@ public class Home_Screen_Administrator_UI {
 	
 	private GridPane centre_selection_grid(Stage primary_stage) {
 		GridPane grid = new GridPane();
-		grid.setHgap(75);
-		grid.setVgap(75);
-		grid.setPadding(new Insets(25,25,25,25));
+		grid.setHgap(screen_height*0.07);
+		grid.setVgap(screen_width*0.04);
+		grid.setPadding(new Insets(screen_height*0.0231,screen_width*0.013,screen_height*0.0231,screen_width*0.013));
 		grid.setAlignment(Pos.CENTER);
 		
 		Button btn_clients = new Button("Clients");
@@ -196,10 +170,10 @@ public class Home_Screen_Administrator_UI {
 		Button btn_employees = new Button("Employees");
 		Button btn_trades = new Button("Trades");
 		
-		btn_clients.setMinSize(200,150);
-		btn_appointments.setMinSize(200,150);
-		btn_employees.setMinSize(200,150);
-		btn_trades.setMinSize(200,150);
+		btn_clients.setPrefSize(screen_width*0.1,screen_height*0.14);
+		btn_appointments.setPrefSize(screen_width*0.1,screen_height*0.14);
+		btn_employees.setPrefSize(screen_width*0.1,screen_height*0.14);
+		btn_trades.setPrefSize(screen_width*0.1,screen_height*0.14);
 		
 		btn_clients.getStyleClass().add("admin_home_screen_button");
 		btn_clients.setId("admin_home_screen_button");
@@ -224,6 +198,10 @@ public class Home_Screen_Administrator_UI {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Appointments button pressed");
+				Appointment_List_UI appointment_list_UI_layout = new Appointment_List_UI();
+				Scene appointment_list_UI_screen = new Scene(appointment_list_UI_layout.get_scene(primary_stage,true));
+				appointment_list_UI_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_list_UI_screen);
 			}
 		});
 		btn_employees.setOnAction(new EventHandler<ActionEvent>() {
@@ -257,11 +235,11 @@ public class Home_Screen_Administrator_UI {
 	
 	public BorderPane get_scene(Stage primary_stage) {
 		try {
-			BorderPane border_pane = new BorderPane();			
-			border_pane.setTop(header(primary_stage));
+			BorderPane border_pane = new BorderPane();
+			border_pane.setPrefSize(screen_width*0.8,screen_height*0.8);
+			border_pane.setTop(UI_Templates.header(primary_stage, "Administrator: COMPANY_NAME"));
 			border_pane.setCenter(centre_selection_grid(primary_stage));
 			border_pane.setLeft(vb_appointments(primary_stage));
-
 			return border_pane;
 		} catch(Exception e) {
 			e.printStackTrace();

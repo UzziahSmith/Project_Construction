@@ -15,6 +15,7 @@ public class Main extends Application {
 		sign_in_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		window.setScene(sign_in_screen);
 		window.setTitle("Project_Construction");
+		window.centerOnScreen();
 		window.show();
 	}
 		
