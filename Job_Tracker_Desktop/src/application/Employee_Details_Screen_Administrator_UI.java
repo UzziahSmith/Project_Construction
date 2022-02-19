@@ -33,18 +33,14 @@ public class Employee_Details_Screen_Administrator_UI {
 		navigation_button_bar.setMaxHeight(Double.MAX_VALUE);
 		navigation_button_bar.setPadding(new Insets(0,Algorithms.dimension_calculator(80.0,false),0,0));
 		Button btn_navigate_home = new Button("Home");
-		btn_navigate_home.getStyleClass().add("header_button");
-		btn_navigate_home.setId("header_button");
+		UI_Templates.header_button_style(btn_navigate_home);
 		Button btn_navigate_clients = new Button("Clients");
-		btn_navigate_clients.getStyleClass().add("header_button");
-		btn_navigate_clients.setId("header_button");
+		UI_Templates.header_button_style(btn_navigate_clients);
 		Button btn_navigate_appointments = new Button("Appointments");
-		btn_navigate_appointments.getStyleClass().add("header_button");
-		btn_navigate_appointments.setId("header_button");
+		UI_Templates.header_button_style(btn_navigate_appointments);
 		Button btn_navigate_trades = new Button("Trades");
-		btn_navigate_trades.getStyleClass().add("header_button");
-		btn_navigate_trades.setId("header_button");
-		
+		UI_Templates.header_button_style(btn_navigate_trades);
+
 		btn_navigate_home.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
@@ -58,9 +54,9 @@ public class Employee_Details_Screen_Administrator_UI {
 		btn_navigate_clients.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("Navigate from Employee_Details_Screen_Administrator_UI to Clients_Screen_Administrator_UI.");
-				Clients_Screen_Administrator_UI clients_screen_layout = new Clients_Screen_Administrator_UI();
-				Scene clients_screen_screen = new Scene(clients_screen_layout.get_scene(primary_stage));
+				System.out.println("Navigate from Employee_Details_Screen_Administrator_UI to Clients_Screen_UI (Administrator).");
+				Clients_Screen_UI clients_screen_layout = new Clients_Screen_UI();
+				Scene clients_screen_screen = new Scene(clients_screen_layout.get_scene(primary_stage,true));
 				clients_screen_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 				primary_stage.setScene(clients_screen_screen);
 			}
@@ -106,8 +102,7 @@ public class Employee_Details_Screen_Administrator_UI {
 		Label lbl_first_name = new Label("First Name:");
 		lbl_first_name.setMaxWidth(Double.MAX_VALUE);
 		lbl_first_name.setAlignment(Pos.CENTER_RIGHT);
-		lbl_first_name.getStyleClass().add("admin_home_listview_label");
-		lbl_first_name.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_first_name);
 		TextField tf_first_name = new TextField("");
 		tf_first_name.setMinSize(Algorithms.dimension_calculator(250.0,false), Algorithms.dimension_calculator(20.0,false));
 		left_grid.add(lbl_first_name,0,0);
@@ -116,8 +111,7 @@ public class Employee_Details_Screen_Administrator_UI {
 		Label lbl_surname = new Label("Surname:");
 		lbl_surname.setMaxWidth(Double.MAX_VALUE);
 		lbl_surname.setAlignment(Pos.CENTER_RIGHT);
-		lbl_surname.getStyleClass().add("admin_home_listview_label");
-		lbl_surname.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_surname);
 		TextField tf_surname = new TextField();
 		tf_surname.setMinSize(Algorithms.dimension_calculator(250.0,false), Algorithms.dimension_calculator(20.0,false));
 		left_grid.add(lbl_surname,0,1);
@@ -126,8 +120,7 @@ public class Employee_Details_Screen_Administrator_UI {
 		Label lbl_phone_name = new Label("Phone Number:");
 		lbl_phone_name.setMaxWidth(Double.MAX_VALUE);
 		lbl_phone_name.setAlignment(Pos.CENTER_RIGHT);
-		lbl_phone_name.getStyleClass().add("admin_home_listview_label");
-		lbl_phone_name.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_phone_name);
 		TextField tf_phone_name = new TextField();
 		tf_phone_name.setMinSize(Algorithms.dimension_calculator(250.0,false), Algorithms.dimension_calculator(20.0,false));
 		left_grid.add(lbl_phone_name,0,2);
@@ -136,8 +129,7 @@ public class Employee_Details_Screen_Administrator_UI {
 		Label lbl_employed = new Label("Employed:");
 		lbl_employed.setMaxWidth(Double.MAX_VALUE);
 		lbl_employed.setAlignment(Pos.CENTER_RIGHT);
-		lbl_employed.getStyleClass().add("admin_home_listview_label");
-		lbl_employed.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_employed);
 		RadioButton rb_employed_true = new RadioButton();
 		Image image_employed_true = new Image("C:\\Users\\uzzia\\git\\repository\\Job_Tracker_Desktop\\resources\\check_true.png");
 		ImageView image_view_employed_true = new ImageView(image_employed_true);
@@ -161,8 +153,7 @@ public class Employee_Details_Screen_Administrator_UI {
 		Label lbl_trade = new Label("Trade:");
 		lbl_trade.setMaxWidth(Double.MAX_VALUE);
 		lbl_trade.setAlignment(Pos.CENTER_RIGHT);
-		lbl_trade.getStyleClass().add("admin_home_listview_label");
-		lbl_trade.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_trade);
 		ComboBox<String> trade_combo_box = new ComboBox<String>();
 		for(String title : trade_title) {
 			trade_combo_box.getItems().add(title);
@@ -186,8 +177,7 @@ public class Employee_Details_Screen_Administrator_UI {
 		Label lbl_employee_list_view_title = new Label("Employees");
 		lbl_employee_list_view_title.setAlignment(Pos.CENTER);
 		lbl_employee_list_view_title.setMaxWidth(Double.MAX_VALUE);
-		lbl_employee_list_view_title.getStyleClass().add("admin_home_listview_label");
-		lbl_employee_list_view_title.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_employee_list_view_title);
 		lbl_employee_list_view_title.setPadding(new Insets(0,0,Algorithms.dimension_calculator(20.0,true),0));
 		
 		ListView<String> lv_employees = new ListView<String>();
@@ -196,8 +186,7 @@ public class Employee_Details_Screen_Administrator_UI {
 			lv_employee_items.add(employee);
 		}
 		lv_employees.setItems(lv_employee_items);
-		lv_employees.getStyleClass().add("admin_home_listview");
-		lv_employees.setId("admin_home_listview");
+		UI_Templates.list_view_style(lv_employees);
 		lv_employees.setPrefSize(Algorithms.dimension_calculator(300.0,false),Algorithms.dimension_calculator(500.0,true));
 
 		right_vb.getChildren().addAll(lbl_employee_list_view_title, lv_employees);

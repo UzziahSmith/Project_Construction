@@ -29,17 +29,13 @@ public class Trade_List_Screen_Administrator_UI {
 		navigation_button_bar.setMaxHeight(Double.MAX_VALUE);
 		navigation_button_bar.setPadding(new Insets(0,Algorithms.dimension_calculator(80.0,false),0,0));
 		Button btn_navigate_home = new Button("Home");
-		btn_navigate_home.getStyleClass().add("header_button");
-		btn_navigate_home.setId("header_button");
+		UI_Templates.header_button_style(btn_navigate_home);
 		Button btn_navigate_clients = new Button("Clients");
-		btn_navigate_clients.getStyleClass().add("header_button");
-		btn_navigate_clients.setId("header_button");
+		UI_Templates.header_button_style(btn_navigate_clients);
 		Button btn_navigate_appointments = new Button("Appointments");
-		btn_navigate_appointments.getStyleClass().add("header_button");
-		btn_navigate_appointments.setId("header_button");
+		UI_Templates.header_button_style(btn_navigate_appointments);
 		Button btn_navigate_employees = new Button("Employees");
-		btn_navigate_employees.getStyleClass().add("header_button");
-		btn_navigate_employees.setId("header_button");
+		UI_Templates.header_button_style(btn_navigate_employees);
 		btn_navigate_home.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
@@ -53,9 +49,9 @@ public class Trade_List_Screen_Administrator_UI {
 		btn_navigate_clients.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("Navigate from Trade_List_Screen_Administrator_UI to Clients_Screen_Administrator_UI.");
-				Clients_Screen_Administrator_UI client_list_layout = new Clients_Screen_Administrator_UI();
-				Scene client_list_screen = new Scene(client_list_layout.get_scene(primary_stage));
+				System.out.println("Navigate from Trade_List_Screen_Administrator_UI to Clients_Screen_UI (Administrator).");
+				Clients_Screen_UI client_list_layout = new Clients_Screen_UI();
+				Scene client_list_screen = new Scene(client_list_layout.get_scene(primary_stage,true));
 				client_list_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 				primary_stage.setScene(client_list_screen);
 			}
@@ -101,8 +97,7 @@ public class Trade_List_Screen_Administrator_UI {
 		VBox right_vb = new VBox();
 		
 		Label lbl_trade_title = new Label("Title:");
-		lbl_trade_title.getStyleClass().add("admin_home_listview_label");
-		lbl_trade_title.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_trade_title);
 		left_view.add(lbl_trade_title,0,0);
 		
 		TextField tf_trade_title = new TextField();
@@ -138,13 +133,13 @@ public class Trade_List_Screen_Administrator_UI {
 		left_view.add(trade_interactive_button_bar,0,1,2,1);
 
 		Label lbl_trade_list_view_title = new Label("Trades");
-		lbl_trade_list_view_title.getStyleClass().add("admin_home_listview_label");
-		lbl_trade_list_view_title.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_trade_list_view_title);
 		lbl_trade_list_view_title.setAlignment(Pos.CENTER);
 		lbl_trade_list_view_title.setMaxWidth(Double.MAX_VALUE);
 		lbl_trade_list_view_title.setPadding(new Insets(0,0,Algorithms.dimension_calculator(20.0,true),0));
 		
 		ListView<String> lv_trades = new ListView<String>();
+		UI_Templates.list_view_style(lv_trades);
 		ObservableList<String> lv_trade_items = FXCollections.observableArrayList();
 		for(String trade : trades) {
 			lv_trade_items.add(trade);

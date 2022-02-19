@@ -97,3 +97,13 @@
 #header_button:hover {
 	-fx-background-color: linear-gradient(#82a5bf,#8da5b5);
 }
+
+#disabled_button {
+	-fx-background-color: #5f606e; 
+	-fx-border-color: Black;
+}
+
+#enabled_button {
+	-fx-background-color: White;
+	-fx-border-color: Black;
+}

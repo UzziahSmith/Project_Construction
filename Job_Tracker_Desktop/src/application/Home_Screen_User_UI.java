@@ -210,9 +210,9 @@ public class Home_Screen_User_UI {
 		btn_view_clients.setOnAction(new EventHandler<ActionEvent>() {
 			@Override 
 			public void handle(ActionEvent e) {
-				System.out.println("Navigate from Home_Screen_User_UI to Clients_Screen_User_UI.");
-				Clients_Screen_User_UI client_screen_layout = new Clients_Screen_User_UI();
-				Scene client_screen_screen = new Scene(client_screen_layout.get_scene(primary_stage));
+				System.out.println("Navigate from Home_Screen_User_UI to Clients_Screen_UI (User).");
+				Clients_Screen_UI client_screen_layout = new Clients_Screen_UI();
+				Scene client_screen_screen = new Scene(client_screen_layout.get_scene(primary_stage,false));
 				client_screen_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 				primary_stage.setScene(client_screen_screen);
 			}

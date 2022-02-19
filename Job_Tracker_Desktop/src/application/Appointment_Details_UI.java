@@ -12,7 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.TextAlignment;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class Appointment_Details_UI {
@@ -21,12 +21,20 @@ public class Appointment_Details_UI {
 		BorderPane header = UI_Templates.header(primary_stage, "Appointment Details");
 		
 		HBox navigation_button_bar = new HBox();
+		navigation_button_bar.setAlignment(Pos.CENTER_RIGHT);
+		navigation_button_bar.setMaxHeight(Double.MAX_VALUE);
+		navigation_button_bar.setPadding(new Insets(0,Algorithms.dimension_calculator(80.0,false),0,0));
 		Button btn_navigate_home = new Button("Home");
+		UI_Templates.header_button_style(btn_navigate_home);
 		Button btn_navigate_appointments = new Button("Appointments");
+		UI_Templates.header_button_style(btn_navigate_appointments);
 		if(administrator) {
 			Button btn_navigate_clients = new Button("Clients");
+			UI_Templates.header_button_style(btn_navigate_clients);
 			Button btn_navigate_employees = new Button("Employees");
+			UI_Templates.header_button_style(btn_navigate_employees);
 			Button btn_navigate_trades = new Button("Trades");
+			UI_Templates.header_button_style(btn_navigate_trades);
 			btn_navigate_home.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
@@ -40,9 +48,9 @@ public class Appointment_Details_UI {
 			btn_navigate_clients.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
-					System.out.println("Navigate from Appointment_Details_Administrator_UI to Clients_Screen_Administrator_UI.");
-					Clients_Screen_Administrator_UI client_screen_layout = new Clients_Screen_Administrator_UI();
-					Scene client_screen_screen = new Scene(client_screen_layout.get_scene(primary_stage));
+					System.out.println("Navigate from Appointment_Details_Administrator_UI to Clients_Screen_UI (Administrator).");
+					Clients_Screen_UI client_screen_layout = new Clients_Screen_UI();
+					Scene client_screen_screen = new Scene(client_screen_layout.get_scene(primary_stage,true));
 					client_screen_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 					primary_stage.setScene(client_screen_screen);
 				}
@@ -98,43 +106,77 @@ public class Appointment_Details_UI {
 	
 	private GridPane centre_panel(boolean administrator) {
 		GridPane centre_panel = new GridPane();
-		
+		centre_panel.setHgap(Algorithms.dimension_calculator(100.0,false));
+		GridPane left_view = new GridPane();
+		left_view.setHgap(Algorithms.dimension_calculator(10.0,false));
+		left_view.setVgap(Algorithms.dimension_calculator(50.0,true));
+
 		Label lbl_time_title = new Label("Time:");
-		centre_panel.add(lbl_time_title,0,0);
+		lbl_time_title.setMaxWidth(Double.MAX_VALUE);
+		lbl_time_title.setAlignment(Pos.CENTER_RIGHT);
+		UI_Templates.title_label_style(lbl_time_title);
+		left_view.add(lbl_time_title,0,0);
+		
 		Label lbl_date_title = new Label("Date:");
-		centre_panel.add(lbl_date_title,0,1);
+		lbl_date_title.setMaxWidth(Double.MAX_VALUE);
+		lbl_date_title.setAlignment(Pos.CENTER_RIGHT);
+		UI_Templates.title_label_style(lbl_date_title);
+		left_view.add(lbl_date_title,0,1);
+		
 		Label lbl_client_name_title = new Label("Client Name:");
-		centre_panel.add(lbl_client_name_title,0,2);
+		lbl_client_name_title.setMaxWidth(Double.MAX_VALUE);
+		lbl_client_name_title.setAlignment(Pos.CENTER_RIGHT);
+		UI_Templates.title_label_style(lbl_client_name_title);
+		left_view.add(lbl_client_name_title,0,2);
+		
 		Label lbl_address_title = new Label("Address:");
-		centre_panel.add(lbl_address_title,0,3);
+		lbl_address_title.setMaxWidth(Double.MAX_VALUE);
+		lbl_address_title.setAlignment(Pos.CENTER_RIGHT);
+		UI_Templates.title_label_style(lbl_address_title);
+		left_view.add(lbl_address_title,0,3);
+		
 		Label lbl_employee_title = new Label("Employee:");
-		centre_panel.add(lbl_employee_title,0,4);
+		lbl_employee_title.setMaxWidth(Double.MAX_VALUE);
+		lbl_employee_title.setAlignment(Pos.CENTER_RIGHT);
+		UI_Templates.title_label_style(lbl_employee_title);
+		left_view.add(lbl_employee_title,0,4);
+		
 		Label lbl_job_status_title = new Label("Job Status:");
-		centre_panel.add(lbl_job_status_title,0,5);
-		Label lbl_brief_title = new Label("Brief:");
-		centre_panel.add(lbl_brief_title,3,0);
+		lbl_job_status_title.setMaxWidth(Double.MAX_VALUE);
+		lbl_job_status_title.setAlignment(Pos.CENTER_RIGHT);
+		UI_Templates.title_label_style(lbl_job_status_title);
+		left_view.add(lbl_job_status_title,0,5);
+		
+		
+		HBox hb_job_status_output = new HBox();
+		hb_job_status_output.setSpacing(Algorithms.dimension_calculator(10.0,false));
 		
 		Label lbl_job_status = new Label();
-		centre_panel.add(lbl_job_status,1,5);
-		lbl_job_status.getStyleClass().add("output_user_label");
-		lbl_job_status.setId("output_user_label");
+		UI_Templates.output_label_style(lbl_job_status);
 		lbl_job_status.setMinSize(100,20);
-		
 		Button btn_job_status_complete = new Button("CHANGE TO TICK");
-		centre_panel.add(btn_job_status_complete,2,5);
-		Button btn_job_status_inprogress = new Button("CHANGE TO IN PROGRESS IMAGE");
+		Button btn_job_status_incomplete = new Button("CHANGE TO INCOMPLETE IMAGE");
+		hb_job_status_output.getChildren().addAll(lbl_job_status,btn_job_status_complete);
+		left_view.add(hb_job_status_output,1,5);
+		
+		Label lbl_brief_title = new Label("Brief");
+		lbl_brief_title.setMaxWidth(Double.MAX_VALUE);
+		lbl_brief_title.setAlignment(Pos.CENTER_LEFT);
+		UI_Templates.title_label_style(lbl_brief_title);
+		left_view.add(lbl_brief_title,3,0);
 		
 		if(administrator) {
 			HBox button_bar = new HBox();
+			button_bar.setSpacing(Algorithms.dimension_calculator(10.0,false));
 			Button btn_new_appointment = new Button("NEW");
 			Button btn_add = new Button("ADD");
 			Button btn_remove = new Button("REMOVE");
 			Button btn_update = new Button("UPDATE");
 			Button btn_cancel = new Button("CANCEL");
 			Button btn_new_client = new Button("+");
-			centre_panel.add(btn_new_client,2,1);
+			left_view.add(btn_new_client,2,1);
 			Button btn_new_date = new Button("CHANGE TO CALENDER IMAGE");
-			centre_panel.add(btn_new_date,2,2);
+			left_view.add(btn_new_date,2,2);
 			btn_new_appointment.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
@@ -166,7 +208,7 @@ public class Appointment_Details_UI {
 				}
 			});
 			button_bar.getChildren().addAll(btn_new_appointment,btn_add,btn_remove,btn_update,btn_cancel);
-			centre_panel.add(button_bar,0,6,3,1);
+			left_view.add(button_bar,0,6,3,1);
 			btn_new_client.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
@@ -182,57 +224,53 @@ public class Appointment_Details_UI {
 			});
 			
 			TextField tf_time = new TextField();
-			centre_panel.add(tf_time,1,0);
+			left_view.add(tf_time,1,0);
 			TextField tf_date = new TextField();
-			centre_panel.add(tf_date,1,1);
+			left_view.add(tf_date,1,1);
 			TextField tf_client_name = new TextField();
-			centre_panel.add(tf_client_name,1,2);
+			left_view.add(tf_client_name,1,2);
 			TextField tf_address = new TextField();
-			centre_panel.add(tf_address,1,3);
+			left_view.add(tf_address,1,3);
 			TextField tf_employee = new TextField();
-			centre_panel.add(tf_employee,1,4);
-
+			left_view.add(tf_employee,1,4);
 			TextArea ta_brief = new TextArea();
-			centre_panel.add(ta_brief,3,1,3,6);
+			centre_panel.add(ta_brief,1,1);
 			
 		} else {
 			Label lbl_time = new Label();
-			centre_panel.add(lbl_time,1,0);
-			lbl_time.getStyleClass().add("output_user_label");
-			lbl_time.setId("output_user_label");
+			UI_Templates.output_label_style(lbl_time);
 			lbl_time.setMinSize(Algorithms.dimension_calculator(60.0,false),Algorithms.dimension_calculator(20.0,true));
+			left_view.add(lbl_time,1,1);
 			
 			Label lbl_date = new Label();
-			centre_panel.add(lbl_date,1,1);
-			lbl_date.getStyleClass().add("output_user_label");
-			lbl_date.setId("output_user_label");
+			UI_Templates.output_label_style(lbl_date);
 			lbl_date.setMinSize(Algorithms.dimension_calculator(40.0,false),Algorithms.dimension_calculator(20.0,true));
+			left_view.add(lbl_date,1,2);
 			
 			Label lbl_client_name = new Label();
-			centre_panel.add(lbl_client_name,1,2);
-			lbl_client_name.getStyleClass().add("output_user_label");
-			lbl_client_name.setId("output_user_label");
+			UI_Templates.output_label_style(lbl_client_name);
 			lbl_client_name.setMinSize(Algorithms.dimension_calculator(200.0,false),Algorithms.dimension_calculator(20.0,true));
+			left_view.add(lbl_client_name,1,3);
 			
 			Label lbl_address = new Label();
-			centre_panel.add(lbl_address,1,3);
-			lbl_address.getStyleClass().add("output_user_label");
-			lbl_address.setId("output_user_label");
+			UI_Templates.output_label_style(lbl_address);
 			lbl_address.setMinSize(Algorithms.dimension_calculator(200.0,false),Algorithms.dimension_calculator(20.0,true));
+			left_view.add(lbl_address,1,4);
 
 			Label lbl_employee = new Label();
-			centre_panel.add(lbl_employee,1,4);
-			lbl_employee.getStyleClass().add("output_user_label");
-			lbl_employee.setId("output_user_label");
+			UI_Templates.output_label_style(lbl_employee);
 			lbl_employee.setMinSize(Algorithms.dimension_calculator(200.0,false),Algorithms.dimension_calculator(20.0,true));
+			left_view.add(lbl_employee,1,5);
 			
 			Label lbl_brief = new Label();
-			centre_panel.add(lbl_brief,3,1,3,6);
-			lbl_brief.getStyleClass().add("output_user_label");
-			lbl_brief.setId("output_user_label");
+			UI_Templates.output_label_style(lbl_brief);
 			lbl_brief.setMinSize(Algorithms.dimension_calculator(200.0,false),Algorithms.dimension_calculator(300.0,true));
+			left_view.add(lbl_brief,3,1,2,6);
+			centre_panel.add(lbl_brief,1,1);
 		}
-		
+		centre_panel.add(left_view,0,1);
+		centre_panel.add(lbl_brief_title,1,0);
+		centre_panel.setAlignment(Pos.CENTER);
 		return centre_panel;
 	}
 	

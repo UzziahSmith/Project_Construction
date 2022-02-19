@@ -20,7 +20,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 public class Appointment_List_UI {
@@ -39,19 +38,15 @@ public class Appointment_List_UI {
 		navigation_button_bar.setMaxHeight(Double.MAX_VALUE);
 		navigation_button_bar.setPadding(new Insets(0,Algorithms.dimension_calculator(80.0,false),0,0));
 		Button btn_navigate_home = new Button("Home");
-		btn_navigate_home.getStyleClass().add("header_button");
-		btn_navigate_home.setId("header_button");
+		UI_Templates.header_button_style(btn_navigate_home);
 		Button btn_navigate_clients = new Button("Clients");
-		btn_navigate_clients.getStyleClass().add("header_button");
-		btn_navigate_clients.setId("header_button");
+		UI_Templates.header_button_style(btn_navigate_clients);
 		Button TEST_BTN_NAVIGATE_APPT_DETAILS = new Button("TEST \n APPOINTMENT DETAILS");
 		if(administrator) {
 			Button btn_navigate_employees = new Button("Employees");
-			btn_navigate_employees.getStyleClass().add("header_button");
-			btn_navigate_employees.setId("header_button");
+			UI_Templates.header_button_style(btn_navigate_employees);
 			Button btn_navigate_trades = new Button("Trades");
-			btn_navigate_trades.getStyleClass().add("header_button");
-			btn_navigate_trades.setId("header_button");
+			UI_Templates.header_button_style(btn_navigate_trades);
 			btn_navigate_home.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
@@ -85,9 +80,9 @@ public class Appointment_List_UI {
 			btn_navigate_clients.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
-					System.out.println("Navigate from Appointment_List_Administrator_UI to Clients_Screen_Administrator_UI.");
-					Clients_Screen_Administrator_UI client_details_layout = new Clients_Screen_Administrator_UI();
-					Scene client_details_screen = new Scene(client_details_layout.get_scene(primary_stage));
+					System.out.println("Navigate from Appointment_List_Administrator_UI to Clients_Screen_UI (Administrator).");
+					Clients_Screen_UI client_details_layout = new Clients_Screen_UI();
+					Scene client_details_screen = new Scene(client_details_layout.get_scene(primary_stage,true));
 					client_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 					primary_stage.setScene(client_details_screen);
 				}
@@ -117,9 +112,9 @@ public class Appointment_List_UI {
 			btn_navigate_clients.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
-					System.out.println("Navigate from Appointment_List_User_UI to Clients_Screen_User_UI.");
-					Clients_Screen_User_UI client_details_layout = new Clients_Screen_User_UI();
-					Scene client_details_screen = new Scene(client_details_layout.get_scene(primary_stage));
+					System.out.println("Navigate from Appointment_List_User_UI to Clients_Screen_UI (User).");
+					Clients_Screen_UI client_details_layout = new Clients_Screen_UI();
+					Scene client_details_screen = new Scene(client_details_layout.get_scene(primary_stage,false));
 					client_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 					primary_stage.setScene(client_details_screen);
 				}
@@ -164,9 +159,9 @@ public class Appointment_List_UI {
 		
 		VBox vb_day1 = new VBox();
 		Label lbl_day1_title = new Label(day_one);
-		lbl_day1_title.getStyleClass().add("admin_home_listview_label");
-		lbl_day1_title.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_day1_title);
 		ListView<String> lv_day1 = new ListView<String>();
+		UI_Templates.list_view_style(lv_day1);
 		ObservableList<String> ol_day1 = FXCollections.observableArrayList();
 		for(String appointment : day1_AL) {
 			ol_day1.add(appointment);
@@ -178,9 +173,9 @@ public class Appointment_List_UI {
 		
 		VBox vb_day2 = new VBox();
 		Label lbl_day2_title = new Label(day_two);
-		lbl_day2_title.getStyleClass().add("admin_home_listview_label");
-		lbl_day2_title.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_day2_title);
 		ListView<String> lv_day2 = new ListView<String>();
+		UI_Templates.list_view_style(lv_day2);
 		ObservableList<String> ol_day2 = FXCollections.observableArrayList();
 		for(String appointment : day2_AL) {
 			ol_day2.add(appointment);
@@ -192,9 +187,9 @@ public class Appointment_List_UI {
 		
 		VBox vb_day3 = new VBox();
 		Label lbl_day3_title = new Label(day_three);
-		lbl_day3_title.getStyleClass().add("admin_home_listview_label");
-		lbl_day3_title.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_day3_title);
 		ListView<String> lv_day3 = new ListView<String>();
+		UI_Templates.list_view_style(lv_day3);
 		ObservableList<String> ol_day3 = FXCollections.observableArrayList();
 		for(String appointment : day3_AL) {
 			ol_day3.add(appointment);
@@ -206,9 +201,9 @@ public class Appointment_List_UI {
 		
 		VBox vb_day4 = new VBox();
 		Label lbl_day4_title = new Label(day_four);
-		lbl_day4_title.getStyleClass().add("admin_home_listview_label");
-		lbl_day4_title.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_day4_title);
 		ListView<String> lv_day4 = new ListView<String>();
+		UI_Templates.list_view_style(lv_day4);
 		ObservableList<String> ol_day4 = FXCollections.observableArrayList();
 		for(String appointment : day4_AL) {
 			ol_day4.add(appointment);
@@ -221,9 +216,9 @@ public class Appointment_List_UI {
 		if(administrator) {
 			VBox vb_master = new VBox();
 			Label lbl_master_title = new Label("Master");
-			lbl_master_title.getStyleClass().add("admin_home_listview_label");
-			lbl_master_title.setId("admin_home_listview_label");
+			UI_Templates.title_label_style(lbl_master_title);
 			ListView<String> lv_master = new ListView<String>();
+			UI_Templates.list_view_style(lv_master);
 			ObservableList<String> ol_master = FXCollections.observableArrayList();
 			for(String appointment : appointments) {
 				ol_master.add(appointment);
@@ -235,9 +230,9 @@ public class Appointment_List_UI {
 		} else {
 			VBox vb_day5 = new VBox();
 			Label lbl_day5_title = new Label(day_five);
-			lbl_day5_title.getStyleClass().add("admin_home_listview_label");
-			lbl_day5_title.setId("admin_home_listview_label");
+			UI_Templates.title_label_style(lbl_day5_title);
 			ListView<String> lv_day5 = new ListView<String>();
+			UI_Templates.list_view_style(lv_day5);
 			ObservableList<String> ol_day5 = FXCollections.observableArrayList();
 			for(String appointment : day5_AL) {
 				ol_day5.add(appointment);
@@ -252,9 +247,9 @@ public class Appointment_List_UI {
 		
 		VBox vb_date_selected = new VBox();
 		Label lbl_date_selected_title = new Label("Date: Day selected on calender");
-		lbl_date_selected_title.getStyleClass().add("admin_home_listview_label");
-		lbl_date_selected_title.setId("admin_home_listview_label");
+		UI_Templates.title_label_style(lbl_date_selected_title);
 		ListView<String> lv_date_selected = new ListView<String>();
+		UI_Templates.list_view_style(lv_date_selected);
 		ObservableList<String> ol_date_selected = FXCollections.observableArrayList();
 		for(String appointment : appointments) {
 			ol_date_selected.add(appointment);
