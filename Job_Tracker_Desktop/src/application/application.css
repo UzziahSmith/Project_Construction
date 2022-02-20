@@ -107,3 +107,15 @@
 	-fx-background-color: White;
 	-fx-border-color: Black;
 }
+
+#bold_label {
+	-fx-font-weight: bold;
+}
+
+#popup_standard_style {
+	-fx-background-color: white;
+}
+
+#popup_error_style {
+	-fx-background-color: red;
+}

@@ -106,6 +106,7 @@ public class Clients_Screen_UI {
 					primary_stage.setScene(appointment_list_screen);
 				}
 			});
+			navigation_button_bar.getChildren().addAll(btn_navigate_home,btn_navigate_assigned_jobs);
 			
 		}
 		header.setRight(navigation_button_bar);
@@ -284,7 +285,7 @@ public class Clients_Screen_UI {
 		ArrayList<String> test_job_history_AL = new ArrayList<String>();
 		border_pane.setPrefSize(screen_bounds.getWidth()*0.8,screen_bounds.getHeight()*0.8);
 		border_pane.setTop(header(primary_stage,administrator));
-		border_pane.setCenter(centre_view(test_job_history_AL,test_job_history_AL,administrator));
+		border_pane.setCenter(centre_view(test_clients_AL,test_job_history_AL,administrator));
 		return border_pane;
 	}
 }

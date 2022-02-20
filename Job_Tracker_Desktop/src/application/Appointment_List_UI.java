@@ -92,7 +92,7 @@ public class Appointment_List_UI {
 				public void handle(ActionEvent e) {
 					System.out.println("TEST Navigate from Appointment_List_UI to Appointment_Details_UI.");
 					Appointment_Details_UI appointment_details_layout = new Appointment_Details_UI();
-					Scene appointment_details_screen = new Scene(appointment_details_layout.get_scene(primary_stage,true));
+					Scene appointment_details_screen = new Scene(appointment_details_layout.get_scene(primary_stage,true,null));
 					appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 					primary_stage.setScene(appointment_details_screen);
 				}
@@ -124,7 +124,7 @@ public class Appointment_List_UI {
 				public void handle(ActionEvent e) {
 					System.out.println("TEST Navigate from Appointment_List_UI to Appointment_Details_UI.");
 					Appointment_Details_UI appointment_details_layout = new Appointment_Details_UI();
-					Scene appointment_details_screen = new Scene(appointment_details_layout.get_scene(primary_stage,false));
+					Scene appointment_details_screen = new Scene(appointment_details_layout.get_scene(primary_stage,false,null));
 					appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 					primary_stage.setScene(appointment_details_screen);
 				}
@@ -136,7 +136,7 @@ public class Appointment_List_UI {
 		return header;
 	}
 	
-	private GridPane centre_panel(ArrayList<String> appointments, boolean administrator) {
+	private GridPane centre_panel(ArrayList<String> appointments, boolean administrator, Stage primary_stage) {
 		GridPane centre_panel = new GridPane();
 		centre_panel.setHgap(Algorithms.dimension_calculator(100.0,false));
 		centre_panel.setVgap(Algorithms.dimension_calculator(50.0,true));
@@ -227,6 +227,9 @@ public class Appointment_List_UI {
 			lv_master.setMaxSize(Algorithms.dimension_calculator(250.0,false),Algorithms.dimension_calculator(350.0,true));
 			vb_master.getChildren().addAll(lbl_master_title,lv_master);
 			centre_panel.add(vb_master,4,0);
+			
+			GridPane interactive_calender = UI_Templates.Calender(primary_stage,true,Algorithms.dimension_calculator(940,false),Algorithms.dimension_calculator(360.0, true));
+			centre_panel.add(interactive_calender,0,1,3,1);
 		} else {
 			VBox vb_day5 = new VBox();
 			Label lbl_day5_title = new Label(day_five);
@@ -241,9 +244,12 @@ public class Appointment_List_UI {
 			lv_day5.setMaxSize(Algorithms.dimension_calculator(250.0,false),Algorithms.dimension_calculator(350.0,true));
 			vb_day5.getChildren().addAll(lbl_day5_title,lv_day5);
 			centre_panel.add(vb_day5,4,0);
+			
+			GridPane interactive_calender = UI_Templates.Calender(primary_stage,false,940,360);
+			centre_panel.add(interactive_calender,0,1,3,1);
 		}
 		
-		// TO DO ADD INTERACTIIVE CALENDER //
+		
 		
 		VBox vb_date_selected = new VBox();
 		Label lbl_date_selected_title = new Label("Date: Day selected on calender");
@@ -260,6 +266,8 @@ public class Appointment_List_UI {
 		centre_panel.add(vb_date_selected,3,1,2,1);
 		vb_date_selected.setAlignment(Pos.CENTER);
 		
+		centre_panel.setGridLinesVisible(false);
+		
 		return centre_panel;
 	}
 	
@@ -269,7 +277,7 @@ public class Appointment_List_UI {
 		ArrayList<String> appointments_master = new ArrayList<String>();
 		
 		border_pane.setTop(header(primary_stage, administrator));
-		border_pane.setCenter(centre_panel(appointments_master,administrator));
+		border_pane.setCenter(centre_panel(appointments_master,administrator,primary_stage));
 		return border_pane;
 	}
 }

@@ -2,34 +2,52 @@ package application;
 
 import java.time.Month;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-
+import javafx.animation.PauseTransition;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.stage.Popup;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class UI_Templates {
 	private static Rectangle2D screen_bounds = Screen.getPrimary().getBounds();
 	private static double screen_width = screen_bounds.getWidth();
 	private static double screen_height = screen_bounds.getHeight();
-	static Month current_month = LocalDate.now().getMonth();
-	static int current_month_val = current_month.getValue();
-	static int current_year_val = Calendar.getInstance().get(Calendar.YEAR);
-	static Integer[] position_array = month_day_val_array(current_month_val,current_year_val);
+	private static Month current_month = LocalDate.now().getMonth();
+	private static int current_month_val = current_month.getValue();
+	private static int current_year_val = Calendar.getInstance().get(Calendar.YEAR);
+	private static Integer[] position_array = month_day_val_array(current_month_val,current_year_val);
+	static boolean is_appt_details_shown = false;
 
 	
 	@SuppressWarnings("static-access")
@@ -78,6 +96,11 @@ public class UI_Templates {
 		button.setId("header_button");
 	}
 	
+	public static void UI_button(Button button) {
+		button.getStyleClass().add("admin_home_screen_button");
+		button.setId("admin_home_screen_button");
+	}
+	
 	public static void title_label_style(Label label) {
 		label.getStyleClass().add("admin_home_listview_label");
 		label.setId("admin_home_listview_label");
@@ -112,14 +135,71 @@ public class UI_Templates {
 		label.setId("enabled_button");
 	}
 	
+	private static String date_corrector(int day_val, int month_val, int year_val) {
+		Calendar cal = Calendar.getInstance();
+		switch(month_val) {
+		case 1 :
+			cal.set(Calendar.MONTH, Calendar.JANUARY);
+			break;
+		case 2 :
+			cal.set(Calendar.MONTH, Calendar.FEBRUARY);
+			break;
+		case 3 :
+			cal.set(Calendar.MONTH, Calendar.MARCH);
+			break;
+		case 4 :
+			cal.set(Calendar.MONTH, Calendar.APRIL);
+			break;
+		case 5 :
+			cal.set(Calendar.MONTH, Calendar.MAY);
+			break;
+		case 6 :
+			cal.set(Calendar.MONTH, Calendar.JUNE);
+			break;
+		case 7 :
+			cal.set(Calendar.MONTH, Calendar.JULY);
+			break;
+		case 8 :
+			cal.set(Calendar.MONTH, Calendar.AUGUST);
+			break;
+		case 9 :
+			cal.set(Calendar.MONTH, Calendar.SEPTEMBER);
+			break;
+		case 10 :
+			cal.set(Calendar.MONTH, Calendar.OCTOBER);
+			break;
+		case 11 :
+			cal.set(Calendar.MONTH, Calendar.NOVEMBER);
+			break;
+		case 12 :
+			cal.set(Calendar.MONTH, Calendar.DECEMBER);
+			break;
+		default : 
+			cal.set(Calendar.MONTH, Calendar.JANUARY);
+			System.out.println("Logical error ---> UI_Templates.date_corrector ----> switch.");
+			break;
+		}
+		cal.set(Calendar.YEAR, year_val);
+		cal.set(Calendar.DAY_OF_MONTH, day_val);
+		Date date = cal.getTime();
+		System.out.println(String.valueOf(date));
+		SimpleDateFormat date_format = new SimpleDateFormat("dd-MM-yyyy");    
+		String date_string = date_format.format(date);
+		System.out.println(date_string);
+		return date_string;
+	}
 	
 	private static Integer[] month_day_val_array(int month_val, int year_val) {
 		Integer[] output_array = new Integer[42];
 		int day_counter = 1;
 		int pos = 0;
 		Calendar cal = Calendar.getInstance();
-		cal.set(year_val,month_val,1);
-		String first_day_of_month = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault());
+		cal.set(Calendar.YEAR, year_val);
+		cal.set(Calendar.MONTH, month_val);
+		cal.set(Calendar.DAY_OF_MONTH, 1);
+		Date date = cal.getTime();
+		DateFormat sdf = new SimpleDateFormat("EEEEEEEE");
+		String first_day_of_month = sdf.format(date);
 		System.out.println(first_day_of_month);
 		YearMonth yearMonthObject = YearMonth.of(year_val,month_val);
 		int days_in_month = yearMonthObject.lengthOfMonth();
@@ -175,7 +255,7 @@ public class UI_Templates {
 					pos = 7;
 					break;
 				default :
-					System.out.println("Logical error ---> UI_Templates.month_day_val_array ----> second for loop switch inside first if.");
+					System.out.println("Logical error ---> UI_Templates.month_day_val_array ----> switch inside first if.");
 				}
 				day_counter++;
 			} else if(day_counter <= days_in_month) {
@@ -192,39 +272,72 @@ public class UI_Templates {
 		return output_array;
 	}
 	
-	public static GridPane Calender(boolean administrator, float calendar_width, float calendar_height) {
+	private static Scene calendar_button_action(Stage primary_stage, boolean administrator, int Pos) {
+		UI_Templates.is_appt_details_shown = true;
+		String appt_date = date_corrector(position_array[Pos],current_month_val,current_year_val);
+		System.out.println("Navigate to Appointment_Details_UI.");
+		Appointment_Details_UI appointment_details_layout = new Appointment_Details_UI();
+		Scene appointment_details_screen = new Scene(appointment_details_layout.get_scene(primary_stage,administrator,appt_date));
+		return appointment_details_screen;
+	}
+	
+	public static GridPane Calender(Stage primary_stage, boolean administrator, double calender_width, double calender_height) {
 		GridPane calender = new GridPane();
 		
-		float width = calendar_width/7;
-		float height = calendar_height/7;
+		double width = calender_width/7;
+		double height = calender_height/7;
 		
-		Label title_month_year = new Label(Month.of(current_month_val).name() + " " + String.valueOf(current_year_val));
+		calender.getStyleClass().add("enabled_button");
+		calender.setId("enabled_button");
+		
+		Label title_month_year = new Label(Month.of(current_month_val).name() + "	" + String.valueOf(current_year_val));
 		title_month_year.setMaxWidth(Double.MAX_VALUE);
 		title_month_year.setAlignment(Pos.CENTER);
-		title_month_year.setMinSize(width*5,height/2);
-		calender.add(title_month_year,2,0,5,1);
+		title_month_year.setMinHeight(height/2);
+		calender.add(title_month_year,1,0,5,1);
 		
-		Label title_sunday = new Label("Sun");
-		title_sunday.setMinSize(width,height/2);
-		calender.add(title_sunday,0,1);
-		Label title_monday = new Label("Mon");
-		title_monday.setMinSize(width,height/2);
-		calender.add(title_monday,1,1);
-		Label title_tuesday = new Label("Tue");
-		title_tuesday.setMinSize(width,height/2);
-		calender.add(title_tuesday,2,1);
-		Label title_wednesday = new Label("Wed");
-		title_wednesday.setMinSize(width,height/2);
-		calender.add(title_wednesday,3,1);
-		Label title_thursday = new Label("Thu");
-		title_thursday.setMinSize(width,height/2);
-		calender.add(title_thursday,4,1);
-		Label title_friday = new Label("Fri");
-		title_friday.setMinSize(width,height/2);
-		calender.add(title_friday,5,1);
-		Label title_saturday = new Label("Sat");
-		title_saturday.setMinSize(width,height/2);
-		calender.add(title_saturday,6,1);
+		Label title_sun = new Label("Sun");
+		title_sun.setMaxWidth(Double.MAX_VALUE);
+		title_sun.setAlignment(Pos.BASELINE_CENTER);
+		title_sun.setMinSize(width,height/2);
+		enabled_label_style(title_sun);
+		calender.add(title_sun,0,1);
+		Label title_mon = new Label("Mon");
+		title_mon.setMaxWidth(Double.MAX_VALUE);
+		title_mon.setAlignment(Pos.BASELINE_CENTER);
+		title_mon.setMinSize(width,height/2);
+		enabled_label_style(title_mon);
+		calender.add(title_mon,1,1);
+		Label title_tue = new Label("Tue");
+		title_tue.setMaxWidth(Double.MAX_VALUE);
+		title_tue.setAlignment(Pos.BASELINE_CENTER);
+		title_tue.setMinSize(width,height/2);
+		enabled_label_style(title_tue);
+		calender.add(title_tue,2,1);
+		Label title_wed = new Label("Wed");
+		title_wed.setMaxWidth(Double.MAX_VALUE);
+		title_wed.setAlignment(Pos.BASELINE_CENTER);
+		title_wed.setMinSize(width,height/2);
+		enabled_label_style(title_wed);
+		calender.add(title_wed,3,1);
+		Label title_thu = new Label("Thu");
+		title_thu.setMaxWidth(Double.MAX_VALUE);
+		title_thu.setAlignment(Pos.BASELINE_CENTER);
+		title_thu.setMinSize(width,height/2);
+		enabled_label_style(title_thu);
+		calender.add(title_thu,4,1);
+		Label title_fri = new Label("Fri");
+		title_fri.setMaxWidth(Double.MAX_VALUE);
+		title_fri.setAlignment(Pos.BASELINE_CENTER);
+		title_fri.setMinSize(width,height/2);
+		enabled_label_style(title_fri);
+		calender.add(title_fri,5,1);
+		Label title_sat = new Label("Sat");
+		title_sat.setMaxWidth(Double.MAX_VALUE);
+		title_sat.setAlignment(Pos.BASELINE_CENTER);
+		title_sat.setMinSize(width,height/2);
+		enabled_label_style(title_sat);
+		calender.add(title_sat,6,1);
 					
 		Button btn_previous_month = new Button("  <-");
 		calender.add(btn_previous_month,0,0);
@@ -234,604 +347,760 @@ public class UI_Templates {
 		calender.add(btn_next_month,6,0);
 		btn_next_month.setMaxWidth(Double.MAX_VALUE);
 		btn_next_month.setAlignment(Pos.BASELINE_RIGHT);
+
+		Button btn_sun_1 = new Button();
+		Button btn_sun_2 = new Button();
+		Button btn_sun_3 = new Button();
+		Button btn_sun_4 = new Button();
+		Button btn_sun_5 = new Button();
+		Button btn_sun_6 = new Button();
+		btn_sun_1.setMaxWidth(Double.MAX_VALUE);
+		btn_sun_1.setAlignment(Pos.BASELINE_CENTER);
+		btn_sun_1.setMinSize(width,height);
+		btn_sun_2.setMaxWidth(Double.MAX_VALUE);
+		btn_sun_2.setAlignment(Pos.CENTER);
+		btn_sun_2.setMinSize(width,height);
+		btn_sun_3.setMaxWidth(Double.MAX_VALUE);
+		btn_sun_3.setAlignment(Pos.CENTER);
+		btn_sun_3.setMinSize(width,height);
+		btn_sun_4.setMaxWidth(Double.MAX_VALUE);
+		btn_sun_4.setAlignment(Pos.CENTER);
+		btn_sun_4.setMinSize(width,height);
+		btn_sun_5.setMaxWidth(Double.MAX_VALUE);
+		btn_sun_5.setAlignment(Pos.CENTER);
+		btn_sun_5.setMinSize(width,height);
+		btn_sun_6.setMaxWidth(Double.MAX_VALUE);
+		btn_sun_6.setAlignment(Pos.CENTER);
+		btn_sun_6.setMinSize(width,height);
+		calender.add(btn_sun_1,0,2);
+		calender.add(btn_sun_2,0,3);
+		calender.add(btn_sun_3,0,4);
+		calender.add(btn_sun_4,0,5);
+		calender.add(btn_sun_5,0,6);
+		calender.add(btn_sun_6,0,7);
+
+		Button btn_mon_1 = new Button();
+		Button btn_mon_2 = new Button();
+		Button btn_mon_3 = new Button();
+		Button btn_mon_4 = new Button();
+		Button btn_mon_5 = new Button();
+		Button btn_mon_6 = new Button();
+		btn_mon_1.setMaxWidth(Double.MAX_VALUE);
+		btn_mon_1.setAlignment(Pos.CENTER);
+		btn_mon_1.setMinSize(width,height);
+		btn_mon_2.setMaxWidth(Double.MAX_VALUE);
+		btn_mon_2.setAlignment(Pos.CENTER);
+		btn_mon_2.setMinSize(width,height);
+		btn_mon_3.setMaxWidth(Double.MAX_VALUE);
+		btn_mon_3.setAlignment(Pos.CENTER);
+		btn_mon_3.setMinSize(width,height);
+		btn_mon_4.setMaxWidth(Double.MAX_VALUE);
+		btn_mon_4.setAlignment(Pos.CENTER);
+		btn_mon_4.setMinSize(width,height);
+		btn_mon_5.setMaxWidth(Double.MAX_VALUE);
+		btn_mon_5.setAlignment(Pos.CENTER);
+		btn_mon_5.setMinSize(width,height);
+		btn_mon_6.setMaxWidth(Double.MAX_VALUE);
+		btn_mon_6.setAlignment(Pos.CENTER);
+		btn_mon_6.setMinSize(width,height);
+		calender.add(btn_mon_1,1,2);
+		calender.add(btn_mon_2,1,3);
+		calender.add(btn_mon_3,1,4);
+		calender.add(btn_mon_4,1,5);
+		calender.add(btn_mon_5,1,6);
+		calender.add(btn_mon_6,1,7);
 		
-		if(administrator) {
-			Button btn_sun_1 = new Button();
-			Button btn_sun_2 = new Button();
-			Button btn_sun_3 = new Button();
-			Button btn_sun_4 = new Button();
-			Button btn_sun_5 = new Button();
-			Button btn_sun_6 = new Button();
-			btn_sun_1.setMaxWidth(Double.MAX_VALUE);
-			btn_sun_1.setAlignment(Pos.BASELINE_CENTER);
-			btn_sun_1.setMinSize(width,height);
-			btn_sun_2.setMaxWidth(Double.MAX_VALUE);
-			btn_sun_2.setAlignment(Pos.CENTER);
-			btn_sun_2.setMinSize(width,height);
-			btn_sun_3.setMaxWidth(Double.MAX_VALUE);
-			btn_sun_3.setAlignment(Pos.CENTER);
-			btn_sun_3.setMinSize(width,height);
-			btn_sun_4.setMaxWidth(Double.MAX_VALUE);
-			btn_sun_4.setAlignment(Pos.CENTER);
-			btn_sun_4.setMinSize(width,height);
-			btn_sun_5.setMaxWidth(Double.MAX_VALUE);
-			btn_sun_5.setAlignment(Pos.CENTER);
-			btn_sun_5.setMinSize(width,height);
-			btn_sun_6.setMaxWidth(Double.MAX_VALUE);
-			btn_sun_6.setAlignment(Pos.CENTER);
-			btn_sun_6.setMinSize(width,height);
-			calender.add(btn_sun_1,0,2);
-			calender.add(btn_sun_2,0,3);
-			calender.add(btn_sun_3,0,4);
-			calender.add(btn_sun_4,0,5);
-			calender.add(btn_sun_5,0,6);
-			calender.add(btn_sun_6,0,7);
+		Button btn_tue_1 = new Button();
+		Button btn_tue_2 = new Button();
+		Button btn_tue_3 = new Button();
+		Button btn_tue_4 = new Button();
+		Button btn_tue_5 = new Button();
+		Button btn_tue_6 = new Button();
+		btn_tue_1.setMaxWidth(Double.MAX_VALUE);
+		btn_tue_1.setAlignment(Pos.CENTER);
+		btn_tue_1.setMinSize(width,height);
+		btn_tue_2.setMaxWidth(Double.MAX_VALUE);
+		btn_tue_2.setAlignment(Pos.CENTER);
+		btn_tue_2.setMinSize(width,height);
+		btn_tue_3.setMaxWidth(Double.MAX_VALUE);
+		btn_tue_3.setAlignment(Pos.CENTER);
+		btn_tue_3.setMinSize(width,height);
+		btn_tue_4.setMaxWidth(Double.MAX_VALUE);
+		btn_tue_4.setAlignment(Pos.CENTER);
+		btn_tue_4.setMinSize(width,height);
+		btn_tue_5.setMaxWidth(Double.MAX_VALUE);
+		btn_tue_5.setAlignment(Pos.CENTER);
+		btn_tue_5.setMinSize(width,height);
+		btn_tue_6.setMaxWidth(Double.MAX_VALUE);
+		btn_tue_6.setAlignment(Pos.CENTER);
+		btn_tue_6.setMinSize(width,height);
+		calender.add(btn_tue_1,2,2);
+		calender.add(btn_tue_2,2,3);
+		calender.add(btn_tue_3,2,4);
+		calender.add(btn_tue_4,2,5);
+		calender.add(btn_tue_5,2,6);
+		calender.add(btn_tue_6,2,7);
+		
+		Button btn_wed_1 = new Button();
+		Button btn_wed_2 = new Button();
+		Button btn_wed_3 = new Button();
+		Button btn_wed_4 = new Button();
+		Button btn_wed_5 = new Button();
+		Button btn_wed_6 = new Button();
+		btn_wed_1.setMaxWidth(Double.MAX_VALUE);
+		btn_wed_1.setAlignment(Pos.CENTER);
+		btn_wed_1.setMinSize(width,height);
+		btn_wed_2.setMaxWidth(Double.MAX_VALUE);
+		btn_wed_2.setAlignment(Pos.CENTER);
+		btn_wed_2.setMinSize(width,height);
+		btn_wed_3.setMaxWidth(Double.MAX_VALUE);
+		btn_wed_3.setAlignment(Pos.CENTER);
+		btn_wed_3.setMinSize(width,height);
+		btn_wed_4.setMaxWidth(Double.MAX_VALUE);
+		btn_wed_4.setAlignment(Pos.CENTER);
+		btn_wed_4.setMinSize(width,height);
+		btn_wed_5.setMaxWidth(Double.MAX_VALUE);
+		btn_wed_5.setAlignment(Pos.CENTER);
+		btn_wed_5.setMinSize(width,height);
+		btn_wed_6.setMaxWidth(Double.MAX_VALUE);
+		btn_wed_6.setAlignment(Pos.CENTER);
+		btn_wed_6.setMinSize(width,height);
+		calender.add(btn_wed_1,3,2);
+		calender.add(btn_wed_2,3,3);
+		calender.add(btn_wed_3,3,4);
+		calender.add(btn_wed_4,3,5);
+		calender.add(btn_wed_5,3,6);
+		calender.add(btn_wed_6,3,7);
+		
+		Button btn_thu_1 = new Button();
+		Button btn_thu_2 = new Button();
+		Button btn_thu_3 = new Button();
+		Button btn_thu_4 = new Button();
+		Button btn_thu_5 = new Button();
+		Button btn_thu_6 = new Button();
+		btn_thu_1.setMaxWidth(Double.MAX_VALUE);
+		btn_thu_1.setAlignment(Pos.CENTER);
+		btn_thu_1.setMinSize(width,height);
+		btn_thu_2.setMaxWidth(Double.MAX_VALUE);
+		btn_thu_2.setAlignment(Pos.CENTER);
+		btn_thu_2.setMinSize(width,height);
+		btn_thu_3.setMaxWidth(Double.MAX_VALUE);
+		btn_thu_3.setAlignment(Pos.CENTER);
+		btn_thu_3.setMinSize(width,height);
+		btn_thu_4.setMaxWidth(Double.MAX_VALUE);
+		btn_thu_4.setAlignment(Pos.CENTER);
+		btn_thu_4.setMinSize(width,height);
+		btn_thu_5.setMaxWidth(Double.MAX_VALUE);
+		btn_thu_5.setAlignment(Pos.CENTER);
+		btn_thu_5.setMinSize(width,height);
+		btn_thu_6.setMaxWidth(Double.MAX_VALUE);
+		btn_thu_6.setAlignment(Pos.CENTER);
+		btn_thu_6.setMinSize(width,height);
+		calender.add(btn_thu_1,4,2);
+		calender.add(btn_thu_2,4,3);
+		calender.add(btn_thu_3,4,4);
+		calender.add(btn_thu_4,4,5);
+		calender.add(btn_thu_5,4,6);
+		calender.add(btn_thu_6,4,7);
 
-			Button btn_mon_1 = new Button();
-			Button btn_mon_2 = new Button();
-			Button btn_mon_3 = new Button();
-			Button btn_mon_4 = new Button();
-			Button btn_mon_5 = new Button();
-			Button btn_mon_6 = new Button();
-			btn_mon_1.setMaxWidth(Double.MAX_VALUE);
-			btn_mon_1.setAlignment(Pos.CENTER);
-			btn_mon_1.setMinSize(width,height);
-			btn_mon_2.setMaxWidth(Double.MAX_VALUE);
-			btn_mon_2.setAlignment(Pos.CENTER);
-			btn_mon_2.setMinSize(width,height);
-			btn_mon_3.setMaxWidth(Double.MAX_VALUE);
-			btn_mon_3.setAlignment(Pos.CENTER);
-			btn_mon_3.setMinSize(width,height);
-			btn_mon_4.setMaxWidth(Double.MAX_VALUE);
-			btn_mon_4.setAlignment(Pos.CENTER);
-			btn_mon_4.setMinSize(width,height);
-			btn_mon_5.setMaxWidth(Double.MAX_VALUE);
-			btn_mon_5.setAlignment(Pos.CENTER);
-			btn_mon_5.setMinSize(width,height);
-			btn_mon_6.setMaxWidth(Double.MAX_VALUE);
-			btn_mon_6.setAlignment(Pos.CENTER);
-			btn_mon_6.setMinSize(width,height);
-			calender.add(btn_mon_1,1,2);
-			calender.add(btn_mon_2,1,3);
-			calender.add(btn_mon_3,1,4);
-			calender.add(btn_mon_4,1,5);
-			calender.add(btn_mon_5,1,6);
-			calender.add(btn_mon_6,1,7);
-			
-			Button btn_tue_1 = new Button();
-			Button btn_tue_2 = new Button();
-			Button btn_tue_3 = new Button();
-			Button btn_tue_4 = new Button();
-			Button btn_tue_5 = new Button();
-			Button btn_tue_6 = new Button();
-			btn_tue_1.setMaxWidth(Double.MAX_VALUE);
-			btn_tue_1.setAlignment(Pos.CENTER);
-			btn_tue_1.setMinSize(width,height);
-			btn_tue_2.setMaxWidth(Double.MAX_VALUE);
-			btn_tue_2.setAlignment(Pos.CENTER);
-			btn_tue_2.setMinSize(width,height);
-			btn_tue_3.setMaxWidth(Double.MAX_VALUE);
-			btn_tue_3.setAlignment(Pos.CENTER);
-			btn_tue_3.setMinSize(width,height);
-			btn_tue_4.setMaxWidth(Double.MAX_VALUE);
-			btn_tue_4.setAlignment(Pos.CENTER);
-			btn_tue_4.setMinSize(width,height);
-			btn_tue_5.setMaxWidth(Double.MAX_VALUE);
-			btn_tue_5.setAlignment(Pos.CENTER);
-			btn_tue_5.setMinSize(width,height);
-			btn_tue_6.setMaxWidth(Double.MAX_VALUE);
-			btn_tue_6.setAlignment(Pos.CENTER);
-			btn_tue_6.setMinSize(width,height);
-			calender.add(btn_tue_1,2,2);
-			calender.add(btn_tue_2,2,3);
-			calender.add(btn_tue_3,2,4);
-			calender.add(btn_tue_4,2,5);
-			calender.add(btn_tue_5,2,6);
-			calender.add(btn_tue_6,2,7);
-			
-			Button btn_wed_1 = new Button();
-			Button btn_wed_2 = new Button();
-			Button btn_wed_3 = new Button();
-			Button btn_wed_4 = new Button();
-			Button btn_wed_5 = new Button();
-			Button btn_wed_6 = new Button();
-			btn_wed_1.setMaxWidth(Double.MAX_VALUE);
-			btn_wed_1.setAlignment(Pos.CENTER);
-			btn_wed_1.setMinSize(width,height);
-			btn_wed_2.setMaxWidth(Double.MAX_VALUE);
-			btn_wed_2.setAlignment(Pos.CENTER);
-			btn_wed_2.setMinSize(width,height);
-			btn_wed_3.setMaxWidth(Double.MAX_VALUE);
-			btn_wed_3.setAlignment(Pos.CENTER);
-			btn_wed_3.setMinSize(width,height);
-			btn_wed_4.setMaxWidth(Double.MAX_VALUE);
-			btn_wed_4.setAlignment(Pos.CENTER);
-			btn_wed_4.setMinSize(width,height);
-			btn_wed_5.setMaxWidth(Double.MAX_VALUE);
-			btn_wed_5.setAlignment(Pos.CENTER);
-			btn_wed_5.setMinSize(width,height);
-			btn_wed_6.setMaxWidth(Double.MAX_VALUE);
-			btn_wed_6.setAlignment(Pos.CENTER);
-			btn_wed_6.setMinSize(width,height);
-			calender.add(btn_wed_1,3,2);
-			calender.add(btn_wed_2,3,3);
-			calender.add(btn_wed_3,3,4);
-			calender.add(btn_wed_4,3,5);
-			calender.add(btn_wed_5,3,6);
-			calender.add(btn_wed_6,3,7);
-			
-			Button btn_thu_1 = new Button();
-			Button btn_thu_2 = new Button();
-			Button btn_thu_3 = new Button();
-			Button btn_thu_4 = new Button();
-			Button btn_thu_5 = new Button();
-			Button btn_thu_6 = new Button();
-			btn_thu_1.setMaxWidth(Double.MAX_VALUE);
-			btn_thu_1.setAlignment(Pos.CENTER);
-			btn_thu_1.setMinSize(width,height);
-			btn_thu_2.setMaxWidth(Double.MAX_VALUE);
-			btn_thu_2.setAlignment(Pos.CENTER);
-			btn_thu_2.setMinSize(width,height);
-			btn_thu_3.setMaxWidth(Double.MAX_VALUE);
-			btn_thu_3.setAlignment(Pos.CENTER);
-			btn_thu_3.setMinSize(width,height);
-			btn_thu_4.setMaxWidth(Double.MAX_VALUE);
-			btn_thu_4.setAlignment(Pos.CENTER);
-			btn_thu_4.setMinSize(width,height);
-			btn_thu_5.setMaxWidth(Double.MAX_VALUE);
-			btn_thu_5.setAlignment(Pos.CENTER);
-			btn_thu_5.setMinSize(width,height);
-			btn_thu_6.setMaxWidth(Double.MAX_VALUE);
-			btn_thu_6.setAlignment(Pos.CENTER);
-			btn_thu_6.setMinSize(width,height);
-			calender.add(btn_thu_1,4,2);
-			calender.add(btn_thu_2,4,3);
-			calender.add(btn_thu_3,4,4);
-			calender.add(btn_thu_4,4,5);
-			calender.add(btn_thu_5,4,6);
-			calender.add(btn_thu_6,4,7);
-	
-			Button btn_fri_1 = new Button();
-			Button btn_fri_2 = new Button();
-			Button btn_fri_3 = new Button();
-			Button btn_fri_4 = new Button();
-			Button btn_fri_5 = new Button();
-			Button btn_fri_6 = new Button();
-			btn_fri_1.setMaxWidth(Double.MAX_VALUE);
-			btn_fri_1.setAlignment(Pos.CENTER);
-			btn_fri_1.setMinSize(width,height);
-			btn_fri_2.setMaxWidth(Double.MAX_VALUE);
-			btn_fri_2.setAlignment(Pos.CENTER);
-			btn_fri_2.setMinSize(width,height);
-			btn_fri_3.setMaxWidth(Double.MAX_VALUE);
-			btn_fri_3.setAlignment(Pos.CENTER);
-			btn_fri_3.setMinSize(width,height);
-			btn_fri_4.setMaxWidth(Double.MAX_VALUE);
-			btn_fri_4.setAlignment(Pos.CENTER);
-			btn_fri_4.setMinSize(width,height);
-			btn_fri_5.setMaxWidth(Double.MAX_VALUE);
-			btn_fri_5.setAlignment(Pos.CENTER);
-			btn_fri_5.setMinSize(width,height);
-			btn_fri_6.setMaxWidth(Double.MAX_VALUE);
-			btn_fri_6.setAlignment(Pos.CENTER);
-			btn_fri_6.setMinSize(width,height);
-			calender.add(btn_fri_1,5,2);
-			calender.add(btn_fri_2,5,3);
-			calender.add(btn_fri_3,5,4);
-			calender.add(btn_fri_4,5,5);
-			calender.add(btn_fri_5,5,6);
-			calender.add(btn_fri_6,5,7);
-			
-			Button btn_sat_1 = new Button();
-			Button btn_sat_2 = new Button();
-			Button btn_sat_3 = new Button();
-			Button btn_sat_4 = new Button();
-			Button btn_sat_5 = new Button();
-			Button btn_sat_6 = new Button();
-			btn_sat_1.setMaxWidth(Double.MAX_VALUE);
-			btn_sat_1.setAlignment(Pos.CENTER);
-			btn_sat_1.setMinSize(width,height);
-			btn_sat_2.setMaxWidth(Double.MAX_VALUE);
-			btn_sat_2.setAlignment(Pos.CENTER);
-			btn_sat_2.setMinSize(width,height);
-			btn_sat_3.setMaxWidth(Double.MAX_VALUE);
-			btn_sat_3.setAlignment(Pos.CENTER);
-			btn_sat_3.setMinSize(width,height);
-			btn_sat_4.setMaxWidth(Double.MAX_VALUE);
-			btn_sat_4.setAlignment(Pos.CENTER);
-			btn_sat_4.setMinSize(width,height);
-			btn_sat_5.setMaxWidth(Double.MAX_VALUE);
-			btn_sat_5.setAlignment(Pos.CENTER);
-			btn_sat_5.setMinSize(width,height);
-			btn_sat_6.setMaxWidth(Double.MAX_VALUE);
-			btn_sat_6.setAlignment(Pos.CENTER);
-			btn_sat_6.setMinSize(width,height);
-			calender.add(btn_sat_1,6,2);
-			calender.add(btn_sat_2,6,3);
-			calender.add(btn_sat_3,6,4);
-			calender.add(btn_sat_4,6,5);
-			calender.add(btn_sat_5,6,6);
-			calender.add(btn_sat_6,6,7);
-			
-			Button[] btn_row_1_array = {btn_sun_1,btn_mon_1,btn_tue_1,btn_wed_1,btn_thu_1,btn_fri_1,btn_sat_1};
-			Button[] btn_row_2_array = {btn_sun_2,btn_mon_2,btn_tue_2,btn_wed_2,btn_thu_2,btn_fri_2,btn_sat_2};
-			Button[] btn_row_3_array = {btn_sun_3,btn_mon_3,btn_tue_3,btn_wed_3,btn_thu_3,btn_fri_3,btn_sat_3};
-			Button[] btn_row_4_array = {btn_sun_4,btn_mon_4,btn_tue_4,btn_wed_4,btn_thu_4,btn_fri_4,btn_sat_4};
-			Button[] btn_row_5_array = {btn_sun_5,btn_mon_5,btn_tue_5,btn_wed_5,btn_thu_5,btn_fri_5,btn_sat_5};
-			Button[] btn_row_6_array = {btn_sun_6,btn_mon_6,btn_tue_6,btn_wed_6,btn_thu_6,btn_fri_6,btn_sat_6};
-			Button[][] button_arraylist = {btn_row_1_array,btn_row_2_array,btn_row_3_array,btn_row_4_array,btn_row_5_array,btn_row_6_array};
-			
-			int pos = 0;
-			for(int i = 0; i < 6; i++) {
-				for(int j = 0; j < 7; j++) {
-					UI_Templates.enabled_button_style(button_arraylist[i][j]);
-					if(position_array[pos] != null) {
-						button_arraylist[i][j].setText(String.valueOf(position_array[pos]));
-					} else {
-						button_arraylist[i][j].setDisable(true);
-						UI_Templates.disabled_button_style(button_arraylist[i][j]);
-					}
-					pos++;
+		Button btn_fri_1 = new Button();
+		Button btn_fri_2 = new Button();
+		Button btn_fri_3 = new Button();
+		Button btn_fri_4 = new Button();
+		Button btn_fri_5 = new Button();
+		Button btn_fri_6 = new Button();
+		btn_fri_1.setMaxWidth(Double.MAX_VALUE);
+		btn_fri_1.setAlignment(Pos.CENTER);
+		btn_fri_1.setMinSize(width,height);
+		btn_fri_2.setMaxWidth(Double.MAX_VALUE);
+		btn_fri_2.setAlignment(Pos.CENTER);
+		btn_fri_2.setMinSize(width,height);
+		btn_fri_3.setMaxWidth(Double.MAX_VALUE);
+		btn_fri_3.setAlignment(Pos.CENTER);
+		btn_fri_3.setMinSize(width,height);
+		btn_fri_4.setMaxWidth(Double.MAX_VALUE);
+		btn_fri_4.setAlignment(Pos.CENTER);
+		btn_fri_4.setMinSize(width,height);
+		btn_fri_5.setMaxWidth(Double.MAX_VALUE);
+		btn_fri_5.setAlignment(Pos.CENTER);
+		btn_fri_5.setMinSize(width,height);
+		btn_fri_6.setMaxWidth(Double.MAX_VALUE);
+		btn_fri_6.setAlignment(Pos.CENTER);
+		btn_fri_6.setMinSize(width,height);
+		calender.add(btn_fri_1,5,2);
+		calender.add(btn_fri_2,5,3);
+		calender.add(btn_fri_3,5,4);
+		calender.add(btn_fri_4,5,5);
+		calender.add(btn_fri_5,5,6);
+		calender.add(btn_fri_6,5,7);
+		
+		Button btn_sat_1 = new Button();
+		Button btn_sat_2 = new Button();
+		Button btn_sat_3 = new Button();
+		Button btn_sat_4 = new Button();
+		Button btn_sat_5 = new Button();
+		Button btn_sat_6 = new Button();
+		btn_sat_1.setMaxWidth(Double.MAX_VALUE);
+		btn_sat_1.setAlignment(Pos.CENTER);
+		btn_sat_1.setMinSize(width,height);
+		btn_sat_2.setMaxWidth(Double.MAX_VALUE);
+		btn_sat_2.setAlignment(Pos.CENTER);
+		btn_sat_2.setMinSize(width,height);
+		btn_sat_3.setMaxWidth(Double.MAX_VALUE);
+		btn_sat_3.setAlignment(Pos.CENTER);
+		btn_sat_3.setMinSize(width,height);
+		btn_sat_4.setMaxWidth(Double.MAX_VALUE);
+		btn_sat_4.setAlignment(Pos.CENTER);
+		btn_sat_4.setMinSize(width,height);
+		btn_sat_5.setMaxWidth(Double.MAX_VALUE);
+		btn_sat_5.setAlignment(Pos.CENTER);
+		btn_sat_5.setMinSize(width,height);
+		btn_sat_6.setMaxWidth(Double.MAX_VALUE);
+		btn_sat_6.setAlignment(Pos.CENTER);
+		btn_sat_6.setMinSize(width,height);
+		calender.add(btn_sat_1,6,2);
+		calender.add(btn_sat_2,6,3);
+		calender.add(btn_sat_3,6,4);
+		calender.add(btn_sat_4,6,5);
+		calender.add(btn_sat_5,6,6);
+		calender.add(btn_sat_6,6,7);
+		
+		Button[] btn_row_1_array = {btn_sun_1,btn_mon_1,btn_tue_1,btn_wed_1,btn_thu_1,btn_fri_1,btn_sat_1};
+		Button[] btn_row_2_array = {btn_sun_2,btn_mon_2,btn_tue_2,btn_wed_2,btn_thu_2,btn_fri_2,btn_sat_2};
+		Button[] btn_row_3_array = {btn_sun_3,btn_mon_3,btn_tue_3,btn_wed_3,btn_thu_3,btn_fri_3,btn_sat_3};
+		Button[] btn_row_4_array = {btn_sun_4,btn_mon_4,btn_tue_4,btn_wed_4,btn_thu_4,btn_fri_4,btn_sat_4};
+		Button[] btn_row_5_array = {btn_sun_5,btn_mon_5,btn_tue_5,btn_wed_5,btn_thu_5,btn_fri_5,btn_sat_5};
+		Button[] btn_row_6_array = {btn_sun_6,btn_mon_6,btn_tue_6,btn_wed_6,btn_thu_6,btn_fri_6,btn_sat_6};
+		Button[][] button_arraylist = {btn_row_1_array,btn_row_2_array,btn_row_3_array,btn_row_4_array,btn_row_5_array,btn_row_6_array};
+		
+		int pos = 0;
+		for(int i = 0; i < 6; i++) {
+			for(int j = 0; j < 7; j++) {
+				UI_Templates.enabled_button_style(button_arraylist[i][j]);
+				if(position_array[pos] != null) {
+					button_arraylist[i][j].setText(String.valueOf(position_array[pos]));
+				} else {
+					button_arraylist[i][j].setDisable(true);
+					UI_Templates.disabled_button_style(button_arraylist[i][j]);
 				}
+				pos++;
 			}
-			
-			btn_next_month.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent e) {
-					current_month_val++;
-					if(current_month_val > 12) {
-						current_month_val = 1;
-						current_year_val++;
-					}
-					position_array = month_day_val_array(current_month_val,current_year_val);
-					String next_month_string = String.valueOf(Month.of(current_month_val).name());
-					System.out.println("change from month: " + title_month_year.getText() + " to month: " + next_month_string);
-					title_month_year.setText(next_month_string);
-					int pos = 0;
-					for(int i = 0; i < 6; i++) {
-						for(int j = 0; j < 7; j++) {
-							button_arraylist[i][j].setText(null);
-							UI_Templates.enabled_button_style(button_arraylist[i][j]);
-							button_arraylist[i][j].setDisable(false);
-							if(position_array[pos] != null) {
-								button_arraylist[i][j].setText(String.valueOf(position_array[pos]));
-							} else {
-								button_arraylist[i][j].setDisable(true);
-								UI_Templates.disabled_button_style(button_arraylist[i][j]);
-							}
-							pos++;
-						}
-					}
-				}
-			});
-			btn_previous_month.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent e) {
-					current_month_val--;
-					if(current_month_val < 1) {
-						current_month_val = 12;
-						current_year_val--;
-					}
-					System.out.println(Arrays.toString(position_array));
-					position_array = month_day_val_array(current_month_val,current_year_val);
-					String previous_month_string = String.valueOf(Month.of(current_month_val).name());
-					System.out.println("change from month: " + title_month_year.getText() + " to month: " + previous_month_string);
-					title_month_year.setText(previous_month_string);
-					int pos = 0;
-					for(int i = 0; i < 6; i++) {
-						for(int j = 0; j < 7; j++) {
-							button_arraylist[i][j].setText(null);
-							UI_Templates.enabled_button_style(button_arraylist[i][j]);
-							button_arraylist[i][j].setDisable(false);
-							if(position_array[pos] != null) {
-								button_arraylist[i][j].setText(String.valueOf(position_array[pos]));
-							} else {
-								button_arraylist[i][j].setDisable(true);
-								UI_Templates.disabled_button_style(button_arraylist[i][j]);
-							}
-							pos++;
-						}
-					}
-				}
-			});
-			
-		} else {
-			Label lbl_sun_1 = new Label();
-			Label lbl_sun_2 = new Label();
-			Label lbl_sun_3 = new Label();
-			Label lbl_sun_4 = new Label();
-			Label lbl_sun_5 = new Label();
-			Label lbl_sun_6 = new Label();
-			lbl_sun_1.setMaxWidth(Double.MAX_VALUE);
-			lbl_sun_1.setAlignment(Pos.CENTER);
-			lbl_sun_1.setMinSize(width,height);
-			lbl_sun_2.setMaxWidth(Double.MAX_VALUE);
-			lbl_sun_2.setAlignment(Pos.CENTER);
-			lbl_sun_2.setMinSize(width,height);
-			lbl_sun_3.setMaxWidth(Double.MAX_VALUE);
-			lbl_sun_3.setAlignment(Pos.CENTER);
-			lbl_sun_3.setMinSize(width,height);
-			lbl_sun_4.setMaxWidth(Double.MAX_VALUE);
-			lbl_sun_4.setAlignment(Pos.CENTER);
-			lbl_sun_4.setMinSize(width,height);
-			lbl_sun_5.setMaxWidth(Double.MAX_VALUE);
-			lbl_sun_5.setAlignment(Pos.CENTER);
-			lbl_sun_5.setMinSize(width,height);
-			lbl_sun_6.setMaxWidth(Double.MAX_VALUE);
-			lbl_sun_6.setAlignment(Pos.CENTER);
-			lbl_sun_6.setMinSize(width,height);
-			calender.add(lbl_sun_1,0,2);
-			calender.add(lbl_sun_2,0,3);
-			calender.add(lbl_sun_3,0,4);
-			calender.add(lbl_sun_4,0,5);
-			calender.add(lbl_sun_5,0,6);
-			calender.add(lbl_sun_6,0,7);
-
-			Label lbl_mon_1 = new Label();
-			Label lbl_mon_2 = new Label();
-			Label lbl_mon_3 = new Label();
-			Label lbl_mon_4 = new Label();
-			Label lbl_mon_5 = new Label();
-			Label lbl_mon_6 = new Label();
-			lbl_mon_1.setMaxWidth(Double.MAX_VALUE);
-			lbl_mon_1.setAlignment(Pos.CENTER);
-			lbl_mon_1.setMinSize(width,height);
-			lbl_mon_2.setMaxWidth(Double.MAX_VALUE);
-			lbl_mon_2.setAlignment(Pos.CENTER);
-			lbl_mon_2.setMinSize(width,height);
-			lbl_mon_3.setMaxWidth(Double.MAX_VALUE);
-			lbl_mon_3.setAlignment(Pos.CENTER);
-			lbl_mon_3.setMinSize(width,height);
-			lbl_mon_4.setMaxWidth(Double.MAX_VALUE);
-			lbl_mon_4.setAlignment(Pos.CENTER);
-			lbl_mon_4.setMinSize(width,height);
-			lbl_mon_5.setMaxWidth(Double.MAX_VALUE);
-			lbl_mon_5.setAlignment(Pos.CENTER);
-			lbl_mon_5.setMinSize(width,height);
-			lbl_mon_6.setMaxWidth(Double.MAX_VALUE);
-			lbl_mon_6.setAlignment(Pos.CENTER);
-			lbl_mon_6.setMinSize(width,height);
-			calender.add(lbl_mon_1,1,2);
-			calender.add(lbl_mon_2,1,3);
-			calender.add(lbl_mon_3,1,4);
-			calender.add(lbl_mon_4,1,5);
-			calender.add(lbl_mon_5,1,6);
-			calender.add(lbl_mon_6,1,7);
-			
-			Label lbl_tue_1 = new Label();
-			Label lbl_tue_2 = new Label();
-			Label lbl_tue_3 = new Label();
-			Label lbl_tue_4 = new Label();
-			Label lbl_tue_5 = new Label();
-			Label lbl_tue_6 = new Label();
-			lbl_tue_1.setMaxWidth(Double.MAX_VALUE);
-			lbl_tue_1.setAlignment(Pos.CENTER);
-			lbl_tue_1.setMinSize(width,height);
-			lbl_tue_2.setMaxWidth(Double.MAX_VALUE);
-			lbl_tue_2.setAlignment(Pos.CENTER);
-			lbl_tue_2.setMinSize(width,height);
-			lbl_tue_3.setMaxWidth(Double.MAX_VALUE);
-			lbl_tue_3.setAlignment(Pos.CENTER);
-			lbl_tue_3.setMinSize(width,height);
-			lbl_tue_4.setMaxWidth(Double.MAX_VALUE);
-			lbl_tue_4.setAlignment(Pos.CENTER);
-			lbl_tue_4.setMinSize(width,height);
-			lbl_tue_5.setMaxWidth(Double.MAX_VALUE);
-			lbl_tue_5.setAlignment(Pos.CENTER);
-			lbl_tue_5.setMinSize(width,height);
-			lbl_tue_6.setMaxWidth(Double.MAX_VALUE);
-			lbl_tue_6.setAlignment(Pos.CENTER);
-			lbl_tue_6.setMinSize(width,height);
-			calender.add(lbl_tue_1,2,2);
-			calender.add(lbl_tue_2,2,3);
-			calender.add(lbl_tue_3,2,4);
-			calender.add(lbl_tue_4,2,5);
-			calender.add(lbl_tue_5,2,6);
-			calender.add(lbl_tue_6,2,7);
-			
-			Label lbl_wed_1 = new Label();
-			Label lbl_wed_2 = new Label();
-			Label lbl_wed_3 = new Label();
-			Label lbl_wed_4 = new Label();
-			Label lbl_wed_5 = new Label();
-			Label lbl_wed_6 = new Label();
-			lbl_wed_1.setMaxWidth(Double.MAX_VALUE);
-			lbl_wed_1.setAlignment(Pos.CENTER);
-			lbl_wed_1.setMinSize(width,height);
-			lbl_wed_2.setMaxWidth(Double.MAX_VALUE);
-			lbl_wed_2.setAlignment(Pos.CENTER);
-			lbl_wed_2.setMinSize(width,height);
-			lbl_wed_3.setMaxWidth(Double.MAX_VALUE);
-			lbl_wed_3.setAlignment(Pos.CENTER);
-			lbl_wed_3.setMinSize(width,height);
-			lbl_wed_4.setMaxWidth(Double.MAX_VALUE);
-			lbl_wed_4.setAlignment(Pos.CENTER);
-			lbl_wed_4.setMinSize(width,height);
-			lbl_wed_5.setMaxWidth(Double.MAX_VALUE);
-			lbl_wed_5.setAlignment(Pos.CENTER);
-			lbl_wed_5.setMinSize(width,height);
-			lbl_wed_6.setMaxWidth(Double.MAX_VALUE);
-			lbl_wed_6.setAlignment(Pos.CENTER);
-			lbl_wed_6.setMinSize(width,height);
-			calender.add(lbl_wed_1,3,2);
-			calender.add(lbl_wed_2,3,3);
-			calender.add(lbl_wed_3,3,4);
-			calender.add(lbl_wed_4,3,5);
-			calender.add(lbl_wed_5,3,6);
-			calender.add(lbl_wed_6,3,7);
-			
-			Label lbl_thu_1 = new Label();
-			Label lbl_thu_2 = new Label();
-			Label lbl_thu_3 = new Label();
-			Label lbl_thu_4 = new Label();
-			Label lbl_thu_5 = new Label();
-			Label lbl_thu_6 = new Label();
-			lbl_thu_1.setMaxWidth(Double.MAX_VALUE);
-			lbl_thu_1.setAlignment(Pos.CENTER);
-			lbl_thu_1.setMinSize(width,height);
-			lbl_thu_2.setMaxWidth(Double.MAX_VALUE);
-			lbl_thu_2.setAlignment(Pos.CENTER);
-			lbl_thu_2.setMinSize(width,height);
-			lbl_thu_3.setMaxWidth(Double.MAX_VALUE);
-			lbl_thu_3.setAlignment(Pos.CENTER);
-			lbl_thu_3.setMinSize(width,height);
-			lbl_thu_4.setMaxWidth(Double.MAX_VALUE);
-			lbl_thu_4.setAlignment(Pos.CENTER);
-			lbl_thu_4.setMinSize(width,height);
-			lbl_thu_5.setMaxWidth(Double.MAX_VALUE);
-			lbl_thu_5.setAlignment(Pos.CENTER);
-			lbl_thu_5.setMinSize(width,height);
-			lbl_thu_6.setMaxWidth(Double.MAX_VALUE);
-			lbl_thu_6.setAlignment(Pos.CENTER);
-			lbl_thu_6.setMinSize(width,height);
-			calender.add(lbl_thu_1,4,2);
-			calender.add(lbl_thu_2,4,3);
-			calender.add(lbl_thu_3,4,4);
-			calender.add(lbl_thu_4,4,5);
-			calender.add(lbl_thu_5,4,6);
-			calender.add(lbl_thu_6,4,7);
-			
-			
-			Label lbl_fri_1 = new Label();
-			Label lbl_fri_2 = new Label();
-			Label lbl_fri_3 = new Label();
-			Label lbl_fri_4 = new Label();
-			Label lbl_fri_5 = new Label();
-			Label lbl_fri_6 = new Label();
-			lbl_fri_1.setMaxWidth(Double.MAX_VALUE);
-			lbl_fri_1.setAlignment(Pos.CENTER);
-			lbl_fri_1.setMinSize(width,height);
-			lbl_fri_2.setMaxWidth(Double.MAX_VALUE);
-			lbl_fri_2.setAlignment(Pos.CENTER);
-			lbl_fri_2.setMinSize(width,height);
-			lbl_fri_3.setMaxWidth(Double.MAX_VALUE);
-			lbl_fri_3.setAlignment(Pos.CENTER);
-			lbl_fri_3.setMinSize(width,height);
-			lbl_fri_4.setMaxWidth(Double.MAX_VALUE);
-			lbl_fri_4.setAlignment(Pos.CENTER);
-			lbl_fri_4.setMinSize(width,height);
-			lbl_fri_5.setMaxWidth(Double.MAX_VALUE);
-			lbl_fri_5.setAlignment(Pos.CENTER);
-			lbl_fri_5.setMinSize(width,height);
-			lbl_fri_6.setMaxWidth(Double.MAX_VALUE);
-			lbl_fri_6.setAlignment(Pos.CENTER);
-			lbl_fri_6.setMinSize(width,height);
-			calender.add(lbl_fri_1,5,2);
-			calender.add(lbl_fri_2,5,3);
-			calender.add(lbl_fri_3,5,4);
-			calender.add(lbl_fri_4,5,5);
-			calender.add(lbl_fri_5,5,6);
-			calender.add(lbl_fri_6,5,7);
-			
-			Label lbl_sat_1 = new Label();
-			Label lbl_sat_2 = new Label();
-			Label lbl_sat_3 = new Label();
-			Label lbl_sat_4 = new Label();
-			Label lbl_sat_5 = new Label();
-			Label lbl_sat_6 = new Label();
-			lbl_sat_1.setMaxWidth(Double.MAX_VALUE);
-			lbl_sat_1.setAlignment(Pos.CENTER);
-			lbl_sat_1.setMinSize(width,height);
-			lbl_sat_2.setMaxWidth(Double.MAX_VALUE);
-			lbl_sat_2.setAlignment(Pos.CENTER);
-			lbl_sat_2.setMinSize(width,height);
-			lbl_sat_3.setMaxWidth(Double.MAX_VALUE);
-			lbl_sat_3.setAlignment(Pos.CENTER);
-			lbl_sat_3.setMinSize(width,height);
-			lbl_sat_4.setMaxWidth(Double.MAX_VALUE);
-			lbl_sat_4.setAlignment(Pos.CENTER);
-			lbl_sat_4.setMinSize(width,height);
-			lbl_sat_5.setMaxWidth(Double.MAX_VALUE);
-			lbl_sat_5.setAlignment(Pos.CENTER);
-			lbl_sat_5.setMinSize(width,height);
-			lbl_sat_6.setMaxWidth(Double.MAX_VALUE);
-			lbl_sat_6.setAlignment(Pos.CENTER);
-			lbl_sat_6.setMinSize(width,height);
-			calender.add(lbl_sat_1,6,2);
-			calender.add(lbl_sat_2,6,3);
-			calender.add(lbl_sat_3,6,4);
-			calender.add(lbl_sat_4,6,5);
-			calender.add(lbl_sat_5,6,6);
-			calender.add(lbl_sat_6,6,7);
-			
-			Label[] lbl_row_1_array = {lbl_sun_1,lbl_mon_1,lbl_tue_1,lbl_wed_1,lbl_thu_1,lbl_fri_1,lbl_sat_1};
-			Label[] lbl_row_2_array = {lbl_sun_2,lbl_mon_2,lbl_tue_2,lbl_wed_2,lbl_thu_2,lbl_fri_2,lbl_sat_2};
-			Label[] lbl_row_3_array = {lbl_sun_3,lbl_mon_3,lbl_tue_3,lbl_wed_3,lbl_thu_3,lbl_fri_3,lbl_sat_3};
-			Label[] lbl_row_4_array = {lbl_sun_4,lbl_mon_4,lbl_tue_4,lbl_wed_4,lbl_thu_4,lbl_fri_4,lbl_sat_4};
-			Label[] lbl_row_5_array = {lbl_sun_5,lbl_mon_5,lbl_tue_5,lbl_wed_5,lbl_thu_5,lbl_fri_5,lbl_sat_5};
-			Label[] lbl_row_6_array = {lbl_sun_6,lbl_mon_6,lbl_tue_6,lbl_wed_6,lbl_thu_6,lbl_fri_6,lbl_sat_6};
-			Label[][] label_arraylist = {lbl_row_1_array,lbl_row_2_array,lbl_row_3_array,lbl_row_4_array,lbl_row_5_array,lbl_row_6_array};
-			
-			int pos = 0;
-			for(int i = 0; i < 6; i++) {
-				for(int j = 0; j < 7; j++) {
-					UI_Templates.enabled_label_style(label_arraylist[i][j]);
-					if(position_array[pos] != null) {
-						label_arraylist[i][j].setText(null);
-						label_arraylist[i][j].setText(String.valueOf(position_array[pos]));
-					} else {
-						UI_Templates.disabled_label_style(label_arraylist[i][j]);
-					}
-					pos++;
-				}
-			}
-			
-			btn_next_month.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent e) {
-					current_month_val++;
-					if(current_month_val > 12) {
-						current_month_val = 1;
-						current_year_val++;
-					}
-					position_array = month_day_val_array(current_month_val,current_year_val);
-					String next_month_string = String.valueOf(Month.of(current_month_val).name());
-					System.out.println("change from month: " + title_month_year.getText() + " to month: " + next_month_string);
-					title_month_year.setText(next_month_string);
-					int pos = 0;
-					for(int i = 0; i < 6; i++) {
-						for(int j = 0; j < 7; j++) {
-							label_arraylist[i][j].setText(null);
-							UI_Templates.enabled_label_style(label_arraylist[i][j]);
-							if(position_array[pos] != null) {
-								label_arraylist[i][j].setText(String.valueOf(position_array[pos]));
-							} else {
-								UI_Templates.disabled_label_style(label_arraylist[i][j]);
-							}
-							pos++;
-						}
-					}
-				}
-			});
-			btn_previous_month.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent e) {
-					current_month_val--;
-					if(current_month_val < 1) {
-						current_month_val = 12;
-						current_year_val--;
-					}
-					System.out.println(Arrays.toString(position_array));
-					position_array = month_day_val_array(current_month_val,current_year_val);
-					String previous_month_string = String.valueOf(Month.of(current_month_val).name());
-					System.out.println("change from month: " + title_month_year.getText() + " to month: " + previous_month_string);
-					title_month_year.setText(previous_month_string);
-					int pos = 0;
-					for(int i = 0; i < 6; i++) {
-						for(int j = 0; j < 7; j++) {
-							label_arraylist[i][j].setText(null);
-							UI_Templates.enabled_label_style(label_arraylist[i][j]);
-							if(position_array[pos] != null) {
-								label_arraylist[i][j].setText(String.valueOf(position_array[pos]));
-							} else {
-								UI_Templates.disabled_label_style(label_arraylist[i][j]);
-							}
-							pos++;
-						}
-					}
-				}
-			});
 		}
+		
+		btn_next_month.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				current_month_val++;
+				if(current_month_val > 12) {
+					current_month_val = 1;
+					current_year_val++;
+				}
+				position_array = month_day_val_array(current_month_val,current_year_val);
+				String next_month_string = String.valueOf(Month.of(current_month_val).name());
+				String year_string = String.valueOf(current_year_val);
+				System.out.println("change from month: " + title_month_year.getText() + " to month: " + next_month_string);
+				title_month_year.setText(next_month_string + " " + year_string);
+				int pos = 0;
+				for(int i = 0; i < 6; i++) {
+					for(int j = 0; j < 7; j++) {
+						button_arraylist[i][j].setText(null);
+						UI_Templates.enabled_button_style(button_arraylist[i][j]);
+						button_arraylist[i][j].setDisable(false);
+						if(position_array[pos] != null) {
+							button_arraylist[i][j].setText(String.valueOf(position_array[pos]));
+						} else {
+							button_arraylist[i][j].setDisable(true);
+							UI_Templates.disabled_button_style(button_arraylist[i][j]);
+						}
+						pos++;
+					}
+				}
+			}
+		});
+		btn_previous_month.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				current_month_val--;
+				if(current_month_val < 1) {
+					current_month_val = 12;
+					current_year_val--;
+				}
+				System.out.println(Arrays.toString(position_array));
+				position_array = month_day_val_array(current_month_val,current_year_val);
+				String previous_month_string = String.valueOf(Month.of(current_month_val).name());
+				String year_string = String.valueOf(current_year_val);
+				System.out.println("change from month: " + title_month_year.getText() + " to month: " + previous_month_string);
+				title_month_year.setText(previous_month_string + " " + year_string);
+				int pos = 0;
+				for(int i = 0; i < 6; i++) {
+					for(int j = 0; j < 7; j++) {
+						button_arraylist[i][j].setText(null);
+						UI_Templates.enabled_button_style(button_arraylist[i][j]);
+						button_arraylist[i][j].setDisable(false);
+						if(position_array[pos] != null) {
+							button_arraylist[i][j].setText(String.valueOf(position_array[pos]));
+						} else {
+							button_arraylist[i][j].setDisable(true);
+							UI_Templates.disabled_button_style(button_arraylist[i][j]);
+						}
+						pos++;
+					}
+				}
+			}
+		});
+		
+		position_array = month_day_val_array(current_month_val,current_year_val);
+		btn_sun_1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,0);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_mon_1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,1);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_tue_1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,2);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_wed_1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {;
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,3);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_thu_1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,4);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_fri_1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,5);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_sat_1.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,6);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});			
+		btn_sun_2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,7);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_mon_2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,8);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_tue_2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,9);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_wed_2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,10);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_thu_2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,11);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_fri_2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,12);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_sat_2.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,13);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_sun_3.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,14);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_mon_3.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,15);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_tue_3.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,16);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_wed_3.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,17);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_thu_3.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,18);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_fri_3.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,19);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_sat_3.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,20);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_sun_4.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,21);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_mon_4.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,22);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_tue_4.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,23);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_wed_4.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,24);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_thu_4.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,25);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_fri_4.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,26);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_sat_4.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,27);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_sun_5.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,28);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_mon_5.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,29);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_tue_5.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,30);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_wed_5.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,31);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_thu_5.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,32);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_fri_5.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,33);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_sat_5.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,34);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_sun_6.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,35);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_mon_6.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,36);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_tue_6.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,37);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_wed_6.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,38);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_thu_6.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,39);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_fri_6.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,40);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});
+		btn_sat_6.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				Scene appointment_details_screen = calendar_button_action(primary_stage,administrator,41);
+				appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_screen);
+			}
+		});			
 		return calender;
+	}
+
+	public static Node time_picker(Stage primary_stage, Label lbl_time) {
+		HBox picker = new HBox();
+		
+		TextField tf_hour = new TextField();
+		tf_hour.setMaxWidth(Algorithms.dimension_calculator(30.0,false));
+		tf_hour.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String>  observable, String old_value, String new_value) {
+				if(!new_value.matches("\\d*")) {
+					tf_hour.setText(new_value.replaceAll("[^\\d]", ""));
+				}
+			}
+		});
+		
+		TextField tf_minutes = new TextField();
+		tf_minutes.setMaxWidth(Algorithms.dimension_calculator(30.0,false));
+		tf_minutes.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String old_value, String new_value) {
+				if(!new_value.matches("\\d*")) {
+					tf_minutes.setText(new_value.replaceAll("[^\\d]", ""));
+				}
+			}
+		});
+		
+		Label lbl_colon = new Label(":");
+		lbl_colon.getStyleClass().add("bold_label");
+		lbl_colon.setId("bold_label");
+		lbl_colon.setMaxHeight(Double.MAX_VALUE);
+		lbl_colon.setAlignment(Pos.CENTER);
+		
+		ComboBox<String> combo_box = new ComboBox<String>();
+		combo_box.getItems().add("AM");
+		combo_box.getItems().add("PM");
+		combo_box.getSelectionModel().selectFirst();
+		
+		Button btn_enter_time = new Button("Enter");
+		btn_enter_time.setMaxHeight(Algorithms.dimension_calculator(5.0,true));
+		btn_enter_time.setMinWidth(Algorithms.dimension_calculator(40.0,false));
+		btn_enter_time.setDefaultButton(true);
+		btn_enter_time.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				if((Integer.parseInt(tf_hour.getText()) < 13 && Integer.parseInt(tf_hour.getText()) > 0) && 
+						(Integer.parseInt(tf_minutes.getText()) < 60 && Integer.parseInt(tf_minutes.getText()) >= 1)) {
+					// completely correct
+					String hour_string = tf_hour.getText();
+					String minutes_string = tf_minutes.getText();
+					String am_pm_string = combo_box.getValue();
+					String output = hour_string + ":" + minutes_string + " " + am_pm_string;
+					lbl_time.setText(output);
+				} else if((Integer.parseInt(tf_hour.getText()) > 12 || Integer.parseInt(tf_hour.getText()) < 1) && 
+						(Integer.parseInt(tf_minutes.getText()) < 59 && Integer.parseInt(tf_minutes.getText()) > 0)) {
+					// hours wrong
+					tf_hour.clear();
+					tf_minutes.clear();
+					Label lbl_error = new Label("ERROR: Hours cannot exceed 12.\nHours cannot be below 1.");
+					GridPane grid = new GridPane();
+					grid.add(lbl_error,0,0);
+					grid.getStyleClass().add("popup_error_style");
+					grid.setId("popup_error_style");
+					Popup error_message = new Popup();
+					error_message.getContent().add(grid);
+					error_message.setAutoHide(true);
+					PauseTransition delay = new PauseTransition(Duration.seconds(2));
+					delay.setOnFinished(ex -> error_message.hide());
+					if(!error_message.isShowing()) {
+						error_message.show(primary_stage);
+						delay.play();
+					}
+				} else if((Integer.parseInt(tf_hour.getText()) < 12 && Integer.parseInt(tf_hour.getText()) > 1) && 
+						(Integer.parseInt(tf_minutes.getText()) > 59 || Integer.parseInt(tf_minutes.getText()) < 0)) {
+					// minutes wrong
+					tf_hour.clear();
+					tf_minutes.clear();
+					Label lbl_error = new Label("ERROR: Minutes cannot exceed 59.\nMinutes cannot be below 0.");
+					GridPane grid = new GridPane();
+					grid.add(lbl_error,0,0);
+					grid.getStyleClass().add("popup_error_style");
+					grid.setId("popup_error_style");
+					Popup error_message = new Popup();
+					error_message.getContent().add(grid);
+					error_message.setAutoHide(true);
+					PauseTransition delay = new PauseTransition(Duration.seconds(2));
+					delay.setOnFinished(ex -> error_message.hide());
+					if(!error_message.isShowing()) {
+						error_message.show(primary_stage);
+						delay.play();
+					}
+				} else if((Integer.parseInt(tf_hour.getText()) > 12 || Integer.parseInt(tf_hour.getText()) < 0) && 
+						(Integer.parseInt(tf_minutes.getText()) > 59 || Integer.parseInt(tf_minutes.getText()) < 0)){
+					// hours & minutes wrong 
+					tf_hour.clear();
+					tf_minutes.clear();
+					Label lbl_error = new Label("ERROR: Hours cannot exceed 12 or be below 1.\nMinutes cannot exceed 59 or be below 0.");
+					GridPane grid = new GridPane();
+					grid.add(lbl_error,0,0);
+					grid.getStyleClass().add("popup_error_style");
+					grid.setId("popup_error_style");
+					Popup error_message = new Popup();
+					error_message.getContent().add(grid);
+					error_message.setAutoHide(true);
+					PauseTransition delay = new PauseTransition(Duration.seconds(2));
+					delay.setOnFinished(ex -> error_message.hide());
+					if(!error_message.isShowing()) {
+						error_message.show(primary_stage);
+						delay.play();
+					}
+				}
+			}
+		});
+		picker.getChildren().addAll(tf_hour,lbl_colon,tf_minutes,combo_box,btn_enter_time);
+		return picker;
 	}
 }
