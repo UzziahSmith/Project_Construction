@@ -106,29 +106,65 @@ public class Trade_List_Screen_Administrator_UI {
 		
 		HBox trade_interactive_button_bar = new HBox();
 		trade_interactive_button_bar.setSpacing(Algorithms.dimension_calculator(10.0,false));
+		Button btn_new = new Button("NEW");
+		UI_Templates.enable_interaction_button(btn_new);
 		Button btn_add = new Button("ADD");
+		UI_Templates.disable_interaction_button(btn_add);
 		Button btn_remove = new Button("REMOVE");
+		UI_Templates.enable_interaction_button(btn_remove);
+		Button btn_update = new Button("UPDATE");
+		UI_Templates.enable_interaction_button(btn_update);
 		Button btn_cancel = new Button("CANCEL");
-		btn_add.setOnAction(new EventHandler<ActionEvent>() {
-			@Override 
+		UI_Templates.disable_interaction_button(btn_cancel);
+		btn_new.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("Add new trade title");
+				System.out.println("New client initialisation");
+				tf_trade_title.clear();
+				UI_Templates.enable_interaction_button(btn_add);
+				UI_Templates.enable_interaction_button(btn_cancel);
+				UI_Templates.disable_interaction_button(btn_new);
+				UI_Templates.disable_interaction_button(btn_update);
+				UI_Templates.disable_interaction_button(btn_remove);
+			}
+		});
+		btn_add.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Add new client");
+				tf_trade_title.clear();
+				UI_Templates.disable_interaction_button(btn_add);
+				UI_Templates.disable_interaction_button(btn_cancel);
+				UI_Templates.enable_interaction_button(btn_new);
+				UI_Templates.enable_interaction_button(btn_update);
+				UI_Templates.enable_interaction_button(btn_remove);
 			}
 		});
 		btn_remove.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("Remove current trade title");
+				System.out.println("Remove selected client");
+			}
+		});
+		btn_update.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Updated selected client information");
 			}
 		});
 		btn_cancel.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("Cancel new trade title");
+				System.out.println("Cancel inputted client data");
 				tf_trade_title.clear();
+				UI_Templates.disable_interaction_button(btn_add);
+				UI_Templates.disable_interaction_button(btn_cancel);
+				UI_Templates.enable_interaction_button(btn_new);
+				UI_Templates.enable_interaction_button(btn_update);
+				UI_Templates.enable_interaction_button(btn_remove);
 			}
 		});
-		trade_interactive_button_bar.getChildren().addAll(btn_add,btn_remove,btn_cancel);
+		trade_interactive_button_bar.getChildren().addAll(btn_new,btn_add,btn_update,btn_remove,btn_cancel);
 		trade_interactive_button_bar.setAlignment(Pos.CENTER);
 		left_view.add(trade_interactive_button_bar,0,1,2,1);
 

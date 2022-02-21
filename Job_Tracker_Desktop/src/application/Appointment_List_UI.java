@@ -41,7 +41,6 @@ public class Appointment_List_UI {
 		UI_Templates.header_button_style(btn_navigate_home);
 		Button btn_navigate_clients = new Button("Clients");
 		UI_Templates.header_button_style(btn_navigate_clients);
-		Button TEST_BTN_NAVIGATE_APPT_DETAILS = new Button("TEST \n APPOINTMENT DETAILS");
 		if(administrator) {
 			Button btn_navigate_employees = new Button("Employees");
 			UI_Templates.header_button_style(btn_navigate_employees);
@@ -87,17 +86,7 @@ public class Appointment_List_UI {
 					primary_stage.setScene(client_details_screen);
 				}
 			});
-			TEST_BTN_NAVIGATE_APPT_DETAILS.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent e) {
-					System.out.println("TEST Navigate from Appointment_List_UI to Appointment_Details_UI.");
-					Appointment_Details_UI appointment_details_layout = new Appointment_Details_UI();
-					Scene appointment_details_screen = new Scene(appointment_details_layout.get_scene(primary_stage,true,null));
-					appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-					primary_stage.setScene(appointment_details_screen);
-				}
-			});
-			navigation_button_bar.getChildren().addAll(btn_navigate_home,btn_navigate_clients,btn_navigate_employees,btn_navigate_trades,TEST_BTN_NAVIGATE_APPT_DETAILS);
+			navigation_button_bar.getChildren().addAll(btn_navigate_home,btn_navigate_clients,btn_navigate_employees,btn_navigate_trades);
 		} else {
 			btn_navigate_home.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
@@ -119,17 +108,7 @@ public class Appointment_List_UI {
 					primary_stage.setScene(client_details_screen);
 				}
 			});
-			TEST_BTN_NAVIGATE_APPT_DETAILS.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent e) {
-					System.out.println("TEST Navigate from Appointment_List_UI to Appointment_Details_UI.");
-					Appointment_Details_UI appointment_details_layout = new Appointment_Details_UI();
-					Scene appointment_details_screen = new Scene(appointment_details_layout.get_scene(primary_stage,false,null));
-					appointment_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-					primary_stage.setScene(appointment_details_screen);
-				}
-			});
-			navigation_button_bar.getChildren().addAll(btn_navigate_home,btn_navigate_clients,TEST_BTN_NAVIGATE_APPT_DETAILS);
+			navigation_button_bar.getChildren().addAll(btn_navigate_home,btn_navigate_clients);
 		}
 		
 		header.setRight(navigation_button_bar);

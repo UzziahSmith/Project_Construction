@@ -48,7 +48,6 @@ public class UI_Templates {
 	private static int current_year_val = Calendar.getInstance().get(Calendar.YEAR);
 	private static Integer[] position_array = month_day_val_array(current_month_val,current_year_val);
 	static boolean is_appt_details_shown = false;
-
 	
 	@SuppressWarnings("static-access")
 	public static BorderPane header(Stage primary_stage, String title) {
@@ -91,49 +90,94 @@ public class UI_Templates {
 		return header;
 	}
 	
-	public static void header_button_style(Button button) {
+	static void header_button_style(Button button) {
 		button.getStyleClass().add("header_button");
 		button.setId("header_button");
 	}
 	
-	public static void UI_button(Button button) {
+	static void UI_button(Button button) {
 		button.getStyleClass().add("admin_home_screen_button");
 		button.setId("admin_home_screen_button");
 	}
 	
-	public static void title_label_style(Label label) {
+	static void title_label_style(Label label) {
 		label.getStyleClass().add("admin_home_listview_label");
 		label.setId("admin_home_listview_label");
 	}
 	
-	public static void output_label_style(Label label) {
+	static void output_label_style(Label label) {
 		label.getStyleClass().add("output_user_label");
 		label.setId("output_user_label");
 	}
 	
-	public static <T> void list_view_style(ListView<T> listview) {
+	static <T> void list_view_style(ListView<T> listview) {
 		listview.getStyleClass().add("admin_home_listviw");
 		listview.setId("admin_home_listviw");
 	}
 	
-	public static void disabled_button_style(Button button) {
-		button.getStyleClass().add("disabled_button");
-		button.setId("disabled_button");
+	static void enabled_label_style(Label label) {
+		label.getStyleClass().add("enabled_button");
+		label.setId("enabled_button");
 	}
-	
-	public static void disabled_label_style(Label label) {
+	static void disabled_label_style(Label label) {
 		label.getStyleClass().add("disabled_button");
 		label.setId("disabled_button");
 	}
-	public static void enabled_button_style(Button button) {
+	
+	static void calendar_disabled_button_style(Button button) {
+		button.getStyleClass().add("disabled_button");
+		button.setId("disabled_button");
+	}
+	static void calendar_enabled_button_style(Button button) {
 		button.getStyleClass().add("enabled_button");
 		button.setId("enabled_button");
 	}
 	
-	public static void enabled_label_style(Label label) {
-		label.getStyleClass().add("enabled_button");
-		label.setId("enabled_button");
+	static void calendar_disable_button(Button button) {
+		button.setDisable(true);
+		calendar_disabled_button_style(button);
 	}
+	
+	static void calendar_enable_button(Button button) {
+		button.setDisable(false);
+		calendar_enabled_button_style(button);
+	}
+	
+	static void disable_interaction_button(Button button) {
+		button.setDisable(true);
+		button.getStyleClass().add("disabled_interaction_button");
+		button.setId("disabled_interaction_button");
+	}
+	
+	static void enable_interaction_button(Button button) {
+		button.setDisable(false);
+		button.getStyleClass().add("enabled_interaction_button");
+		button.setId("enabled_interaction_button");
+	}
+	
+	static void add_input_limiter_integers(final TextField tf) {
+		tf.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String>  observable, String old_value, String new_value) {
+				if(!new_value.matches("\\d*")) {
+					tf.setText(new_value.replaceAll("[^\\d]", ""));
+				}
+			}
+		});	
+	}
+	
+	static void add_integer_quantity_limiter(final TextField tf, final int maxLength) {
+		tf.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(final ObservableValue<? extends String> ov, final String old_value, final String new_value) {
+				if(tf.getText().length() > maxLength) {
+					String string = tf.getText().substring(0, maxLength);
+					tf.setText(string);
+				}
+			}
+		});
+	}
+	
 	
 	private static String date_corrector(int day_val, int month_val, int year_val) {
 		Calendar cal = Calendar.getInstance();
@@ -281,11 +325,38 @@ public class UI_Templates {
 		return appointment_details_screen;
 	}
 	
+	private static void current_day_styler(Integer[] month_day_val_array, Button[][] cal_button_array) {
+		Calendar cal = Calendar.getInstance();
+		boolean current_day_button_found = false;
+		int day_of_month = cal.get(Calendar.DAY_OF_MONTH);
+		int current_month = cal.get(Calendar.MONTH)+1;
+		if(current_month == current_month_val) {
+			for(Button[] button_array : cal_button_array) {
+				for(Button button : button_array) {
+					if(button.getText() != null) {
+						if(button.getText().equals(String.valueOf(day_of_month))) {
+							button.getStyleClass().add("current_day_style");		
+							button.setId("current_day_style");	
+							current_day_button_found = true;
+							System.out.println("Button found");
+							break;
+						}
+					}
+				}
+			}
+			if(current_day_button_found) {
+				System.out.println("Logic error inside UI_Templates.current_day_styler for loop");
+			}
+		}
+	}
+	
 	public static GridPane Calender(Stage primary_stage, boolean administrator, double calender_width, double calender_height) {
 		GridPane calender = new GridPane();
 		
 		double width = calender_width/7;
 		double height = calender_height/7;
+		
+		Calendar cal = Calendar.getInstance();
 		
 		calender.getStyleClass().add("enabled_button");
 		calender.setId("enabled_button");
@@ -487,7 +558,7 @@ public class UI_Templates {
 		btn_thu_3.setMaxWidth(Double.MAX_VALUE);
 		btn_thu_3.setAlignment(Pos.CENTER);
 		btn_thu_3.setMinSize(width,height);
-		btn_thu_4.setMaxWidth(Double.MAX_VALUE);
+		btn_thu_4.setMaxWidth(Double.MAX_VALUE);			
 		btn_thu_4.setAlignment(Pos.CENTER);
 		btn_thu_4.setMinSize(width,height);
 		btn_thu_5.setMaxWidth(Double.MAX_VALUE);
@@ -576,16 +647,18 @@ public class UI_Templates {
 		int pos = 0;
 		for(int i = 0; i < 6; i++) {
 			for(int j = 0; j < 7; j++) {
-				UI_Templates.enabled_button_style(button_arraylist[i][j]);
+				UI_Templates.calendar_enabled_button_style(button_arraylist[i][j]);
 				if(position_array[pos] != null) {
 					button_arraylist[i][j].setText(String.valueOf(position_array[pos]));
 				} else {
 					button_arraylist[i][j].setDisable(true);
-					UI_Templates.disabled_button_style(button_arraylist[i][j]);
+					UI_Templates.calendar_disabled_button_style(button_arraylist[i][j]);
 				}
 				pos++;
 			}
 		}
+		
+		current_day_styler(position_array, button_arraylist);
 		
 		btn_next_month.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -604,17 +677,16 @@ public class UI_Templates {
 				for(int i = 0; i < 6; i++) {
 					for(int j = 0; j < 7; j++) {
 						button_arraylist[i][j].setText(null);
-						UI_Templates.enabled_button_style(button_arraylist[i][j]);
-						button_arraylist[i][j].setDisable(false);
+						UI_Templates.calendar_enable_button(button_arraylist[i][j]);
 						if(position_array[pos] != null) {
 							button_arraylist[i][j].setText(String.valueOf(position_array[pos]));
 						} else {
-							button_arraylist[i][j].setDisable(true);
-							UI_Templates.disabled_button_style(button_arraylist[i][j]);
+							UI_Templates.calendar_disable_button(button_arraylist[i][j]);
 						}
 						pos++;
 					}
 				}
+				current_day_styler(position_array, button_arraylist);
 			}
 		});
 		btn_previous_month.setOnAction(new EventHandler<ActionEvent>() {
@@ -635,21 +707,20 @@ public class UI_Templates {
 				for(int i = 0; i < 6; i++) {
 					for(int j = 0; j < 7; j++) {
 						button_arraylist[i][j].setText(null);
-						UI_Templates.enabled_button_style(button_arraylist[i][j]);
-						button_arraylist[i][j].setDisable(false);
+						UI_Templates.calendar_enable_button(button_arraylist[i][j]);
 						if(position_array[pos] != null) {
 							button_arraylist[i][j].setText(String.valueOf(position_array[pos]));
 						} else {
 							button_arraylist[i][j].setDisable(true);
-							UI_Templates.disabled_button_style(button_arraylist[i][j]);
+							UI_Templates.calendar_disable_button(button_arraylist[i][j]);
 						}
 						pos++;
 					}
 				}
+				current_day_styler(position_array, button_arraylist);
 			}
 		});
 		
-		position_array = month_day_val_array(current_month_val,current_year_val);
 		btn_sun_1.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {

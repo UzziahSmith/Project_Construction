@@ -117,14 +117,16 @@ public class Employee_Details_Screen_Administrator_UI {
 		left_grid.add(lbl_surname,0,1);
 		left_grid.add(tf_surname,1,1,3,1);
 		
-		Label lbl_phone_name = new Label("Phone Number:");
-		lbl_phone_name.setMaxWidth(Double.MAX_VALUE);
-		lbl_phone_name.setAlignment(Pos.CENTER_RIGHT);
-		UI_Templates.title_label_style(lbl_phone_name);
-		TextField tf_phone_name = new TextField();
-		tf_phone_name.setMinSize(Algorithms.dimension_calculator(250.0,false), Algorithms.dimension_calculator(20.0,false));
-		left_grid.add(lbl_phone_name,0,2);
-		left_grid.add(tf_phone_name,1,2,3,1);
+		Label lbl_phone_number = new Label("Phone Number:");
+		lbl_phone_number.setMaxWidth(Double.MAX_VALUE);
+		lbl_phone_number.setAlignment(Pos.CENTER_RIGHT);
+		UI_Templates.title_label_style(lbl_phone_number);
+		TextField tf_phone_number = new TextField();
+		UI_Templates.add_input_limiter_integers(tf_phone_number);
+		UI_Templates.add_integer_quantity_limiter(tf_phone_number,10);
+		tf_phone_number.setMinSize(Algorithms.dimension_calculator(250.0,false), Algorithms.dimension_calculator(20.0,false));
+		left_grid.add(lbl_phone_number,0,2);
+		left_grid.add(tf_phone_number,1,2,3,1);
 
 		Label lbl_employed = new Label("Employed:");
 		lbl_employed.setMaxWidth(Double.MAX_VALUE);
@@ -163,11 +165,82 @@ public class Employee_Details_Screen_Administrator_UI {
 		
 		HBox trade_details_button_bar = new HBox();
 		trade_details_button_bar.setSpacing(Algorithms.dimension_calculator(10.0,false));
+		HBox button_bar = new HBox();
+		button_bar.setSpacing(Algorithms.dimension_calculator(10.0,false));
 		Button btn_new = new Button("NEW");
+		UI_Templates.enable_interaction_button(btn_new);
 		Button btn_add = new Button("ADD");
+		UI_Templates.disable_interaction_button(btn_add);
 		Button btn_remove = new Button("REMOVE");
+		UI_Templates.enable_interaction_button(btn_remove);
 		Button btn_update = new Button("UPDATE");
+		UI_Templates.enable_interaction_button(btn_update);
 		Button btn_cancel = new Button("CANCEL");
+		UI_Templates.disable_interaction_button(btn_cancel);
+		btn_new.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("New client initialisation");
+				tf_first_name.setText(null);
+				tf_surname.setText(null);
+				tf_phone_number.clear();
+				rb_employed_true.setSelected(false);
+				rb_employed_false.setSelected(false);
+				trade_combo_box.getSelectionModel().clearSelection();
+				UI_Templates.enable_interaction_button(btn_add);
+				UI_Templates.enable_interaction_button(btn_cancel);
+				UI_Templates.disable_interaction_button(btn_new);
+				UI_Templates.disable_interaction_button(btn_update);
+				UI_Templates.disable_interaction_button(btn_remove);
+			}
+		});
+		btn_add.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Add new client");
+				tf_first_name.setText(null);
+				tf_surname.setText(null);
+				tf_phone_number.clear();
+				rb_employed_true.setSelected(false);
+				rb_employed_false.setSelected(false);
+				trade_combo_box.getSelectionModel().clearSelection();
+				UI_Templates.disable_interaction_button(btn_add);
+				UI_Templates.disable_interaction_button(btn_cancel);
+				UI_Templates.enable_interaction_button(btn_new);
+				UI_Templates.enable_interaction_button(btn_update);
+				UI_Templates.enable_interaction_button(btn_remove);
+			}
+		});
+		btn_remove.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Remove selected client");
+			}
+		});
+		btn_update.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Updated selected client information");
+			}
+		});
+		btn_cancel.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("Cancel inputted client data");
+				tf_first_name.setText(null);
+				tf_surname.setText(null);
+				tf_phone_number.clear();
+				rb_employed_true.setSelected(false);
+				rb_employed_false.setSelected(false);
+				trade_combo_box.getSelectionModel().clearSelection();
+				UI_Templates.disable_interaction_button(btn_add);
+				UI_Templates.disable_interaction_button(btn_cancel);
+				UI_Templates.enable_interaction_button(btn_new);
+				UI_Templates.enable_interaction_button(btn_update);
+				UI_Templates.enable_interaction_button(btn_remove);
+			}
+		});
+		button_bar.getChildren().addAll(btn_new,btn_add,btn_remove,btn_update,btn_cancel);
 		trade_details_button_bar.setPadding(new Insets(Algorithms.dimension_calculator(50.0,true),0,0,0));
 		trade_details_button_bar.setAlignment(Pos.CENTER_RIGHT);
 		trade_details_button_bar.setMaxWidth(Double.MAX_VALUE);

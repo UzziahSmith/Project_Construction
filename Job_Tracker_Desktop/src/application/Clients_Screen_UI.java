@@ -2,6 +2,8 @@ package application;
 
 import java.util.ArrayList;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -120,7 +122,6 @@ public class Clients_Screen_UI {
 		GridPane centre_view = new GridPane();
 		centre_view.setVgap(Algorithms.dimension_calculator(50.0,true));
 		centre_view.setHgap(Algorithms.dimension_calculator(10.0,false));
-		centre_view.setGridLinesVisible(true);
 		
 		Label lbl_first_name = new Label("First Name:");
 		lbl_first_name.setMaxWidth(Double.MAX_VALUE);
@@ -140,29 +141,28 @@ public class Clients_Screen_UI {
 		UI_Templates.title_label_style(lbl_phone_number);
 		centre_view.add(lbl_phone_number,1,3);
 		
-		Label lbl_previous_client = new Label("Previous Client:");
-		lbl_previous_client.setMaxWidth(Double.MAX_VALUE);
-		lbl_previous_client.setAlignment(Pos.CENTER_RIGHT);
-		UI_Templates.title_label_style(lbl_previous_client);
-		centre_view.add(lbl_previous_client,1,4);
-		
 		if(administrator) {
 			TextField tf_first_name = new TextField();
 			centre_view.add(tf_first_name,2,1);
 			TextField tf_surname = new TextField();
 			centre_view.add(tf_surname,2,2);
 			TextField tf_phone_number = new TextField();
+			UI_Templates.add_input_limiter_integers(tf_phone_number);
+			UI_Templates.add_integer_quantity_limiter(tf_phone_number,10);
 			centre_view.add(tf_phone_number,2,3);
-			TextField tf_previous_client = new TextField();
-			centre_view.add(tf_previous_client,2,4);
-			
+
 			HBox client_interactive_button_bar = new HBox();
 			client_interactive_button_bar.setSpacing(Algorithms.dimension_calculator(10.0,false));
 			Button btn_new = new Button("NEW");
+			UI_Templates.enable_interaction_button(btn_new);
 			Button btn_add = new Button("ADD");
+			UI_Templates.disable_interaction_button(btn_add);
 			Button btn_remove = new Button("REMOVE");
+			UI_Templates.enable_interaction_button(btn_remove);
 			Button btn_update = new Button("UPDATE");
+			UI_Templates.enable_interaction_button(btn_update);
 			Button btn_cancel = new Button("CANCEL");
+			UI_Templates.disable_interaction_button(btn_cancel);
 			btn_new.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
@@ -170,13 +170,25 @@ public class Clients_Screen_UI {
 					tf_first_name.clear();
 					tf_surname.clear();
 					tf_phone_number.clear();
-					tf_previous_client.clear();
+					UI_Templates.enable_interaction_button(btn_add);
+					UI_Templates.enable_interaction_button(btn_cancel);
+					UI_Templates.disable_interaction_button(btn_new);
+					UI_Templates.disable_interaction_button(btn_update);
+					UI_Templates.disable_interaction_button(btn_remove);
 				}
 			});
 			btn_add.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
 					System.out.println("Add new client");
+					tf_first_name.clear();
+					tf_surname.clear();
+					tf_phone_number.clear();
+					UI_Templates.disable_interaction_button(btn_add);
+					UI_Templates.disable_interaction_button(btn_cancel);
+					UI_Templates.enable_interaction_button(btn_new);
+					UI_Templates.enable_interaction_button(btn_update);
+					UI_Templates.enable_interaction_button(btn_remove);
 				}
 			});
 			btn_remove.setOnAction(new EventHandler<ActionEvent>() {
@@ -198,10 +210,14 @@ public class Clients_Screen_UI {
 					tf_first_name.clear();
 					tf_surname.clear();
 					tf_phone_number.clear();
-					tf_previous_client.clear();
+					UI_Templates.disable_interaction_button(btn_add);
+					UI_Templates.disable_interaction_button(btn_cancel);
+					UI_Templates.enable_interaction_button(btn_new);
+					UI_Templates.enable_interaction_button(btn_update);
+					UI_Templates.enable_interaction_button(btn_remove);
 				}
 			});
-			client_interactive_button_bar.getChildren().addAll(btn_new, btn_add, btn_remove, btn_update, btn_cancel);
+			client_interactive_button_bar.getChildren().addAll(btn_new, btn_add, btn_update, btn_remove, btn_cancel);
 			centre_view.add(client_interactive_button_bar,1,5,2,1);
 		} else {
 			
@@ -223,6 +239,12 @@ public class Clients_Screen_UI {
 			UI_Templates.output_label_style(lbl_phone_number_output);
 			lbl_phone_number_output.setMinSize(Algorithms.dimension_calculator(100.0,false),Algorithms.dimension_calculator(30.0,true));
 			centre_view.add(lbl_phone_number_output,2,3);
+			
+			Label lbl_previous_client = new Label("Previous Client:");
+			lbl_previous_client.setMaxWidth(Double.MAX_VALUE);
+			lbl_previous_client.setAlignment(Pos.CENTER_RIGHT);
+			UI_Templates.title_label_style(lbl_previous_client);
+			centre_view.add(lbl_previous_client,1,4);
 			
 			Label lbl_previous_client_output = new Label();
 			UI_Templates.output_label_style(lbl_previous_client_output);

@@ -108,6 +108,21 @@
 	-fx-border-color: Black;
 }
 
+#disabled_interaction_button {
+	-fx-background-color: #5f606e; 
+}
+
+#enabled_interaction_button {
+	-fx-background-color: White;
+}
+
+#current_day_style {
+	-fx-font-weight: bold;
+	-fx-border-color: #abbcff;
+	-fx-border-width: 2 2 2 2;
+	-fx-background-color: #ebefff;
+}
+
 #bold_label {
 	-fx-font-weight: bold;
 }
