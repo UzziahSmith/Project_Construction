@@ -6,6 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import com.job_tracker.attribute_creation.Appointment;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,6 +25,27 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class Appointment_List_UI {
+	
+	private Calendar cal = Calendar.getInstance();
+	private int current_day = cal.get(Calendar.DAY_OF_MONTH);
+	private int current_month = cal.get(Calendar.MONTH);
+	private int current_year = cal.get(Calendar.YEAR);
+	
+	ArrayList<Appointment> day1_array = Algorithms.appointments_by_Date(UI_Templates.date_corrector(current_day,current_month,current_year));
+	ArrayList<Appointment> day2_array = Algorithms.appointments_by_Date(UI_Templates.date_corrector(current_day+1,current_month,current_year));;
+	ArrayList<Appointment> day3_array = Algorithms.appointments_by_Date(UI_Templates.date_corrector(current_day+2,current_month,current_year));;
+	ArrayList<Appointment> day4_array = Algorithms.appointments_by_Date(UI_Templates.date_corrector(current_day+3,current_month,current_year));;
+	ArrayList<Appointment> day5_array = Algorithms.appointments_by_Date(UI_Templates.date_corrector(current_day+4,current_month,current_year));;
+	
+	private ArrayList<String> information_extractor(ArrayList<Appointment> array) {
+		ArrayList<String> output_array = null;
+		for(Appointment appointment : array) {
+			String output_string = String.format("%s %s\nclient: %s\nemployee %s\naddress: %s", appointment.date,appointment.date,null,null,null);
+			output_array.add(output_string);
+		}
+		return output_array;
+	}
+	
 	private BorderPane header(Stage primary_stage, boolean administrator) {
 		String header_title;
 		if(administrator) {
@@ -120,13 +143,7 @@ public class Appointment_List_UI {
 		centre_panel.setHgap(Algorithms.dimension_calculator(100.0,false));
 		centre_panel.setVgap(Algorithms.dimension_calculator(50.0,true));
 		centre_panel.setAlignment(Pos.CENTER);
-		
-		ArrayList<String> day1_AL = new ArrayList<String>();
-		ArrayList<String> day2_AL = new ArrayList<String>();
-		ArrayList<String> day3_AL = new ArrayList<String>();
-		ArrayList<String> day4_AL = new ArrayList<String>();
-		ArrayList<String> day5_AL = new ArrayList<String>();
-		
+
 		Calendar calender = Calendar.getInstance();
 		Date date = calender.getTime();
 		int next_day_value = 86400000;
@@ -142,8 +159,8 @@ public class Appointment_List_UI {
 		ListView<String> lv_day1 = new ListView<String>();
 		UI_Templates.list_view_style(lv_day1);
 		ObservableList<String> ol_day1 = FXCollections.observableArrayList();
-		for(String appointment : day1_AL) {
-			ol_day1.add(appointment);
+		for(Appointment appointment : day1_array) {
+//			ol_day1.add(appointment);
 		}
 		lv_day1.getItems().addAll(ol_day1);
 		lv_day1.setMaxSize(Algorithms.dimension_calculator(250.0,false),Algorithms.dimension_calculator(350.0,true));
@@ -156,8 +173,8 @@ public class Appointment_List_UI {
 		ListView<String> lv_day2 = new ListView<String>();
 		UI_Templates.list_view_style(lv_day2);
 		ObservableList<String> ol_day2 = FXCollections.observableArrayList();
-		for(String appointment : day2_AL) {
-			ol_day2.add(appointment);
+		for(Appointment appointment : day2_array) {
+//			ol_day2.add(appointment);
 		}
 		lv_day2.getItems().addAll(ol_day2);
 		lv_day2.setMaxSize(Algorithms.dimension_calculator(250.0,false),Algorithms.dimension_calculator(350.0,true));
@@ -170,8 +187,8 @@ public class Appointment_List_UI {
 		ListView<String> lv_day3 = new ListView<String>();
 		UI_Templates.list_view_style(lv_day3);
 		ObservableList<String> ol_day3 = FXCollections.observableArrayList();
-		for(String appointment : day3_AL) {
-			ol_day3.add(appointment);
+		for(Appointment appointment : day3_array) {
+//			ol_day3.add(appointment);
 		}
 		lv_day3.getItems().addAll(ol_day3);
 		lv_day3.setMaxSize(Algorithms.dimension_calculator(250.0,false),Algorithms.dimension_calculator(350.0,true));
@@ -184,8 +201,8 @@ public class Appointment_List_UI {
 		ListView<String> lv_day4 = new ListView<String>();
 		UI_Templates.list_view_style(lv_day4);
 		ObservableList<String> ol_day4 = FXCollections.observableArrayList();
-		for(String appointment : day4_AL) {
-			ol_day4.add(appointment);
+		for(Appointment appointment : day4_array) {
+//			ol_day4.add(appointment);
 		}
 		lv_day4.getItems().addAll(ol_day4);
 		lv_day4.setMaxSize(Algorithms.dimension_calculator(250.0,false),Algorithms.dimension_calculator(350.0,true));
@@ -200,7 +217,7 @@ public class Appointment_List_UI {
 			UI_Templates.list_view_style(lv_master);
 			ObservableList<String> ol_master = FXCollections.observableArrayList();
 			for(String appointment : appointments) {
-				ol_master.add(appointment);
+//				ol_master.add(appointment);
 			}
 			lv_master.getItems().addAll(ol_master);
 			lv_master.setMaxSize(Algorithms.dimension_calculator(250.0,false),Algorithms.dimension_calculator(350.0,true));
@@ -216,8 +233,8 @@ public class Appointment_List_UI {
 			ListView<String> lv_day5 = new ListView<String>();
 			UI_Templates.list_view_style(lv_day5);
 			ObservableList<String> ol_day5 = FXCollections.observableArrayList();
-			for(String appointment : day5_AL) {
-				ol_day5.add(appointment);
+			for(Appointment appointment : day5_array) {
+//				ol_day5.add(appointment);
 			}
 			lv_day5.getItems().addAll(ol_day5);
 			lv_day5.setMaxSize(Algorithms.dimension_calculator(250.0,false),Algorithms.dimension_calculator(350.0,true));

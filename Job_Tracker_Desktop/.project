@@ -20,4 +20,11 @@
 		<nature>org.eclipse.xtext.ui.shared.xtextNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>resources/Project_Construction_Data_Details.txt</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/OneDrive/Desktop/Project_Construction/Project_Construction_Data_Details.txt</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

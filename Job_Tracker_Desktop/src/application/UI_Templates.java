@@ -47,7 +47,7 @@ public class UI_Templates {
 	private static int current_month_val = current_month.getValue();
 	private static int current_year_val = Calendar.getInstance().get(Calendar.YEAR);
 	private static Integer[] position_array = month_day_val_array(current_month_val,current_year_val);
-	static boolean is_appt_details_shown = false;
+	protected static boolean is_appt_details_shown = false;
 	
 	@SuppressWarnings("static-access")
 	public static BorderPane header(Stage primary_stage, String title) {
@@ -90,96 +90,93 @@ public class UI_Templates {
 		return header;
 	}
 	
-	static void header_button_style(Button button) {
+	protected static void header_button_style(Button button) {
 		button.getStyleClass().add("header_button");
 		button.setId("header_button");
 	}
 	
-	static void UI_button(Button button) {
+	protected static void UI_button(Button button) {
 		button.getStyleClass().add("admin_home_screen_button");
 		button.setId("admin_home_screen_button");
 	}
 	
-	static void title_label_style(Label label) {
+	protected static void title_label_style(Label label) {
 		label.getStyleClass().add("admin_home_listview_label");
 		label.setId("admin_home_listview_label");
 	}
 	
-	static void output_label_style(Label label) {
+	protected static void output_label_style(Label label) {
 		label.getStyleClass().add("output_user_label");
 		label.setId("output_user_label");
 	}
 	
-	static <T> void list_view_style(ListView<T> listview) {
+	protected static <T> void list_view_style(ListView<T> listview) {
 		listview.getStyleClass().add("admin_home_listviw");
 		listview.setId("admin_home_listviw");
 	}
 	
-	static void enabled_label_style(Label label) {
+	protected static void enabled_label_style(Label label) {
 		label.getStyleClass().add("enabled_button");
 		label.setId("enabled_button");
 	}
-	static void disabled_label_style(Label label) {
+	protected static void disabled_label_style(Label label) {
 		label.getStyleClass().add("disabled_button");
 		label.setId("disabled_button");
 	}
 	
-	static void calendar_disabled_button_style(Button button) {
+	protected static void calendar_disabled_button_style(Button button) {
 		button.getStyleClass().add("disabled_button");
 		button.setId("disabled_button");
 	}
-	static void calendar_enabled_button_style(Button button) {
+	protected static void calendar_enabled_button_style(Button button) {
 		button.getStyleClass().add("enabled_button");
 		button.setId("enabled_button");
 	}
 	
-	static void calendar_disable_button(Button button) {
+	protected static void popup_error_style(GridPane grid) {
+		grid.getStyleClass().add("popup_error_style");
+		grid.setId("popup_error_style");
+	}
+	
+	protected static void calendar_disable_button(Button button) {
 		button.setDisable(true);
 		calendar_disabled_button_style(button);
 	}
 	
-	static void calendar_enable_button(Button button) {
+	protected static void calendar_enable_button(Button button) {
 		button.setDisable(false);
 		calendar_enabled_button_style(button);
 	}
 	
-	static void disable_interaction_button(Button button) {
+	protected static void disable_interaction_button(Button button) {
 		button.setDisable(true);
 		button.getStyleClass().add("disabled_interaction_button");
 		button.setId("disabled_interaction_button");
 	}
 	
-	static void enable_interaction_button(Button button) {
+	protected static void enable_interaction_button(Button button) {
 		button.setDisable(false);
 		button.getStyleClass().add("enabled_interaction_button");
 		button.setId("enabled_interaction_button");
 	}
 	
-	static void add_input_limiter_integers(final TextField tf) {
-		tf.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String>  observable, String old_value, String new_value) {
-				if(!new_value.matches("\\d*")) {
-					tf.setText(new_value.replaceAll("[^\\d]", ""));
-				}
-			}
-		});	
+	protected static void error_popup(Stage primary_stage, String message) {
+		Label lbl_error = new Label(message);
+		GridPane grid = new GridPane();
+		grid.add(lbl_error,0,0);
+		popup_error_style(grid);
+		Popup error_message = new Popup();
+		error_message.getContent().add(grid);
+		error_message.setAutoHide(true);
+		PauseTransition delay = new PauseTransition(Duration.seconds(2));
+		delay.setOnFinished(ex -> error_message.hide());
+		if(!error_message.isShowing()) {
+			error_message.show(primary_stage);
+			delay.play();
+		}
 	}
 	
-	static void add_integer_quantity_limiter(final TextField tf, final int maxLength) {
-		tf.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(final ObservableValue<? extends String> ov, final String old_value, final String new_value) {
-				if(tf.getText().length() > maxLength) {
-					String string = tf.getText().substring(0, maxLength);
-					tf.setText(string);
-				}
-			}
-		});
-	}
-	
-	
-	private static String date_corrector(int day_val, int month_val, int year_val) {
+	protected static String date_corrector(int day_val, int month_val, int year_val) {
 		Calendar cal = Calendar.getInstance();
 		switch(month_val) {
 		case 1 :
@@ -344,7 +341,7 @@ public class UI_Templates {
 					}
 				}
 			}
-			if(current_day_button_found) {
+			if(!current_day_button_found) {
 				System.out.println("Logic error inside UI_Templates.current_day_styler for loop");
 			}
 		}
@@ -1116,58 +1113,19 @@ public class UI_Templates {
 					// hours wrong
 					tf_hour.clear();
 					tf_minutes.clear();
-					Label lbl_error = new Label("ERROR: Hours cannot exceed 12.\nHours cannot be below 1.");
-					GridPane grid = new GridPane();
-					grid.add(lbl_error,0,0);
-					grid.getStyleClass().add("popup_error_style");
-					grid.setId("popup_error_style");
-					Popup error_message = new Popup();
-					error_message.getContent().add(grid);
-					error_message.setAutoHide(true);
-					PauseTransition delay = new PauseTransition(Duration.seconds(2));
-					delay.setOnFinished(ex -> error_message.hide());
-					if(!error_message.isShowing()) {
-						error_message.show(primary_stage);
-						delay.play();
-					}
+					error_popup(primary_stage, "ERROR: Hours cannot exceed 12.\nHours cannot be below 1.");
 				} else if((Integer.parseInt(tf_hour.getText()) < 12 && Integer.parseInt(tf_hour.getText()) > 1) && 
 						(Integer.parseInt(tf_minutes.getText()) > 59 || Integer.parseInt(tf_minutes.getText()) < 0)) {
 					// minutes wrong
 					tf_hour.clear();
 					tf_minutes.clear();
-					Label lbl_error = new Label("ERROR: Minutes cannot exceed 59.\nMinutes cannot be below 0.");
-					GridPane grid = new GridPane();
-					grid.add(lbl_error,0,0);
-					grid.getStyleClass().add("popup_error_style");
-					grid.setId("popup_error_style");
-					Popup error_message = new Popup();
-					error_message.getContent().add(grid);
-					error_message.setAutoHide(true);
-					PauseTransition delay = new PauseTransition(Duration.seconds(2));
-					delay.setOnFinished(ex -> error_message.hide());
-					if(!error_message.isShowing()) {
-						error_message.show(primary_stage);
-						delay.play();
-					}
+					error_popup(primary_stage, "ERROR: Minutes cannot exceed 59.\nMinutes cannot be below 0.");
 				} else if((Integer.parseInt(tf_hour.getText()) > 12 || Integer.parseInt(tf_hour.getText()) < 0) && 
 						(Integer.parseInt(tf_minutes.getText()) > 59 || Integer.parseInt(tf_minutes.getText()) < 0)){
 					// hours & minutes wrong 
 					tf_hour.clear();
 					tf_minutes.clear();
-					Label lbl_error = new Label("ERROR: Hours cannot exceed 12 or be below 1.\nMinutes cannot exceed 59 or be below 0.");
-					GridPane grid = new GridPane();
-					grid.add(lbl_error,0,0);
-					grid.getStyleClass().add("popup_error_style");
-					grid.setId("popup_error_style");
-					Popup error_message = new Popup();
-					error_message.getContent().add(grid);
-					error_message.setAutoHide(true);
-					PauseTransition delay = new PauseTransition(Duration.seconds(2));
-					delay.setOnFinished(ex -> error_message.hide());
-					if(!error_message.isShowing()) {
-						error_message.show(primary_stage);
-						delay.play();
-					}
+					error_popup(primary_stage, "ERROR: Hours cannot exceed 12 or be below 1.\nMinutes cannot exceed 59 or be below 0.");
 				}
 			}
 		});

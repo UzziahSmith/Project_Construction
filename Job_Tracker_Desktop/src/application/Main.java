@@ -1,44 +1,38 @@
 package application;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.job_tracker.attribute_creation.Appointment;
 import com.job_tracker.attribute_creation.Client;
 import com.job_tracker.attribute_creation.Employee;
 import com.job_tracker.attribute_creation.Location;
 import com.job_tracker.attribute_creation.Trade;
+import com.job_tracker.attribute_creation.User;
+import com.job_tracker.database_interaction.Add_DB;
+import com.job_tracker.jdbc.Connection_Test;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-
 public class Main extends Application {
 	
-	ArrayList<Appointment> appointments_array = new ArrayList<Appointment>();
-	ArrayList<Client> clients_array = new ArrayList<Client>();
-	ArrayList<Employee> employee_array = new ArrayList<Employee>();
-	ArrayList<Location> location_array = new ArrayList<Location>();
-	ArrayList<Trade> trade_array = new ArrayList<Trade>();
+	public static final String url = "jdbc:mysql://localhost:3306";
+	public static final String user = "root";
+	public static final String password = "constructpd173";
 	
-	private ArrayList<Appointment> get_appointments_from_database(String database, ArrayList<Appointment> appointment_array) {
-		return appointment_array;
-	}
-	private ArrayList<Client> get_clients_from_database(String database, ArrayList<Client> clients_array) {
-		return clients_array;
-	}
-	private ArrayList<Employee> get_employees_from_database(String database, ArrayList<Employee> employee_array) {
-		return employee_array;
-	}
-	private ArrayList<Location> get_locations_from_database(String database, ArrayList<Location> location_array) {
-		return location_array;
-	}
-	private ArrayList<Trade> get_trades_from_database(String database, ArrayList<Trade> trade_array) {
-		return trade_array;
-	}
+	public static User user_data;
+	
+	public static List<Appointment> appointments_array = new ArrayList<Appointment>();
+	public static List<Client> clients_array = new ArrayList<Client>();
+	public static List<Employee> employees_array = new ArrayList<Employee>();
+	public static List<Location> locations_array = new ArrayList<Location>();
+	public static List<Trade> trades_array = new ArrayList<Trade>();
 	
 	@Override
 	public void start(Stage primary_stage) throws Exception {
+		System.out.println("Program started");
 		Stage window = primary_stage;
 		Sign_In_UI sign_in_layout = new Sign_In_UI();
 		Scene sign_in_screen = new Scene(sign_in_layout.get_scene(window));

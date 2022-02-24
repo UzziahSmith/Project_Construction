@@ -104,6 +104,7 @@ public class Employee_Details_Screen_Administrator_UI {
 		lbl_first_name.setAlignment(Pos.CENTER_RIGHT);
 		UI_Templates.title_label_style(lbl_first_name);
 		TextField tf_first_name = new TextField("");
+		Algorithms.add_quantity_limiter(tf_first_name, 35);
 		tf_first_name.setMinSize(Algorithms.dimension_calculator(250.0,false), Algorithms.dimension_calculator(20.0,false));
 		left_grid.add(lbl_first_name,0,0);
 		left_grid.add(tf_first_name,1,0,3,1);
@@ -113,6 +114,7 @@ public class Employee_Details_Screen_Administrator_UI {
 		lbl_surname.setAlignment(Pos.CENTER_RIGHT);
 		UI_Templates.title_label_style(lbl_surname);
 		TextField tf_surname = new TextField();
+		Algorithms.add_quantity_limiter(tf_surname, 50);
 		tf_surname.setMinSize(Algorithms.dimension_calculator(250.0,false), Algorithms.dimension_calculator(20.0,false));
 		left_grid.add(lbl_surname,0,1);
 		left_grid.add(tf_surname,1,1,3,1);
@@ -122,8 +124,8 @@ public class Employee_Details_Screen_Administrator_UI {
 		lbl_phone_number.setAlignment(Pos.CENTER_RIGHT);
 		UI_Templates.title_label_style(lbl_phone_number);
 		TextField tf_phone_number = new TextField();
-		UI_Templates.add_input_limiter_integers(tf_phone_number);
-		UI_Templates.add_integer_quantity_limiter(tf_phone_number,10);
+		Algorithms.add_input_limiter_integers(tf_phone_number);
+		Algorithms.add_quantity_limiter(tf_phone_number,10);
 		tf_phone_number.setMinSize(Algorithms.dimension_calculator(250.0,false), Algorithms.dimension_calculator(20.0,false));
 		left_grid.add(lbl_phone_number,0,2);
 		left_grid.add(tf_phone_number,1,2,3,1);
@@ -209,6 +211,20 @@ public class Employee_Details_Screen_Administrator_UI {
 				UI_Templates.enable_interaction_button(btn_new);
 				UI_Templates.enable_interaction_button(btn_update);
 				UI_Templates.enable_interaction_button(btn_remove);
+				//String(=7) employee_id
+				//String(<36) first_name
+				String first_name_s = tf_first_name.getText();
+				boolean first_name_valid = first_name_s.length() < 36 ? true : false;
+				if(!first_name_valid) {}
+				//String(<51) surname
+				String surname_s = tf_surname.getText();
+				boolean surname_valid = surname_s.length() < 51 ? true : false;
+				if(!surname_valid) {}
+				//String(=10) phone_number
+				String phone_number_s = tf_phone_number.getText();
+				boolean phone_number_valid = phone_number_s.length() == 10 ? true : false;
+				if(!phone_number_valid) {System.out.println("Logical Error: phone number allowing numbers above or below 10 digits");}
+				//String(=5) trade_id
 			}
 		});
 		btn_remove.setOnAction(new EventHandler<ActionEvent>() {

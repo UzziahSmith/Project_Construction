@@ -363,15 +363,38 @@ public class Appointment_Details_UI {
 		UI_Templates.title_label_style(lbl_customer_feedback_title);
 		TextArea ta_customer_feedback = new TextArea();
 		ta_customer_feedback.setEditable(administrator);
+		ta_customer_feedback.setWrapText(true);
+		ta_customer_feedback.setPrefRowCount(20);
+		Algorithms.add_quantity_limiter_textarea(ta_customer_feedback,999);
 		ta_customer_feedback.setMinSize(Algorithms.dimension_calculator(200.0,false),Algorithms.dimension_calculator(150.0,true));
-		customer_feedback_vb.getChildren().addAll(lbl_customer_feedback_title,ta_customer_feedback);
-		GridPane briefs_grid = new GridPane();
-		briefs_grid.setVgap(Algorithms.dimension_calculator(50.0,true));
+		if(!administrator) {
+			ta_customer_feedback.setEditable(false);
+			Button btn_send_feedback = new Button("Send");
+			btn_send_feedback.setMinSize(Algorithms.dimension_calculator(40.0,false),Algorithms.dimension_calculator(20.0,true));
+			btn_send_feedback.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent e) {
+					System.out.println("Push feedback");
+				}
+			});
+			HBox hb_customer_feedback = new HBox();
+			hb_customer_feedback.setSpacing(Algorithms.dimension_calculator(10.0,false));
+			hb_customer_feedback.getChildren().addAll(ta_customer_feedback,btn_send_feedback);
+			customer_feedback_vb.getChildren().addAll(lbl_customer_feedback_title,hb_customer_feedback);
+		} else {
+			ta_customer_feedback.setEditable(true);
+			customer_feedback_vb.getChildren().addAll(lbl_customer_feedback_title,ta_customer_feedback);
+		}
 		TextArea ta_brief = new TextArea();
+		Algorithms.add_quantity_limiter_textarea(ta_brief,999);
+		ta_brief.setWrapText(true);
+		ta_brief.setPrefRowCount(20);
 		ta_brief.setEditable(administrator);
 		ta_brief.setMinSize(Algorithms.dimension_calculator(200.0,false),Algorithms.dimension_calculator(150.0,true));
 		VBox vb_brief = new VBox();
 		vb_brief.getChildren().addAll(lbl_brief_title,ta_brief);
+		GridPane briefs_grid = new GridPane();
+		briefs_grid.setVgap(Algorithms.dimension_calculator(50.0,true));
 		briefs_grid.add(vb_brief,0,0);
 		briefs_grid.add(customer_feedback_vb,0,1);
 		centre_panel.add(briefs_grid,2,0,1,2);
@@ -435,6 +458,31 @@ public class Appointment_Details_UI {
 					UI_Templates.enable_interaction_button(btn_new);
 					UI_Templates.enable_interaction_button(btn_update);
 					UI_Templates.enable_interaction_button(btn_remove);
+					//String(=5) time
+					String time_s = lbl_time.getText(); 
+					boolean time_valid = time_s.length() == 5 ? true : false;
+					if(time_valid) {
+						
+					} else {
+					
+					}
+					//String(8-10) date
+					String date_s = lbl_date.getText();
+					boolean date_valid = date_s.length() > 7 && date_s.length() < 11 ? true : false;
+					if(!date_valid) {}
+					//String(<1000) brief
+					String brief_s = ta_brief.getText();
+					boolean brief_valid = brief_s.length() < 1000 ? true : false;
+					if(!brief_valid) {}
+					//String(<1000) feedback
+					String feedback_s = ta_customer_feedback.getText();
+					boolean feedback_valid = feedback_s.length() < 1000 ? true : false;
+					if(!feedback_valid) {}
+					//String(7) client_id
+					//String(7) employee_id
+					//String(7) street_number
+					//String(50) street_name
+					//Int(=4) postcode 
 				}
 			});
 			btn_remove.setOnAction(new EventHandler<ActionEvent>() {

@@ -6,7 +6,7 @@ import java.lang.Integer;
 
 public class Add_DB {
 	
-	private static java.lang.Integer Record_Counter(String url, String username, String password, String schema, String table) {
+	private static Integer Record_Counter(String url, String username, String password, String schema, String table) {
 		// Setup sql command statement to count records.
 		String sql_statement = String.format("SELECT COUNT(*) FROM %s.%s", schema, table);
 		
@@ -20,7 +20,7 @@ public class Add_DB {
 		}
 	}
 	
-	public static java.lang.Integer Schema_Business_Counter(String url, String username, String password) {
+	public static Integer Schema_Business_Counter(String url, String username, String password) {
 		//SQL command to count the databases in MySQL
 		String sql_statement = "SELECT COUNT(*) FROM information_schema.SCHEMATA where schema_name not in ('information_schema', 'mysql', 'performance_schema', 'sys')";
 		
@@ -64,32 +64,31 @@ public class Add_DB {
 				+ "first_name VARCHAR(35), "
 				+ "surname VARCHAR(50), "
 				+ "phone_number VARCHAR(10), "
+				+ "employed BOOLEAN, "
 				+ "trade_id VARCHAR(5), "
 				+ "PRIMARY KEY (employee_id), "
 				+ "FOREIGN KEY (trade_id) REFERENCES trades(trade_id));";
 		String sql_statement_table_locations = "CREATE TABLE locations ("
+				+ "location_id VARCHAR(10), "
 				+ "street_number VARCHAR(7), "
 				+ "street_name VARCHAR(50), "
 				+ "postcode INT(4), "
 				+ "client_id VARCHAR(7), "
-				+ "PRIMARY KEY (street_number, street_name, postcode), "
+				+ "PRIMARY KEY (location_id), "
 				+ "FOREIGN KEY (client_id) REFERENCES clients(client_id))";	
 		String sql_statement_table_appointments = "CREATE TABLE appointments ("
 				+ "appointment_id VARCHAR(14), "
 				+ "time VARCHAR(5), "
-				+ "date VARCAHR(10), "
+				+ "date VARCHAR(10), "
 				+ "brief VARCHAR(999), "
+				+ "feedback VARCHAR(999), "
 				+ "client_id VARCHAR(7), "
 				+ "employee_id VARCHAR(7), "
-				+ "street_number VARCHAR(7), "
-				+ "street_name VARCHAR(50), "
-				+ "postcode INT(4), "
+				+ "location_id VARCHAR(7), "
 				+ "PRIMARY KEY (appointment_id), "
 				+ "FOREIGN KEY (client_id) REFERENCES clients(client_id), "
 				+ "FOREIGN KEY (employee_id) REFERENCES employees(employee_id), "
-				+ "FOREIGN KEY (street_number) REFERENCES locations(street_number), "
-				+ "FOREIGN KEY (street_name) REFERENCES locations(street_name), "
-				+ "FOREIGN KEY (postcode) REFERENCES locations(postcode))";
+				+ "FOREIGN KEY (location_id) REFERENCES locations(location_id));";
 		
 		// establishes connection with the server, processes statement, then tests whether it was successful or not.
 		if(Connection_Execute.Command_Database(url, username, password, sql_statement_business)) {
@@ -154,7 +153,12 @@ public class Add_DB {
 	}
 	
 	public static boolean Trade(String url, String username, String password, String schema, String title) {
-		int trade_count = Record_Counter(url, username, password, schema, "trades");
+		int trade_count;
+		if(Record_Counter(url, username, password, schema, "trades") == null) {
+			trade_count = 0;
+		} else {
+			trade_count = Record_Counter(url, username, password, schema, "trades");
+		}
 		String id = Create_ID('T', trade_count);
 		Trade new_trade = new Trade(id, title);
 		String sql_statement = "INSERT INTO " + schema + ".trades (trade_id, title) "
@@ -198,16 +202,16 @@ public class Add_DB {
 		}
 	}
 
-	public static boolean Appointment(String url, String username, String password, String schema, String time, String date, String brief, String client_id, String employee_id, String street_number, String street_name, int postcode) {
-		int appointment_count = Record_Counter(url, username, password, schema, "appointments");
+	public static boolean Appointment(String url, String username, String password, String schema, String time, String date, String brief, String feedback, String client_id, String employee_id, String street_number, String street_name, int postcode) {
+		int appointment_count = Record_Counter(url,username,password, schema, "appointments");
 		String id = Create_ID('A', appointment_count);
-		Appointment new_appointment = new Appointment(id, time, date, brief, client_id, employee_id, street_number, street_name, postcode);
+		Appointment new_appointment = new Appointment(id,time,date,brief,feedback,client_id,employee_id,street_number,street_name,postcode);
 		String sql_statement = "INSERT INTO " + schema + ".appointments (appointment_id, time, date, brief, client_id, employee_id, street_number, street_name, postcode) "
 				+ "VALUES (" + "'" + new_appointment.id + "'" + "," + new_appointment.time + "," + new_appointment.date + ","
-						+ "" + "'" + new_appointment.brief + "'" + "," + "'" + new_appointment.client_id + "'" + "," + "'"
+						+ "" + "'" + new_appointment.brief + "'" + "," + "'" + new_appointment.brief + "'" + "," + "'" + new_appointment.client_id + "'" + "," + "'"
 								+ "" + new_appointment.employee_id + "'" + "," + "'" + street_number + "'" + "," + "'" + street_name + "'"
 										+ "" + "," + postcode + ")";
-		if(Connection_Execute.Command_Database(url, username, password, sql_statement)) {
+		if(Connection_Execute.Command_Database(url,username,password,sql_statement)) {
 			System.out.println("Successfully created Appointment: " + new_appointment.id);
 			return true;
 		} else {

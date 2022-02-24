@@ -237,7 +237,7 @@ public class Home_Screen_Administrator_UI {
 		try {
 			BorderPane border_pane = new BorderPane();
 			border_pane.setPrefSize(screen_width*0.8,screen_height*0.8);
-			border_pane.setTop(UI_Templates.header(primary_stage, "Administrator: COMPANY_NAME"));
+			border_pane.setTop(UI_Templates.header(primary_stage, "Administrator: " + Main.user_data.business));
 			border_pane.setCenter(centre_selection_grid(primary_stage));
 			border_pane.setLeft(vb_appointments(primary_stage));
 			return border_pane;

@@ -1,6 +1,13 @@
 package application;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+
+import com.job_tracker.attribute_creation.Trade;
+import com.job_tracker.database_interaction.Add_DB;
+import com.job_tracker.database_interaction.Select_DB;
+import com.job_tracker.database_interaction.Update_DB;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,13 +20,27 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 public class Trade_List_Screen_Administrator_UI {
+	
+	private String current_id;
+	
+	private int get_current_id_int(String current_id) {
+		String current_id_s = ""; 
+		for(int i = 1; i < current_id.length(); i++) {
+			current_id_s += current_id.charAt(i);
+		}
+		int current_id_int = Integer.parseInt(current_id_s);
+		return current_id_int;
+	}
+	
 	private BorderPane header(Stage primary_stage) {
 
 		BorderPane header = UI_Templates.header(primary_stage,"Trade Titles");
@@ -84,7 +105,7 @@ public class Trade_List_Screen_Administrator_UI {
 	}
 	
 	@SuppressWarnings("static-access")
-	private GridPane centre_view(ArrayList<String> trades) {
+	private GridPane centre_view(Stage primary_stage, List<Trade> trades) {
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
 		grid.setHgap(Algorithms.dimension_calculator(200.0,false));
@@ -101,8 +122,59 @@ public class Trade_List_Screen_Administrator_UI {
 		left_view.add(lbl_trade_title,0,0);
 		
 		TextField tf_trade_title = new TextField();
+		Algorithms.add_quantity_limiter(tf_trade_title, 50);
 		tf_trade_title.setMinSize(Algorithms.dimension_calculator(250.0,false),Algorithms.dimension_calculator(20.0,true));
 		left_view.add(tf_trade_title,1,0);
+		
+		Label lbl_trade_list_view_title = new Label("Trades");
+		UI_Templates.title_label_style(lbl_trade_list_view_title);
+		lbl_trade_list_view_title.setAlignment(Pos.CENTER);
+		lbl_trade_list_view_title.setMaxWidth(Double.MAX_VALUE);
+		lbl_trade_list_view_title.setPadding(new Insets(0,0,Algorithms.dimension_calculator(20.0,true),0));
+		
+		ListView<String> lv_trades = new ListView<String>();
+		UI_Templates.list_view_style(lv_trades);
+		ObservableList<String> lv_trade_items = FXCollections.observableArrayList();
+		if(trades != null) {
+			for(Trade trade : trades) {
+				String item_add_string = String.format("%s - %s",trade.id,trade.title);
+				lv_trade_items.add(item_add_string);
+			}
+		}
+		lv_trades.setItems(lv_trade_items);
+		lv_trades.setPrefSize(Algorithms.dimension_calculator(300.0,false),Algorithms.dimension_calculator(500.0,true));
+		lv_trades.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent click) {
+				String current_item_selected = lv_trades.getSelectionModel().getSelectedItem();
+				String current_item_title_output = "";
+				int spaces_counter = 0;
+				for(int i = 0; i < current_item_selected.length(); i++) {
+					if(current_item_selected.charAt(i) == ' ') {
+						spaces_counter++;
+					}
+					if(spaces_counter >= 2) {
+						if(i == current_item_selected.length()-1) {
+							break;
+						} else {
+							current_item_title_output += current_item_selected.charAt(i+1);
+						}
+					}
+				}
+				tf_trade_title.setText(current_item_title_output);
+				current_id = "";
+				for(int i = 0; i < current_item_selected.length(); i++) {
+					if(current_item_selected.charAt(i) != ' ') {
+						current_id += current_item_selected.charAt(i);
+					} else {
+						break;
+					}
+				}
+				System.out.println(current_id);
+			}
+		});
+		
+		right_vb.getChildren().addAll(lbl_trade_list_view_title, lv_trades);
 		
 		HBox trade_interactive_button_bar = new HBox();
 		trade_interactive_button_bar.setSpacing(Algorithms.dimension_calculator(10.0,false));
@@ -132,12 +204,37 @@ public class Trade_List_Screen_Administrator_UI {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Add new client");
-				tf_trade_title.clear();
 				UI_Templates.disable_interaction_button(btn_add);
 				UI_Templates.disable_interaction_button(btn_cancel);
 				UI_Templates.enable_interaction_button(btn_new);
 				UI_Templates.enable_interaction_button(btn_update);
 				UI_Templates.enable_interaction_button(btn_remove);
+				//String(=5) trade_id
+				//String(<51) title
+				String title_s = tf_trade_title.getText();
+				boolean title_s_valid = title_s.length() < 51 ? true : false;
+				if(!title_s_valid) {
+					
+				} else {
+					try {
+						if(Algorithms.trade_title_exists(title_s)) {
+							String error_message = String.format("Warning: Title: %s already exists", title_s);
+							UI_Templates.error_popup(primary_stage, error_message);
+							Add_DB.Trade(Main.url,Main.user,Main.password,Main.user_data.business,title_s);
+							Main.trades_array = Select_DB.Extract_Data_Record_Trades(Main.url, Main.user, Main.password, Main.user_data.business);
+						} else {
+							Add_DB.Trade(Main.url,Main.user,Main.password,Main.user_data.business,title_s);
+							Main.trades_array = Select_DB.Extract_Data_Record_Trades(Main.url, Main.user, Main.password, Main.user_data.business);
+						}
+						int size = Main.trades_array.size();
+						String item_add_string = String.format("%s - %s",Main.trades_array.get(size-1).id,Main.trades_array.get(size-1).title);
+						lv_trade_items.add(item_add_string);
+						lv_trades.setItems(lv_trade_items);
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
 		btn_remove.setOnAction(new EventHandler<ActionEvent>() {
@@ -149,7 +246,23 @@ public class Trade_List_Screen_Administrator_UI {
 		btn_update.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("Updated selected client information");
+				if(Main.trades_array != null) {
+					Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"trades","title",current_id,tf_trade_title.getText());
+					tf_trade_title.clear();
+					try {
+						Main.trades_array = Select_DB.Extract_Data_Record_Trades(Main.url,Main.user,Main.password,Main.user_data.business);
+						lv_trade_items.clear();
+						for(Trade trade : trades) {
+							String item_add_string = String.format("%s - %s",trade.id,trade.title);
+							lv_trade_items.add(item_add_string);
+						}
+						lv_trades.setItems(lv_trade_items);
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					System.out.println("Updated selected client information");
+				}
 			}
 		});
 		btn_cancel.setOnAction(new EventHandler<ActionEvent>() {
@@ -167,23 +280,6 @@ public class Trade_List_Screen_Administrator_UI {
 		trade_interactive_button_bar.getChildren().addAll(btn_new,btn_add,btn_update,btn_remove,btn_cancel);
 		trade_interactive_button_bar.setAlignment(Pos.CENTER);
 		left_view.add(trade_interactive_button_bar,0,1,2,1);
-
-		Label lbl_trade_list_view_title = new Label("Trades");
-		UI_Templates.title_label_style(lbl_trade_list_view_title);
-		lbl_trade_list_view_title.setAlignment(Pos.CENTER);
-		lbl_trade_list_view_title.setMaxWidth(Double.MAX_VALUE);
-		lbl_trade_list_view_title.setPadding(new Insets(0,0,Algorithms.dimension_calculator(20.0,true),0));
-		
-		ListView<String> lv_trades = new ListView<String>();
-		UI_Templates.list_view_style(lv_trades);
-		ObservableList<String> lv_trade_items = FXCollections.observableArrayList();
-		for(String trade : trades) {
-			lv_trade_items.add(trade);
-		}
-		lv_trades.setItems(lv_trade_items);
-		lv_trades.setPrefSize(Algorithms.dimension_calculator(300.0,false),Algorithms.dimension_calculator(500.0,true));
-		
-		right_vb.getChildren().addAll(lbl_trade_list_view_title, lv_trades);
 		
 		grid.add(left_view,0,0);
 		grid.add(right_vb,1,0);
@@ -194,10 +290,10 @@ public class Trade_List_Screen_Administrator_UI {
 	public BorderPane get_scene(Stage primary_stage) {
 		BorderPane border_pane = new BorderPane();
 		
-		ArrayList<String> test_trades = new ArrayList<String>();
+		List<Trade> test_trades = Main.trades_array;
 		
 		border_pane.setTop(header(primary_stage));
-		border_pane.setCenter(centre_view(test_trades));
+		border_pane.setCenter(centre_view(primary_stage, test_trades));
 		return border_pane;
 	}
 }

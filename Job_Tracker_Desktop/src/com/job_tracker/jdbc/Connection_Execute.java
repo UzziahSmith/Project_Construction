@@ -18,7 +18,7 @@ public class Connection_Execute {
 		}
 	}
 	
-	public static java.lang.Integer Int_Query_Database(String url, String username, String password, String query_statement) {
+	public static Integer Int_Query_Database(String url, String username, String password, String query_statement) {
 		// creates an object and tries to establish a connection with the SQL server, implements statement then returns int.
 		try(Connection conn = DriverManager.getConnection(url, username, password); PreparedStatement statement = conn.prepareStatement(query_statement)) {
 			ResultSet result_set = statement.executeQuery();
@@ -43,4 +43,4 @@ public class Connection_Execute {
 			return null;
 		}
 	}
-	
+}

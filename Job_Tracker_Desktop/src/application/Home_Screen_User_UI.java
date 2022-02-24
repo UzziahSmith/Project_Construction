@@ -232,7 +232,7 @@ public class Home_Screen_User_UI {
 			BorderPane border_pane = new BorderPane();
 			Rectangle2D screen_bounds = Screen.getPrimary().getBounds();
 			border_pane.setPrefSize(screen_bounds.getWidth()*0.8,screen_bounds.getHeight()*0.8);
-			border_pane.setTop(UI_Templates.header(primary_stage, "Administrator: COMPANY_NAME"));
+			border_pane.setTop(UI_Templates.header(primary_stage, Main.user_data.email + ": " + Main.user_data.business));
 			border_pane.setCenter(centre_view(primary_stage));
 			return border_pane;
 		} catch(Exception e) {

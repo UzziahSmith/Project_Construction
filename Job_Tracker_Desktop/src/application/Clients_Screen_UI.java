@@ -143,12 +143,14 @@ public class Clients_Screen_UI {
 		
 		if(administrator) {
 			TextField tf_first_name = new TextField();
+			Algorithms.add_quantity_limiter(tf_first_name,35);
 			centre_view.add(tf_first_name,2,1);
 			TextField tf_surname = new TextField();
+			Algorithms.add_quantity_limiter(tf_surname,50);
 			centre_view.add(tf_surname,2,2);
 			TextField tf_phone_number = new TextField();
-			UI_Templates.add_input_limiter_integers(tf_phone_number);
-			UI_Templates.add_integer_quantity_limiter(tf_phone_number,10);
+			Algorithms.add_input_limiter_integers(tf_phone_number);
+			Algorithms.add_quantity_limiter(tf_phone_number,10);
 			centre_view.add(tf_phone_number,2,3);
 
 			HBox client_interactive_button_bar = new HBox();
@@ -189,6 +191,20 @@ public class Clients_Screen_UI {
 					UI_Templates.enable_interaction_button(btn_new);
 					UI_Templates.enable_interaction_button(btn_update);
 					UI_Templates.enable_interaction_button(btn_remove);
+					//String(=7) client_id
+					//String(<36) first_name
+					String first_name_s = tf_first_name.getText();
+					boolean first_name_valid = first_name_s.length() < 36 ? true : false;
+					if(!first_name_valid) {}
+					//String(<50) surname
+					String surname_s = tf_surname.getText();
+					boolean surname_valid = surname_s.length() < 36 ? true : false;
+					if(!surname_valid) {}
+					//String(=10) phone_number
+					String phone_number_s = tf_phone_number.getText();
+					boolean phone_number_valid = phone_number_s.length() == 10 ? true : false;
+					if(!phone_number_valid) {System.out.println("Logical Error: phone number allowing numbers above or below 10 digits");}
+					//Boolean previous_client
 				}
 			});
 			btn_remove.setOnAction(new EventHandler<ActionEvent>() {
