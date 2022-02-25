@@ -173,8 +173,6 @@ public class Employee_Details_Screen_Administrator_UI {
 		UI_Templates.enable_interaction_button(btn_new);
 		Button btn_add = new Button("ADD");
 		UI_Templates.disable_interaction_button(btn_add);
-		Button btn_remove = new Button("REMOVE");
-		UI_Templates.enable_interaction_button(btn_remove);
 		Button btn_update = new Button("UPDATE");
 		UI_Templates.enable_interaction_button(btn_update);
 		Button btn_cancel = new Button("CANCEL");
@@ -193,7 +191,6 @@ public class Employee_Details_Screen_Administrator_UI {
 				UI_Templates.enable_interaction_button(btn_cancel);
 				UI_Templates.disable_interaction_button(btn_new);
 				UI_Templates.disable_interaction_button(btn_update);
-				UI_Templates.disable_interaction_button(btn_remove);
 			}
 		});
 		btn_add.setOnAction(new EventHandler<ActionEvent>() {
@@ -210,7 +207,6 @@ public class Employee_Details_Screen_Administrator_UI {
 				UI_Templates.disable_interaction_button(btn_cancel);
 				UI_Templates.enable_interaction_button(btn_new);
 				UI_Templates.enable_interaction_button(btn_update);
-				UI_Templates.enable_interaction_button(btn_remove);
 				//String(=7) employee_id
 				//String(<36) first_name
 				String first_name_s = tf_first_name.getText();
@@ -225,12 +221,6 @@ public class Employee_Details_Screen_Administrator_UI {
 				boolean phone_number_valid = phone_number_s.length() == 10 ? true : false;
 				if(!phone_number_valid) {System.out.println("Logical Error: phone number allowing numbers above or below 10 digits");}
 				//String(=5) trade_id
-			}
-		});
-		btn_remove.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				System.out.println("Remove selected client");
 			}
 		});
 		btn_update.setOnAction(new EventHandler<ActionEvent>() {
@@ -253,14 +243,13 @@ public class Employee_Details_Screen_Administrator_UI {
 				UI_Templates.disable_interaction_button(btn_cancel);
 				UI_Templates.enable_interaction_button(btn_new);
 				UI_Templates.enable_interaction_button(btn_update);
-				UI_Templates.enable_interaction_button(btn_remove);
 			}
 		});
-		button_bar.getChildren().addAll(btn_new,btn_add,btn_remove,btn_update,btn_cancel);
+		button_bar.getChildren().addAll(btn_new,btn_add,btn_update,btn_cancel);
 		trade_details_button_bar.setPadding(new Insets(Algorithms.dimension_calculator(50.0,true),0,0,0));
 		trade_details_button_bar.setAlignment(Pos.CENTER_RIGHT);
 		trade_details_button_bar.setMaxWidth(Double.MAX_VALUE);
-		trade_details_button_bar.getChildren().addAll(btn_new, btn_add, btn_remove, btn_update, btn_cancel);
+		trade_details_button_bar.getChildren().addAll(btn_new, btn_add, btn_update, btn_cancel);
 		left_grid.add(trade_details_button_bar,0,5,5,1);
 		
 		Label lbl_employee_list_view_title = new Label("Employees");

@@ -2,11 +2,15 @@ package com.job_tracker.database_interaction;
 
 import com.job_tracker.attribute_creation.*;
 import com.job_tracker.jdbc.Connection_Execute;
+
+import application.Main;
+
 import java.lang.Integer;
+import java.util.List;
 
 public class Add_DB {
 	
-	private static Integer Record_Counter(String url, String username, String password, String schema, String table) {
+	public static Integer Record_Counter(String url, String username, String password, String schema, String table) {
 		// Setup sql command statement to count records.
 		String sql_statement = String.format("SELECT COUNT(*) FROM %s.%s", schema, table);
 		
@@ -33,6 +37,37 @@ public class Add_DB {
 			System.out.println("Unsuccessful count.");
 			return null;
 		}
+	}
+	
+	@SuppressWarnings("null")
+	private static int get_last_record(List<Appointment> appt_list, List<Client> client_list, List<Employee> employee_list, List<Trade> trade_list) {
+		String id;
+		String parse_string = null;
+		int parse_val;
+		if(appt_list != null) {
+			int max_pos = appt_list.size()-1;
+			id = appt_list.get(max_pos).id;
+		} else if(client_list != null) {
+			int max_pos = client_list.size()-1;
+			id = client_list.get(max_pos).id;
+		} else if(employee_list != null) {
+			int max_pos = employee_list.size()-1;
+			id = employee_list.get(max_pos).id;
+		} else if(trade_list != null) {
+			int max_pos = trade_list.size()-1;
+			id = trade_list.get(max_pos).id;
+		} else {
+			return (Integer) null;
+		}
+		for(int i = 1; i < id.length(); i++) {
+			if(parse_string == null) {
+				parse_string = String.valueOf(id.charAt(1));
+			} else {
+				parse_string += id.charAt(i);
+			}
+		}
+		parse_val = Integer.parseInt(parse_string);
+		return parse_val;
 	}
 	
 	private static String Create_ID(char prefix, int count) {
@@ -138,7 +173,7 @@ public class Add_DB {
 	
 	public static boolean Client(String url, String username, String password, String schema, String first_name, String surname, String phone_number, boolean previous_client) {
 		int client_count = Record_Counter(url, username, password, schema, "clients");
-		String id = Create_ID('C', client_count);
+		String id = Create_ID('C', get_last_record(null,Main.clients_array,null,null));
 		Client new_client = new Client(id, first_name, surname, phone_number, previous_client);
 		String sql_statement = "INSERT INTO " + schema + ".clients (client_id, first_name, surname, phone_number, previous_client) "
 				+ "VALUES (" + "'" + new_client.id + "'" + "," + "'" + new_client.first_name + "'" + "," + "'" + new_client.surname + "'" + ","
@@ -154,12 +189,12 @@ public class Add_DB {
 	
 	public static boolean Trade(String url, String username, String password, String schema, String title) {
 		int trade_count;
-		if(Record_Counter(url, username, password, schema, "trades") == null) {
+		if(get_last_record(null,null,null,Main.trades_array) == (Integer) null) {
 			trade_count = 0;
 		} else {
-			trade_count = Record_Counter(url, username, password, schema, "trades");
+			trade_count = get_last_record(null,null,null,Main.trades_array);
 		}
-		String id = Create_ID('T', trade_count);
+		String id = Create_ID('T', trade_count+1);
 		Trade new_trade = new Trade(id, title);
 		String sql_statement = "INSERT INTO " + schema + ".trades (trade_id, title) "
 				+ "VALUES (" + "'" + new_trade.id + "'" + "," + "'" + new_trade.title + "'" + ")";
@@ -174,7 +209,7 @@ public class Add_DB {
 	
 	public static boolean Employee(String url, String username, String password, String schema, String first_name, String surname, String phone_number, boolean employed, String trade_id) {
 		int employee_count = Record_Counter(url, username, password, schema, "employees");
-		String id = Create_ID('E', employee_count);
+		String id = Create_ID('E', get_last_record(null,null,Main.employees_array,null));
 		Employee new_employee = new Employee(id, first_name, surname, phone_number, employed, trade_id);
 		String sql_statement = "INSERT INTO " + schema + ".employees (employee_id, first_name, surname, phone_number, trade_id) "
 				+ "VALUES (" + "'" + new_employee.id + "'" + "," + "'" + new_employee.first_name + "'" + "," + "'" + new_employee.surname + "'" + ","
@@ -203,8 +238,7 @@ public class Add_DB {
 	}
 
 	public static boolean Appointment(String url, String username, String password, String schema, String time, String date, String brief, String feedback, String client_id, String employee_id, String street_number, String street_name, int postcode) {
-		int appointment_count = Record_Counter(url,username,password, schema, "appointments");
-		String id = Create_ID('A', appointment_count);
+		String id = Create_ID('A', get_last_record(Main.appointments_array,null,null,null));
 		Appointment new_appointment = new Appointment(id,time,date,brief,feedback,client_id,employee_id,street_number,street_name,postcode);
 		String sql_statement = "INSERT INTO " + schema + ".appointments (appointment_id, time, date, brief, client_id, employee_id, street_number, street_name, postcode) "
 				+ "VALUES (" + "'" + new_appointment.id + "'" + "," + new_appointment.time + "," + new_appointment.date + ","

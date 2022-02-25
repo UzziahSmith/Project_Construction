@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.job_tracker.attribute_creation.Trade;
 import com.job_tracker.database_interaction.Add_DB;
+import com.job_tracker.database_interaction.Delete_DB;
 import com.job_tracker.database_interaction.Select_DB;
 import com.job_tracker.database_interaction.Update_DB;
 
@@ -31,6 +32,19 @@ import javafx.stage.Stage;
 public class Trade_List_Screen_Administrator_UI {
 	
 	private String current_id;
+	
+	private void reset_listview(List<Trade> trades, ObservableList<String> observable_list, ListView<String> listview) throws SQLException {
+		Main.trades_array = Select_DB.Extract_Data_Record_Trades(Main.url,Main.user,Main.password,Main.user_data.business);
+		observable_list.clear();
+		if(Main.trades_array != null) {
+			for(Trade trade : trades) {
+				String item_add_string = String.format("%s - %s",trade.id,trade.title);
+				observable_list.add(item_add_string);
+				System.out.println(item_add_string);
+			}
+		}
+		listview.setItems(observable_list);
+	}
 	
 	private int get_current_id_int(String current_id) {
 		String current_id_s = ""; 
@@ -182,8 +196,6 @@ public class Trade_List_Screen_Administrator_UI {
 		UI_Templates.enable_interaction_button(btn_new);
 		Button btn_add = new Button("ADD");
 		UI_Templates.disable_interaction_button(btn_add);
-		Button btn_remove = new Button("REMOVE");
-		UI_Templates.enable_interaction_button(btn_remove);
 		Button btn_update = new Button("UPDATE");
 		UI_Templates.enable_interaction_button(btn_update);
 		Button btn_cancel = new Button("CANCEL");
@@ -197,7 +209,6 @@ public class Trade_List_Screen_Administrator_UI {
 				UI_Templates.enable_interaction_button(btn_cancel);
 				UI_Templates.disable_interaction_button(btn_new);
 				UI_Templates.disable_interaction_button(btn_update);
-				UI_Templates.disable_interaction_button(btn_remove);
 			}
 		});
 		btn_add.setOnAction(new EventHandler<ActionEvent>() {
@@ -208,7 +219,6 @@ public class Trade_List_Screen_Administrator_UI {
 				UI_Templates.disable_interaction_button(btn_cancel);
 				UI_Templates.enable_interaction_button(btn_new);
 				UI_Templates.enable_interaction_button(btn_update);
-				UI_Templates.enable_interaction_button(btn_remove);
 				//String(=5) trade_id
 				//String(<51) title
 				String title_s = tf_trade_title.getText();
@@ -235,34 +245,73 @@ public class Trade_List_Screen_Administrator_UI {
 						e1.printStackTrace();
 					}
 				}
+				tf_trade_title.clear();
 			}
 		});
-		btn_remove.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				System.out.println("Remove selected client");
-			}
-		});
+//		btn_remove.setOnAction(new EventHandler<ActionEvent>() {
+//			@Override
+//			public void handle(ActionEvent e) {
+//				System.out.println("Remove selected client");
+//				Popup warning = new Popup();
+//				Button btn_popup_cancel = new Button("Cancel");
+//				Button btn_popup_remove = new Button("Remove");
+//				Label lbl_warning = new Label("WARNING: removing records is permanent and cannot be undone.");
+//				GridPane popup_grid = new GridPane();
+//				UI_Templates.popup_error_style(popup_grid);
+//				popup_grid.add(lbl_warning,0,0,2,1);
+//				popup_grid.add(btn_popup_cancel,0,1);
+//				popup_grid.add(btn_popup_remove,1,1);
+//				popup_grid.setVgap(20.0);
+//				popup_grid.setHgap(50.0);
+//				warning.getContent().add(popup_grid);
+//				warning.show(primary_stage);
+//				btn_popup_cancel.setOnAction(new EventHandler<ActionEvent>() {
+//					@Override
+//					public void handle(ActionEvent e) {
+//						warning.hide();
+//					}
+// 				});
+//				btn_popup_remove.setOnAction(new EventHandler<ActionEvent>() {
+//					@Override
+//					public void handle(ActionEvent e) {
+//						warning.hide();
+//						if(Delete_DB.Delete_Record(Main.url,Main.user,Main.password,Main.user_data.business,"trades","trade_id",current_id)) {
+//							System.out.println("Successfully removed record");
+//							for(Trade trade : Main.trades_array) {
+//								if(trade.id.equals("T" + current_id)) {
+//									Main.trades_array.remove(trade);
+//									break;
+//								}
+//							}
+//							try {
+//								reset_listview(trades, lv_trade_items, lv_trades);
+//								tf_trade_title.clear();
+//							} catch (SQLException e1) {
+//								// TODO Auto-generated catch block
+//								e1.printStackTrace();
+//							}
+//						} else {
+//							System.out.println("Failed to remove record");
+//							UI_Templates.warning_popup(primary_stage, "Failed to remove record");
+//						}
+//					}
+//				});
+//			}
+//		});
 		btn_update.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
 				if(Main.trades_array != null) {
 					Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"trades","title",current_id,tf_trade_title.getText());
-					tf_trade_title.clear();
 					try {
-						Main.trades_array = Select_DB.Extract_Data_Record_Trades(Main.url,Main.user,Main.password,Main.user_data.business);
-						lv_trade_items.clear();
-						for(Trade trade : trades) {
-							String item_add_string = String.format("%s - %s",trade.id,trade.title);
-							lv_trade_items.add(item_add_string);
-						}
-						lv_trades.setItems(lv_trade_items);
+						reset_listview(trades, lv_trade_items, lv_trades);
 					} catch (SQLException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 					System.out.println("Updated selected client information");
 				}
+				tf_trade_title.clear();
 			}
 		});
 		btn_cancel.setOnAction(new EventHandler<ActionEvent>() {
@@ -274,10 +323,9 @@ public class Trade_List_Screen_Administrator_UI {
 				UI_Templates.disable_interaction_button(btn_cancel);
 				UI_Templates.enable_interaction_button(btn_new);
 				UI_Templates.enable_interaction_button(btn_update);
-				UI_Templates.enable_interaction_button(btn_remove);
 			}
 		});
-		trade_interactive_button_bar.getChildren().addAll(btn_new,btn_add,btn_update,btn_remove,btn_cancel);
+		trade_interactive_button_bar.getChildren().addAll(btn_new,btn_add,btn_update,btn_cancel);
 		trade_interactive_button_bar.setAlignment(Pos.CENTER);
 		left_view.add(trade_interactive_button_bar,0,1,2,1);
 		

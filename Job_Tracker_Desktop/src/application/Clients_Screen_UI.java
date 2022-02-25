@@ -158,9 +158,7 @@ public class Clients_Screen_UI {
 			Button btn_new = new Button("NEW");
 			UI_Templates.enable_interaction_button(btn_new);
 			Button btn_add = new Button("ADD");
-			UI_Templates.disable_interaction_button(btn_add);
-			Button btn_remove = new Button("REMOVE");
-			UI_Templates.enable_interaction_button(btn_remove);
+			UI_Templates.enable_interaction_button(btn_add);
 			Button btn_update = new Button("UPDATE");
 			UI_Templates.enable_interaction_button(btn_update);
 			Button btn_cancel = new Button("CANCEL");
@@ -176,7 +174,6 @@ public class Clients_Screen_UI {
 					UI_Templates.enable_interaction_button(btn_cancel);
 					UI_Templates.disable_interaction_button(btn_new);
 					UI_Templates.disable_interaction_button(btn_update);
-					UI_Templates.disable_interaction_button(btn_remove);
 				}
 			});
 			btn_add.setOnAction(new EventHandler<ActionEvent>() {
@@ -190,7 +187,6 @@ public class Clients_Screen_UI {
 					UI_Templates.disable_interaction_button(btn_cancel);
 					UI_Templates.enable_interaction_button(btn_new);
 					UI_Templates.enable_interaction_button(btn_update);
-					UI_Templates.enable_interaction_button(btn_remove);
 					//String(=7) client_id
 					//String(<36) first_name
 					String first_name_s = tf_first_name.getText();
@@ -205,12 +201,6 @@ public class Clients_Screen_UI {
 					boolean phone_number_valid = phone_number_s.length() == 10 ? true : false;
 					if(!phone_number_valid) {System.out.println("Logical Error: phone number allowing numbers above or below 10 digits");}
 					//Boolean previous_client
-				}
-			});
-			btn_remove.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent e) {
-					System.out.println("Remove selected client");
 				}
 			});
 			btn_update.setOnAction(new EventHandler<ActionEvent>() {
@@ -230,10 +220,9 @@ public class Clients_Screen_UI {
 					UI_Templates.disable_interaction_button(btn_cancel);
 					UI_Templates.enable_interaction_button(btn_new);
 					UI_Templates.enable_interaction_button(btn_update);
-					UI_Templates.enable_interaction_button(btn_remove);
 				}
 			});
-			client_interactive_button_bar.getChildren().addAll(btn_new, btn_add, btn_update, btn_remove, btn_cancel);
+			client_interactive_button_bar.getChildren().addAll(btn_new,btn_add,btn_update,btn_cancel);
 			centre_view.add(client_interactive_button_bar,1,5,2,1);
 		} else {
 			

@@ -138,6 +138,11 @@ public class UI_Templates {
 		grid.setId("popup_error_style");
 	}
 	
+	protected static void popup_warning_style(GridPane grid) {
+		grid.getStyleClass().add("popup_warning_style");
+		grid.setId("popup_warning_style");
+	}
+	
 	protected static void calendar_disable_button(Button button) {
 		button.setDisable(true);
 		calendar_disabled_button_style(button);
@@ -161,6 +166,22 @@ public class UI_Templates {
 	}
 	
 	protected static void error_popup(Stage primary_stage, String message) {
+		Label lbl_error = new Label(message);
+		GridPane grid = new GridPane();
+		grid.add(lbl_error,0,0);
+		popup_warning_style(grid);
+		Popup error_message = new Popup();
+		error_message.getContent().add(grid);
+		error_message.setAutoHide(true);
+		PauseTransition delay = new PauseTransition(Duration.seconds(2));
+		delay.setOnFinished(ex -> error_message.hide());
+		if(!error_message.isShowing()) {
+			error_message.show(primary_stage);
+			delay.play();
+		}
+	}
+	
+	protected static void warning_popup(Stage primary_stage, String message) {
 		Label lbl_error = new Label(message);
 		GridPane grid = new GridPane();
 		grid.add(lbl_error,0,0);

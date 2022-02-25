@@ -420,8 +420,6 @@ public class Appointment_Details_UI {
 			UI_Templates.enable_interaction_button(btn_new);
 			Button btn_add = new Button("ADD");
 			UI_Templates.disable_interaction_button(btn_add);
-			Button btn_remove = new Button("REMOVE");
-			UI_Templates.enable_interaction_button(btn_remove);
 			Button btn_update = new Button("UPDATE");
 			UI_Templates.enable_interaction_button(btn_update);
 			Button btn_cancel = new Button("CANCEL");
@@ -440,7 +438,6 @@ public class Appointment_Details_UI {
 					UI_Templates.enable_interaction_button(btn_cancel);
 					UI_Templates.disable_interaction_button(btn_new);
 					UI_Templates.disable_interaction_button(btn_update);
-					UI_Templates.disable_interaction_button(btn_remove);
 				}
 			});
 			btn_add.setOnAction(new EventHandler<ActionEvent>() {
@@ -457,7 +454,6 @@ public class Appointment_Details_UI {
 					UI_Templates.disable_interaction_button(btn_cancel);
 					UI_Templates.enable_interaction_button(btn_new);
 					UI_Templates.enable_interaction_button(btn_update);
-					UI_Templates.enable_interaction_button(btn_remove);
 					//String(=5) time
 					String time_s = lbl_time.getText(); 
 					boolean time_valid = time_s.length() == 5 ? true : false;
@@ -485,12 +481,6 @@ public class Appointment_Details_UI {
 					//Int(=4) postcode 
 				}
 			});
-			btn_remove.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent e) {
-					System.out.println("Remove selected client");
-				}
-			});
 			btn_update.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
@@ -511,10 +501,9 @@ public class Appointment_Details_UI {
 					UI_Templates.disable_interaction_button(btn_cancel);
 					UI_Templates.enable_interaction_button(btn_new);
 					UI_Templates.enable_interaction_button(btn_update);
-					UI_Templates.enable_interaction_button(btn_remove);
 				}
 			});
-			button_bar.getChildren().addAll(btn_new,btn_add,btn_remove,btn_update,btn_cancel);
+			button_bar.getChildren().addAll(btn_new,btn_add,btn_update,btn_cancel);
 			centre_view.add(button_bar,0,6,3,1);
 			btn_new_client.setOnAction(new EventHandler<ActionEvent>() {
 				@Override

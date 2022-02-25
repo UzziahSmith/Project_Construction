@@ -134,3 +134,7 @@
 #popup_error_style {
 	-fx-background-color: red;
 }
+
+#popup_warning_style {
+	-fx-background-color: yellow;	
+}

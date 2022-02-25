@@ -4,18 +4,17 @@ import com.job_tracker.jdbc.Connection_Execute;
 
 public class Delete_DB {
 	
-	/*
-	 * public static boolean Delete_Record(String url, String username, String
-	 * password, String schema, String table, String record_id) { String db_url =
-	 * String.format("%s/%s", url, schema); String table_id = table + ".id"; String
-	 * sql_statement = String.format("DELETE from %s where %s = '%s';", table,
-	 * table_id, record_id); if(Connection_Execute.Command_Database(db_url,
-	 * username, password, sql_statement)) {
-	 * System.out.println("Successfully deleted record: " + record_id +
-	 * " (table: ) " + table); return true; } else {
-	 * System.out.println("Failed to delete record: " + record_id + " (table: ) " +
-	 * table); return false; } }
-	 */
+	public static boolean Delete_Record(String url, String username, String password, String schema, String table, String field, String record_id) { 
+		String db_url = String.format("%s/%s", url, schema); 
+		String sql_statement = String.format("DELETE from %s where %s = '%s';", table, field, record_id); 
+		if(Connection_Execute.Command_Database(db_url, username, password, sql_statement)) { 
+			System.out.println("Successfully deleted record: " + record_id + " (table: ) " + table); 
+			return true; 
+		} else { 
+			System.out.println("Failed to delete record: " + record_id + " (table: ) " + table); 
+			return false; 
+		} 
+	}
 	
 	public static boolean Delete_Business(String url, String username, String password, String schema) {
 		String sql_statement = "DROP DATABASE " + schema;
@@ -28,7 +27,7 @@ public class Delete_DB {
 				return true;
 			} else {
 				System.out.println("Failed to delete database: " + schema);
-				return false;
+				return false; 
 			}
 		}
 	}

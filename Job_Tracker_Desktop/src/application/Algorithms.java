@@ -12,7 +12,9 @@ import com.job_tracker.attribute_creation.Employee;
 import com.job_tracker.attribute_creation.Location;
 import com.job_tracker.attribute_creation.Trade;
 import com.job_tracker.attribute_creation.User;
+import com.job_tracker.database_interaction.Add_DB;
 import com.job_tracker.database_interaction.Select_DB;
+import com.job_tracker.database_interaction.Update_DB;
 import com.job_tracker.jdbc.Connection_Test;
 
 import javafx.beans.value.ChangeListener;
