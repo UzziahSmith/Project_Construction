@@ -172,7 +172,12 @@ public class Add_DB {
 	}
 	
 	public static boolean Client(String url, String username, String password, String schema, String first_name, String surname, String phone_number, boolean previous_client) {
-		int client_count = Record_Counter(url, username, password, schema, "clients");
+		int client_count;
+		if(get_last_record(null,Main.clients_array,null,null) == (Integer) null) {
+			client_count = 0;
+		} else {
+			client_count = get_last_record(null,null,null,Main.trades_array);
+		}
 		String id = Create_ID('C', get_last_record(null,Main.clients_array,null,null));
 		Client new_client = new Client(id, first_name, surname, phone_number, previous_client);
 		String sql_statement = "INSERT INTO " + schema + ".clients (client_id, first_name, surname, phone_number, previous_client) "
@@ -208,7 +213,13 @@ public class Add_DB {
 	}
 	
 	public static boolean Employee(String url, String username, String password, String schema, String first_name, String surname, String phone_number, boolean employed, String trade_id) {
-		int employee_count = Record_Counter(url, username, password, schema, "employees");
+		@SuppressWarnings("unused")
+		int employee_count;
+		if(get_last_record(null,null,Main.employees_array,null) == (Integer) null) {
+			employee_count = 0;
+		} else {
+			employee_count = get_last_record(null,null,Main.employees_array,null);
+		}
 		String id = Create_ID('E', get_last_record(null,null,Main.employees_array,null));
 		Employee new_employee = new Employee(id, first_name, surname, phone_number, employed, trade_id);
 		String sql_statement = "INSERT INTO " + schema + ".employees (employee_id, first_name, surname, phone_number, trade_id) "
@@ -238,6 +249,13 @@ public class Add_DB {
 	}
 
 	public static boolean Appointment(String url, String username, String password, String schema, String time, String date, String brief, String feedback, String client_id, String employee_id, String street_number, String street_name, int postcode) {
+		@SuppressWarnings("unused")
+		int appointment_count;
+		if(get_last_record(Main.appointments_array,null,null,null) == (Integer) null) {
+			appointment_count = 0;
+		} else {
+			appointment_count = get_last_record(null,null,Main.employees_array,null);
+		}
 		String id = Create_ID('A', get_last_record(Main.appointments_array,null,null,null));
 		Appointment new_appointment = new Appointment(id,time,date,brief,feedback,client_id,employee_id,street_number,street_name,postcode);
 		String sql_statement = "INSERT INTO " + schema + ".appointments (appointment_id, time, date, brief, client_id, employee_id, street_number, street_name, postcode) "

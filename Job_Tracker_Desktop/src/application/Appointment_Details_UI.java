@@ -1,5 +1,7 @@
 package application;
 
+import com.job_tracker.database_interaction.Update_DB;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -375,6 +377,7 @@ public class Appointment_Details_UI {
 				@Override
 				public void handle(ActionEvent e) {
 					System.out.println("Push feedback");
+					Update_DB.Update_String_Record(Main.url, Main.user, Main.password, Main.user_data.business, "appointments", "feedback", null, ta_customer_feedback.getText());
 				}
 			});
 			HBox hb_customer_feedback = new HBox();
