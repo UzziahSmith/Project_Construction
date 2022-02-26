@@ -85,7 +85,7 @@ public class Trade_List_Screen_Administrator_UI {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Navigate from Trade_List_Screen_Administrator_UI to Clients_Screen_UI (Administrator).");
-				Clients_Screen_UI client_list_layout = new Clients_Screen_UI();
+				Clients_UI client_list_layout = new Clients_UI();
 				Scene client_list_screen = new Scene(client_list_layout.get_scene(primary_stage,true));
 				client_list_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 				primary_stage.setScene(client_list_screen);
@@ -219,19 +219,18 @@ public class Trade_List_Screen_Administrator_UI {
 				UI_Templates.disable_interaction_button(btn_cancel);
 				UI_Templates.enable_interaction_button(btn_new);
 				UI_Templates.enable_interaction_button(btn_update);
-				//String(=5) trade_id
+
 				//String(<51) title
 				String title_s = tf_trade_title.getText();
 				boolean title_s_valid = title_s.length() < 51 ? true : false;
 				if(!title_s_valid) {
-					
+					System.out.println("Logical Error: title allowing title's over 50 characters.");
 				} else {
 					try {
 						if(Algorithms.trade_title_exists(title_s)) {
 							String error_message = String.format("Warning: Title: %s already exists", title_s);
 							UI_Templates.error_popup(primary_stage, error_message);
-							Add_DB.Trade(Main.url,Main.user,Main.password,Main.user_data.business,title_s);
-							Main.trades_array = Select_DB.Extract_Data_Record_Trades(Main.url, Main.user, Main.password, Main.user_data.business);
+							tf_trade_title.clear();
 						} else {
 							Add_DB.Trade(Main.url,Main.user,Main.password,Main.user_data.business,title_s);
 							Main.trades_array = Select_DB.Extract_Data_Record_Trades(Main.url, Main.user, Main.password, Main.user_data.business);
@@ -302,14 +301,18 @@ public class Trade_List_Screen_Administrator_UI {
 			@Override
 			public void handle(ActionEvent e) {
 				if(Main.trades_array != null) {
-					Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"trades","title",current_id,tf_trade_title.getText());
-					try {
-						reset_listview(trades, lv_trade_items, lv_trades);
-					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+					if(tf_trade_title.getText() != null) {
+						Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"trades","title",current_id,tf_trade_title.getText());
+						try {
+							reset_listview(trades, lv_trade_items, lv_trades);
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						System.out.println("Updated selected client information");
+					} else {
+						UI_Templates.error_popup(primary_stage, "Cannot update information to be blank.");
 					}
-					System.out.println("Updated selected client information");
 				}
 				tf_trade_title.clear();
 			}

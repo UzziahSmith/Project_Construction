@@ -188,7 +188,7 @@ public class Home_Screen_Administrator_UI {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Clients button pressed");
-				Clients_Screen_UI client_details_UI_Layout = new Clients_Screen_UI();
+				Clients_UI client_details_UI_Layout = new Clients_UI();
 				Scene client_details_UI_screen = new Scene(client_details_UI_Layout.get_scene(primary_stage,true));
 				client_details_UI_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 				primary_stage.setScene(client_details_UI_screen);

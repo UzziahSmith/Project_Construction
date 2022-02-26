@@ -171,7 +171,8 @@ public class Add_DB {
 		}
 	}
 	
-	public static boolean Client(String url, String username, String password, String schema, String first_name, String surname, String phone_number, boolean previous_client) {
+	public static boolean Client(String url, String username, String password, String schema, String first_name, String surname, String phone_number) {
+		@SuppressWarnings("unused")
 		int client_count;
 		if(get_last_record(null,Main.clients_array,null,null) == (Integer) null) {
 			client_count = 0;
@@ -179,7 +180,7 @@ public class Add_DB {
 			client_count = get_last_record(null,null,null,Main.trades_array);
 		}
 		String id = Create_ID('C', get_last_record(null,Main.clients_array,null,null));
-		Client new_client = new Client(id, first_name, surname, phone_number, previous_client);
+		Client new_client = new Client(id, first_name, surname, phone_number, false);
 		String sql_statement = "INSERT INTO " + schema + ".clients (client_id, first_name, surname, phone_number, previous_client) "
 				+ "VALUES (" + "'" + new_client.id + "'" + "," + "'" + new_client.first_name + "'" + "," + "'" + new_client.surname + "'" + ","
 						+ "" + new_client.phone_number + "," + new_client.previous_client + ")";

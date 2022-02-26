@@ -64,7 +64,7 @@ public class Appointment_Details_UI {
 				public void handle(ActionEvent e) {
 					UI_Templates.is_appt_details_shown = false;
 					System.out.println("Navigate from Appointment_Details_Administrator_UI to Clients_Screen_UI (Administrator).");
-					Clients_Screen_UI client_screen_layout = new Clients_Screen_UI();
+					Clients_UI client_screen_layout = new Clients_UI();
 					Scene client_screen_screen = new Scene(client_screen_layout.get_scene(primary_stage,true));
 					client_screen_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 					primary_stage.setScene(client_screen_screen);
@@ -119,7 +119,7 @@ public class Appointment_Details_UI {
 				public void handle(ActionEvent e) {
 					UI_Templates.is_appt_details_shown = false;
 					System.out.println("Navigate from Appointment_Details_UI (User) to Clients_Screen_UI (User).");
-					Clients_Screen_UI client_screen_layout = new Clients_Screen_UI();
+					Clients_UI client_screen_layout = new Clients_UI();
 					Scene client_screen_screen = new Scene(client_screen_layout.get_scene(primary_stage,false));
 					client_screen_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 					primary_stage.setScene(client_screen_screen);
@@ -513,7 +513,7 @@ public class Appointment_Details_UI {
 				public void handle(ActionEvent e) {
 					UI_Templates.is_appt_details_shown = false;
 					System.out.println("Navigate from Appointment_Details_Administrator_UI to Clients_Screen_UI (Administrator).");
-					Clients_Screen_UI client_screen_layout = new Clients_Screen_UI();
+					Clients_UI client_screen_layout = new Clients_UI();
 					Scene client_screen_screen = new Scene(client_screen_layout.get_scene(primary_stage,true));
 					client_screen_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 					primary_stage.setScene(client_screen_screen);

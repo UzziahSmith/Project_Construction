@@ -103,7 +103,7 @@ public class Appointment_List_UI {
 				@Override
 				public void handle(ActionEvent e) {
 					System.out.println("Navigate from Appointment_List_Administrator_UI to Clients_Screen_UI (Administrator).");
-					Clients_Screen_UI client_details_layout = new Clients_Screen_UI();
+					Clients_UI client_details_layout = new Clients_UI();
 					Scene client_details_screen = new Scene(client_details_layout.get_scene(primary_stage,true));
 					client_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 					primary_stage.setScene(client_details_screen);
@@ -125,7 +125,7 @@ public class Appointment_List_UI {
 				@Override
 				public void handle(ActionEvent e) {
 					System.out.println("Navigate from Appointment_List_User_UI to Clients_Screen_UI (User).");
-					Clients_Screen_UI client_details_layout = new Clients_Screen_UI();
+					Clients_UI client_details_layout = new Clients_UI();
 					Scene client_details_screen = new Scene(client_details_layout.get_scene(primary_stage,false));
 					client_details_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 					primary_stage.setScene(client_details_screen);

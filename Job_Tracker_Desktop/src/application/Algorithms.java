@@ -117,11 +117,20 @@ public class Algorithms {
 	}
 	
 	static boolean trade_title_exists(String title) throws SQLException {
-		List<Trade> users_array = Main.trades_array;
 		if(Main.trades_array != null) {
-			int size = Main.trades_array.size();
-			for(int i = 0; i < size; i++) {
-				if(title.equals(Main.trades_array.get(i).title))  {
+			for(Trade trade : Main.trades_array) {
+				if(title.equals(trade.title))  {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	static boolean client_exists(String first_name, String surname, String phone_number) {
+		if(Main.clients_array != null) {
+			for(Client client : Main.clients_array) {
+				if(first_name.equals(client.first_name) && surname.equals(client.surname) && phone_number.equals(client.phone_number)) {
 					return true;
 				}
 			}

@@ -55,7 +55,7 @@ public class Employee_Details_Screen_Administrator_UI {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Navigate from Employee_Details_Screen_Administrator_UI to Clients_Screen_UI (Administrator).");
-				Clients_Screen_UI clients_screen_layout = new Clients_Screen_UI();
+				Clients_UI clients_screen_layout = new Clients_UI();
 				Scene clients_screen_screen = new Scene(clients_screen_layout.get_scene(primary_stage,true));
 				clients_screen_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 				primary_stage.setScene(clients_screen_screen);
