@@ -53,7 +53,7 @@ public class Select_DB {
 		if(result_set.next() != false) {
 			try {
 				while(result_set.next()) {
-					Appointment appointment = new Appointment("","","","","","","","","",0);
+					Appointment appointment = new Appointment("","","","","","","","");
 					appointment.id = result_set.getString(1);
 					appointment.time = result_set.getString(2);
 					appointment.date = result_set.getString(3);
@@ -61,9 +61,7 @@ public class Select_DB {
 					appointment.feedback = result_set.getString(5);
 					appointment.client_id = result_set.getString(6);
 					appointment.employee_id = result_set.getString(7);
-					appointment.street_number = result_set.getString(8);
-					appointment.street_name = result_set.getString(9);
-					appointment.postcode = result_set.getInt(10);
+					appointment.location_id = result_set.getString(8);
 					results.add(appointment);
 				}
 			} catch(SQLException e) {
@@ -145,11 +143,12 @@ public class Select_DB {
 		if(result_set.next() != false) {
 			try {
 				while(result_set.next()) {
-					Location location = new Location("","",0,"");
-					location.street_number = result_set.getString(1);
-					location.street_name = result_set.getString(2);
-					location.postcode = result_set.getInt(3);
-					location.client_id = result_set.getString(4);
+					Location location = new Location("","","",0,"");
+					location.id = result_set.getString(1);
+					location.street_number = result_set.getString(2);
+					location.street_name = result_set.getString(3);
+					location.postcode = result_set.getInt(4);
+					location.client_id = result_set.getString(5);
 					results.add(location);
 				}
 			} catch(SQLException e) {

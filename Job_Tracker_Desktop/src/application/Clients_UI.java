@@ -29,6 +29,16 @@ import javafx.stage.Stage;
 
 public class Clients_UI {
 	Rectangle2D screen_bounds = Screen.getPrimary().getBounds();
+	
+	private String get_record_id(String first_name, String surname, String phone_number) {
+		List<Client> clients = Main.clients_array;
+		for(Client client : clients) {
+			if(first_name.equals(client.first_name) && surname.equals(surname) && phone_number.equals(phone_number)) {
+				return client.id;
+			}
+		}
+		return null;
+	}
 
 	private void reset_listview(List<Client> clients, ObservableList<String> observable_list, ListView<String> listview) throws SQLException {
 		Main.clients_array = Select_DB.Extract_Data_Record_Clients(Main.url,Main.user,Main.password,Main.user_data.business);
@@ -230,9 +240,6 @@ public class Clients_UI {
 				@Override
 				public void handle(ActionEvent e) {
 					System.out.println("Add new client");
-					tf_first_name.clear();
-					tf_surname.clear();
-					tf_phone_number.clear();
 					UI_Templates.disable_interaction_button(btn_add);
 					UI_Templates.disable_interaction_button(btn_cancel);
 					UI_Templates.enable_interaction_button(btn_new);
@@ -280,18 +287,27 @@ public class Clients_UI {
 				@Override
 				public void handle(ActionEvent e) {
 					if(Main.clients_array != null) {
-						try {
-							Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"clients","first_name", null, tf_first_name.getText());
-							Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"clients", "surname", null, null);
-							Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"clients", "phone_number", null, null);
-							reset_listview(clients, lv_clients_items, lv_clients);
-						} catch (SQLException e1) {
-							e1.printStackTrace();
+						if(tf_first_name.getText() == null || tf_surname.getText() == null || tf_phone_number.getText() == null) {
+							UI_Templates.error_popup(primary_stage, "Cannot update information when fields are blank.");
+						} else {
+							try {
+								String record_id = get_record_id(tf_first_name.getText(), tf_surname.getText(), tf_phone_number.getText());
+								if(record_id != null) {
+									Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"clients","first_name", record_id, tf_first_name.getText());
+									Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"clients", "surname", record_id, tf_surname.getText());
+									Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"clients", "phone_number", record_id, tf_phone_number.getText());
+									reset_listview(clients, lv_clients_items, lv_clients);
+									System.out.println("Updated selected client information");
+								} else {
+									System.out.println("Logic Error: Cannot find client to be updated.");
+								}
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
 						}
 					} else {
-						UI_Templates.error_popup(primary_stage, "Cannot update information when fields are blank.");
-					}
-					System.out.println("Updated selected client information");
+						UI_Templates.error_popup(primary_stage, "Cannot update information when there are no records.");
+					} 
 				}
 			});
 			btn_cancel.setOnAction(new EventHandler<ActionEvent>() {

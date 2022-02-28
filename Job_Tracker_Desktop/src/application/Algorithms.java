@@ -127,6 +127,39 @@ public class Algorithms {
 		return false;
 	}
 	
+	static String output_trade_id(String title) throws SQLException {
+		if(Main.trades_array != null) {
+			for(Trade trade : Main.trades_array) {
+				if(title.equals(trade.title))  {
+					return trade.id;
+				}
+			}
+		}
+		return null;
+	}
+	
+	static String output_trade_title(String trade_id) {
+		if(Main.trades_array != null) {
+			for(Trade trade : Main.trades_array) {
+				if(trade_id.equals(trade.id)) {
+					return trade.title;
+				}
+			}
+		}
+		return null;
+	}
+	
+	static String output_client_id(String first_name, String surname, String phone_number) {
+		if(Main.clients_array != null) {
+			for(Client client : Main.clients_array) {
+				if(first_name.equals(client.first_name) && surname.equals(client.surname) && phone_number.equals(client.phone_number)) {
+					return client.id;
+				}
+			}
+		}
+		return null;
+	}
+	
 	static boolean client_exists(String first_name, String surname, String phone_number) {
 		if(Main.clients_array != null) {
 			for(Client client : Main.clients_array) {
@@ -136,5 +169,121 @@ public class Algorithms {
 			}
 		}
 		return false;
+	}
+	
+	static boolean client_exists_id(String client_id) {
+		if(Main.clients_array != null) {
+			for(Client client : Main.clients_array) {
+				if(client_id.equals(client.id)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	static String client_details_output(String client_id) {
+		if(Main.clients_array != null) {
+			for(Client client : Main.clients_array) {
+				if(client_id.equals(client.id)) {
+					String output = String.format("%s %s - %s", client.first_name, client.surname);
+					return output;
+				}
+			}
+		}
+		return null;
+	}
+	
+	static String output_employee_id(String first_name, String surname, String phone_number, String trade_id) {
+		if(Main.employees_array != null) {
+			for(Employee employee : Main.employees_array) {
+				if(first_name.equals(employee.first_name) && surname.equals(employee.surname) && phone_number.equals(employee.phone_number) && trade_id.equals(employee.trade_id)) {
+					return employee.id;
+				}
+			}
+		}
+		return null;
+	}
+	
+	static boolean employee_exists(String first_name, String surname, String phone_number, String trade_title) {
+		if(Main.employees_array != null) {
+			for(Employee employee : Main.employees_array) {
+				if(first_name.equals(employee.first_name) && surname.equals(employee.surname) && phone_number.equals(employee.phone_number) && trade_title.equals(trade_title)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	static String employee_details_output(String employee_id) {
+		if(Main.employees_array != null) {
+			for(Employee employee : Main.employees_array) {
+				if(employee_id.equals(employee.id)) {
+					String output = String.format("%s %s %s - %s\n%s", employee.id, employee.first_name, employee.surname, employee.phone_number, output_trade_title(employee.trade_id));
+					return output;
+				}
+			}
+		}
+		return null;
+	}
+	
+	static boolean employee_exists_id(String employee_id) {
+		if(Main.employees_array != null) {
+			for(Employee employee : Main.employees_array) {
+				if(employee_id.equals(employee.id)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	static String output_location_id(String street_number, String street_name, int postcode, String client_id) {
+		if(Main.locations_array != null) {
+			for(Location location : Main.locations_array) {
+				if(street_number.equals(location.street_number) && street_name.equals(location.street_name) && postcode == location.postcode && client_id.equals(location.client_id)) {
+					return location.id;
+				}
+			}
+		}
+		return null;
+	}
+	
+	static String location_details(String location_id) {
+		if(Main.locations_array != null) {
+			for(Location location : Main.locations_array) {
+				if(location_id.equals(location.id)) {
+					String output = String.format("%s, %s, %s",location.street_number,location.street_name,location.postcode);
+					return output;
+				}
+			}
+		}
+		return null;
+	}
+	
+	static boolean location_exists(String street_number, String street_name, int postcode, String client_id) {
+		if(Main.locations_array != null) {
+			for(Location location : Main.locations_array) {
+				if(street_number.equals(location.street_number) && street_name.equals(location.street_name) && postcode == location.postcode && client_id.equals(location.client_id)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	static boolean appointment_exists(String time, String date, String brief, String feedback, String client_id, String employee_id, String location_id) {
+		for(Appointment appointment : Main.appointments_array) {
+			if(time.equals(appointment.time) && 
+					date.equals(appointment.date) && 
+					brief.equals(appointment.brief) && 
+					feedback.equals(appointment.feedback) && 
+					client_id.equals(appointment.client_id) && 
+					employee_id.equals(appointment.employee_id) && 
+					location_id.equals(appointment.location_id)) 
+			{return true;}
+		}
+	return false;
 	}
 }

@@ -1,5 +1,20 @@
 package application;
 
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.controlsfx.control.textfield.TextFields;
+
+import com.job_tracker.attribute_creation.Appointment;
+import com.job_tracker.attribute_creation.Client;
+import com.job_tracker.attribute_creation.Employee;
+import com.job_tracker.database_interaction.Add_DB;
+import com.job_tracker.database_interaction.Select_DB;
 import com.job_tracker.database_interaction.Update_DB;
 
 import javafx.collections.FXCollections;
@@ -29,6 +44,22 @@ public class Appointment_Details_UI {
 	private boolean job_status_complete = false;
 	private boolean job_started = false;	
 	private boolean job_cancelled = false;
+	
+	private String get_record_id(String time, String date, String brief, String feedback, String client_id, String employee_id, String location_id) {
+		List<Appointment> appointments = Main.appointments_array;
+		for(Appointment appointment : appointments) {
+			if(time.equals(appointment.time) && 
+					date.equals(appointment.date) && 
+					brief.equals(appointment.brief) &&
+					feedback.equals(appointment.feedback) &&
+					client_id.equals(appointment.client_id) && 
+					employee_id.equals(appointment.employee_id) && 
+					location_id.equals(appointment.location_id)) {
+				return appointment.id;
+			}
+		}
+		return null;
+	}
 	
 	private BorderPane header(Stage primary_stage, boolean administrator) {
 		BorderPane header = UI_Templates.header(primary_stage, "Appointment Details");
@@ -173,7 +204,10 @@ public class Appointment_Details_UI {
 		hb_search.getChildren().addAll(lbl_search,tf_search);
 		
 		ListView<String> lv_masterview = new ListView<String>();
-		ObservableList<String> masterview_items = FXCollections.observableArrayList("Example1","Example2");
+		ObservableList<String> masterview_items = FXCollections.observableArrayList();
+		for(Appointment appointment : Main.appointments_array) {
+//			TO DO add formatted items to masterview.
+		}
 		lv_masterview.setItems(masterview_items);
 		lv_masterview.setMinSize(Algorithms.dimension_calculator(75.0,false),Algorithms.dimension_calculator(350.0,true));
 		
@@ -214,52 +248,12 @@ public class Appointment_Details_UI {
 		lbl_date.setMaxWidth(Double.MAX_VALUE);
 		lbl_date.setAlignment(Pos.CENTER);
 		lbl_date.setMaxSize(Algorithms.dimension_calculator(70.0,false),Algorithms.dimension_calculator(20.0,true));
-		if(administrator) {
-			HBox date_hb = new HBox();
-			date_hb.setSpacing(Algorithms.dimension_calculator(10.0,false));
-			Button btn_date = new Button("Change to calendar icon");
-			date_hb.getChildren().addAll(lbl_date,btn_date);
-			btn_date.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent e) {
-					System.out.println(String.valueOf(is_calendar_popup_showing));
-					System.out.println("Initialising popup for date");
-					Popup calendar_popup = calendar_popup(primary_stage);
-					calendar_popup.setAutoHide(true);
-					if(!calendar_popup.isShowing()) {
-						calendar_popup.show(primary_stage);
-					} 
-				}
-			});
-			centre_view.add(date_hb,1,1);
-		} else {
-			centre_view.add(lbl_date,1,1);
-		}
+
 		Label lbl_time = new Label();
 		UI_Templates.output_label_style(lbl_time);
 		lbl_time.setMaxWidth(Double.MAX_VALUE);
 		lbl_time.setAlignment(Pos.CENTER);
 		lbl_time.setMaxSize(Algorithms.dimension_calculator(70.0,false),Algorithms.dimension_calculator(20.0,true));
-		if(administrator) {
-			HBox time_hb = new HBox();
-			time_hb.setSpacing(Algorithms.dimension_calculator(10.0,false));
-			Button btn_time = new Button("Change to clock icon");
-			time_hb.getChildren().addAll(lbl_time,btn_time);
-			btn_time.setOnAction(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent e) {
-					System.out.println("Initialising popup for time");
-					Popup time_picker_popup = time_picker(primary_stage,lbl_time);
-					time_picker_popup.setAutoHide(true);
-					if(!time_picker_popup.isShowing()) {
-						time_picker_popup.show(primary_stage);
-					} 
-				}
-			});
-			centre_view.add(time_hb,1,0);
-		} else {
-			centre_view.add(lbl_time,1,0);
-		}
 		
 		Label lbl_job_status_title = new Label("Job Status:");
 		lbl_job_status_title.setMaxWidth(Double.MAX_VALUE);
@@ -403,20 +397,66 @@ public class Appointment_Details_UI {
 		centre_panel.add(briefs_grid,2,0,1,2);
 		
 		if(administrator) {
-			TextField tf_client_name = new TextField();
-			centre_view.add(tf_client_name,1,2);
+			TextField tf_client_id = new TextField();
+			centre_view.add(tf_client_id,1,2);
+			TextFields.bindAutoCompletion(tf_client_id, Main.clients_array);
 			Button btn_new_client = new Button("+");
 			centre_view.add(btn_new_client,2,2);
 			
-			TextField tf_address = new TextField();
-			centre_view.add(tf_address,1,3);
-			TextField tf_employee = new TextField();
-			centre_view.add(tf_employee,1,4);
+			HBox hb_address = new HBox();
+			hb_address.setSpacing(Algorithms.dimension_calculator(5.0,false));
+			TextField tf_street_number = new TextField();
+			Algorithms.add_quantity_limiter(tf_street_number,7);
+			TextField tf_street_name = new TextField();
+			Algorithms.add_quantity_limiter(tf_street_name,50);
+			TextField tf_postcode = new TextField();
+			Algorithms.add_quantity_limiter(tf_postcode,4);
+			Algorithms.add_input_limiter_integers(tf_postcode);
+			hb_address.getChildren().addAll(tf_street_number,tf_street_name,tf_postcode);
+			centre_view.add(hb_address,1,3);
+			
+			TextField tf_employee_id = new TextField();
+			centre_view.add(tf_employee_id,1,4);
+			
+			HBox date_hb = new HBox();
+			date_hb.setSpacing(Algorithms.dimension_calculator(10.0,false));
+			Button btn_date = new Button("Change to calendar icon");
+			date_hb.getChildren().addAll(lbl_date,btn_date);
+			btn_date.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent e) {
+					System.out.println(String.valueOf(is_calendar_popup_showing));
+					System.out.println("Initialising popup for date");
+					Popup calendar_popup = calendar_popup(primary_stage);
+					calendar_popup.setAutoHide(true);
+					if(!calendar_popup.isShowing()) {
+						calendar_popup.show(primary_stage);
+					} 
+				}
+			});
+			centre_view.add(date_hb,1,1);
 			
 			if(date != null) {
 				lbl_date.setText(String.valueOf(date));
 			}
 			
+			HBox time_hb = new HBox();
+			time_hb.setSpacing(Algorithms.dimension_calculator(10.0,false));
+			Button btn_time = new Button("Change to clock icon");
+			time_hb.getChildren().addAll(lbl_time,btn_time);
+			btn_time.setOnAction(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent e) {
+					System.out.println("Initialising popup for time");
+					Popup time_picker_popup = time_picker(primary_stage,lbl_time);
+					time_picker_popup.setAutoHide(true);
+					if(!time_picker_popup.isShowing()) {
+						time_picker_popup.show(primary_stage);
+					} 
+				}
+			});
+			centre_view.add(time_hb,1,0);
+		
 			HBox button_bar = new HBox();
 			button_bar.setSpacing(Algorithms.dimension_calculator(10.0,false));
 			Button btn_new = new Button("NEW");
@@ -433,9 +473,11 @@ public class Appointment_Details_UI {
 					System.out.println("New client initialisation");
 					lbl_date.setText(null);
 					lbl_time.setText(null);
-					tf_client_name.clear();
-					tf_address.clear();
-					tf_employee.clear();
+					tf_client_id.clear();
+					tf_street_number.clear();
+					tf_street_name.clear();
+					tf_postcode.clear();
+					tf_employee_id.clear();
 					ta_brief.clear();
 					UI_Templates.enable_interaction_button(btn_add);
 					UI_Templates.enable_interaction_button(btn_cancel);
@@ -449,45 +491,137 @@ public class Appointment_Details_UI {
 					System.out.println("Add new client");
 					lbl_date.setText(null);
 					lbl_time.setText(null);
-					tf_client_name.clear();
-					tf_address.clear();
-					tf_employee.clear();
+					tf_client_id.clear();
+					tf_street_number.clear();
+					tf_street_name.clear();
+					tf_postcode.clear();
+					tf_employee_id.clear();
 					ta_brief.clear();
 					UI_Templates.disable_interaction_button(btn_add);
 					UI_Templates.disable_interaction_button(btn_cancel);
 					UI_Templates.enable_interaction_button(btn_new);
 					UI_Templates.enable_interaction_button(btn_update);
 					//String(=5) time
-					String time_s = lbl_time.getText(); 
-					boolean time_valid = time_s.length() == 5 ? true : false;
-					if(time_valid) {
-						
-					} else {
-					
+					String time_s = lbl_time.getText();  
+					SimpleDateFormat displayFormat = new SimpleDateFormat("HH:mm");
+					SimpleDateFormat parseFormat = new SimpleDateFormat("hh:mm a");
+					try {
+						Date time_output = parseFormat.parse(time_s);
+					} catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
+					
+					boolean time_valid = time_s.length() == 5 ? true : false;
+					if(!time_valid) {System.out.println("Logical Error: time allowing strings over or below 5 characters.");}
 					//String(8-10) date
 					String date_s = lbl_date.getText();
 					boolean date_valid = date_s.length() > 7 && date_s.length() < 11 ? true : false;
-					if(!date_valid) {}
+					if(!date_valid) {System.out.println("Logical Error: date allowing strings under 8 or above 10 characters.");}
 					//String(<1000) brief
 					String brief_s = ta_brief.getText();
 					boolean brief_valid = brief_s.length() < 1000 ? true : false;
-					if(!brief_valid) {}
+					if(!brief_valid) {System.out.println("Logical Error: brief allowing strings over 999 characters.");}
 					//String(<1000) feedback
 					String feedback_s = ta_customer_feedback.getText();
 					boolean feedback_valid = feedback_s.length() < 1000 ? true : false;
-					if(!feedback_valid) {}
+					if(!feedback_valid) {System.out.println("Logical Error: customer_feedback allowing strings over 999 characters.");}
 					//String(7) client_id
+					String client_id_s = tf_client_id.getText();
+					boolean client_exists = Algorithms.client_exists_id(client_id_s);
 					//String(7) employee_id
-					//String(7) street_number
+					String employee_id_s = tf_employee_id.getText();
+					boolean employee_exists = Algorithms.employee_exists_id(employee_id_s);
+					//Location
+					//String(<8) street_number
+					String street_number_s = tf_street_number.getText();
+					boolean street_number_valid = street_number_s.length() < 8 ? true : false;
+					if(!street_number_valid) {System.out.println("Logical Error: street_number allowing number strings over 7 characters.");}
 					//String(50) street_name
+					String street_name_s = tf_street_name.getText();
+					boolean street_name_valid = street_name_s.length() < 51 ? true : false;
+					if(!street_name_valid) {System.out.println("Logical Error: street_name allowing strings over 50 characters.");}
 					//Int(=4) postcode 
+					int postcode_int = Integer.parseInt(tf_postcode.getText());
+					boolean postcode_valid = postcode_int < 10000 ? true : false;
+					if(!postcode_valid) {System.out.println("Logical Error: postcode allowing integers over 4 digits.");}
+					
+					//Location validity
+					@SuppressWarnings("unused")
+					boolean location_valid = false;
+					if(street_number_valid && street_name_valid && postcode_valid && client_exists) {
+						location_valid = true;
+					} else {
+						System.out.println("Logical Error: Cannot add location with an invalid client.");
+					}
+					
+					//Add location
+					boolean location_exists = Algorithms.location_exists(street_number_s, street_name_s, postcode_int, client_id_s);
+					if(!location_exists && location_valid) {
+						Add_DB.Location(Main.url,Main.user,Main.password,Main.user_data.business,street_number_s,street_name_s,postcode_int,client_id_s);
+						try {
+							Main.locations_array = Select_DB.Extract_Data_Record_Locations(Main.url,Main.user,Main.password,Main.user_data.business);
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						location_exists = true;
+					}
+					
+					String location_id_s = Algorithms.output_location_id(street_number_s, street_name_s, postcode_int, client_id_s);
+					
+					//Add appointment
+					if(time_valid && date_valid & brief_valid && feedback_valid && client_exists && employee_exists && location_valid) {
+						try {
+							if(Algorithms.appointment_exists(time_s, date_s, brief_s, feedback_s, client_id_s, employee_id_s, location_id_s)) {
+								String error_message = String.format("Warning: Appointment:\nTime: %s\nDate: %s\nBrief: %s\nFeedback: %s\nClient_id: %s\nEmployee_id: %s\nLocation_id: %s",time_s,date_s,brief_s,feedback_s,client_id_s,employee_id_s,location_id_s);
+								UI_Templates.error_popup(primary_stage, error_message);
+							} else {
+								Add_DB.Appointment(Main.url,Main.user,Main.password,Main.user_data.business,time_s,date_s,brief_s,feedback_s,client_id_s,employee_id_s,location_id_s);
+								Main.appointments_array = Select_DB.Extract_Data_Record_Appointments(Main.url,Main.user,Main.password,Main.user_data.business);
+							}
+							List<Appointment> array = Main.appointments_array;
+							int max_pos = Main.appointments_array.size()-1;
+							String item_add_string = String.format("%s, %s\nClient: %s\nEmployee: %s\nLocation: %s",time_s,date_s,Algorithms.client_details_output(client_id_s),Algorithms.employee_details_output(employee_id_s),Algorithms.location_details(location_id_s));
+						} catch(SQLException e1) {
+							e1.printStackTrace();
+						}
+						lbl_date.setText(null);
+						lbl_time.setText(null);
+						tf_client_id.clear();
+						tf_street_number.clear();
+						tf_street_name.clear();
+						tf_postcode.clear();
+						tf_employee_id.clear();
+						ta_brief.clear();
+					}
 				}
 			});
 			btn_update.setOnAction(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent e) {
-					System.out.println("Updated selected client information");
+					if(Main.appointments_array != null) {
+						if(lbl_date.getText() == null || lbl_time.getText() == null || tf_client_id.getText() == null || tf_street_number.getText() == null || tf_street_name.getText() == null || tf_postcode.getText() == null || tf_employee_id.getText() == null || ta_brief.getText() == null) {
+							UI_Templates.error_popup(primary_stage, "Cannot update information when fields are blank.");
+						} else {
+							String location_id_s = Algorithms.output_location_id(tf_street_number.getText(),tf_street_name.getText(),Integer.parseInt(tf_postcode.getText()),tf_client_id.getText());
+							String record_id = get_record_id(lbl_time.getText(),lbl_date.getText(),ta_brief.getText(),ta_customer_feedback.getText(),tf_client_id.getText(),tf_employee_id.getText(),location_id_s);
+							if(record_id != null) {
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"appointments","time", record_id, lbl_time.getText());
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"appointments","date", record_id, lbl_date.getText());
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"appointments","brief", record_id, ta_brief.getText());
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"appointments","feedback", record_id, ta_customer_feedback.getText());
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"appointments","client_id", record_id, tf_client_id.getText());
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"appointments","employee_id", record_id, tf_employee_id.getText());
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"appointments","location_id", record_id, location_id_s);
+								System.out.println("Updated selected appointment information");
+							} else {
+								System.out.println("Logic Error: Cannot find appointment to be updated.");
+							}
+						}
+					} else {
+						UI_Templates.error_popup(primary_stage, "Cannot update information when there are no records.");
+					}
 				}
 			});
 			btn_cancel.setOnAction(new EventHandler<ActionEvent>() {
@@ -496,9 +630,11 @@ public class Appointment_Details_UI {
 					System.out.println("Cancel inputted client data");
 					lbl_date.setText(null);
 					lbl_time.setText(null);
-					tf_client_name.clear();
-					tf_address.clear();
-					tf_employee.clear();
+					tf_client_id.clear();
+					tf_street_number.clear();
+					tf_street_name.clear();
+					tf_postcode.clear();
+					tf_employee_id.clear();
 					ta_brief.clear();
 					UI_Templates.disable_interaction_button(btn_add);
 					UI_Templates.disable_interaction_button(btn_cancel);
@@ -519,7 +655,34 @@ public class Appointment_Details_UI {
 					primary_stage.setScene(client_screen_screen);
 				}
 			});
-		} else {			
+			
+			if(Main.clients_array == null || Main.employees_array == null) {
+				UI_Templates.disable_interaction_button(btn_new_client);
+				UI_Templates.disable_interaction_button(btn_date);
+				UI_Templates.disable_interaction_button(btn_add);
+				UI_Templates.disable_interaction_button(btn_new);
+				UI_Templates.disable_interaction_button(btn_date);	
+				UI_Templates.disable_interaction_button(btn_time);
+				tf_client_id.setEditable(false);
+				tf_street_number.setEditable(false);
+				tf_street_name.setEditable(false);
+				tf_postcode.setEditable(false);
+				tf_employee_id.setEditable(false);
+				ta_brief.setEditable(false);
+				Popup popup = new Popup();
+				GridPane p_grid = new GridPane();
+				Label lbl_error = new Label("Before adding an appointment a client and an employee must be created.");
+				p_grid.add(lbl_error,0,0);
+				p_grid.setPadding(new Insets(Algorithms.dimension_calculator(50.0,true),Algorithms.dimension_calculator(50.0,false),Algorithms.dimension_calculator(50.0,true),Algorithms.dimension_calculator(50.0,false)));
+				UI_Templates.popup_error_style(p_grid); 
+				popup.getContent().add(p_grid);
+				popup.show(popup);
+			}
+			
+		} else {		
+			centre_view.add(lbl_date,1,1);
+			centre_view.add(lbl_time,1,0);
+			
 			Label lbl_client_name = new Label();
 			UI_Templates.output_label_style(lbl_client_name);
 			lbl_client_name.setMinSize(Algorithms.dimension_calculator(200.0,false),Algorithms.dimension_calculator(20.0,true));

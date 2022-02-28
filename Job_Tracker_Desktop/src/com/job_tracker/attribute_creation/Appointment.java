@@ -11,8 +11,9 @@ public class Appointment {
 	public String street_number;
 	public String street_name;
 	public int postcode;
+	public String location_id;
 	
-	public Appointment(String id, String time, String date, String brief, String feedback, String client_id, String employee_id, String street_number, String street_name, int postcode) {
+	public Appointment(String id, String time, String date, String brief, String feedback, String client_id, String employee_id, String location_id) {
 		this.id = id;
 		this.time = time;
 		this.date = date;
@@ -20,8 +21,6 @@ public class Appointment {
 		this.feedback = feedback;
 		this.client_id = client_id;
 		this.employee_id = employee_id;
-		this.street_number = street_number;
-		this.street_name = street_name;
-		this.postcode = postcode;
+		this.location_id = location_id;
 	}
 }

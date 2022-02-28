@@ -40,7 +40,7 @@ public class Add_DB {
 	}
 	
 	@SuppressWarnings("null")
-	private static int get_last_record(List<Appointment> appt_list, List<Client> client_list, List<Employee> employee_list, List<Trade> trade_list) {
+	private static int get_last_record(List<Appointment> appt_list, List<Client> client_list, List<Employee> employee_list, List<Trade> trade_list, List<Location> location_list) {
 		String id;
 		String parse_string = null;
 		int parse_val;
@@ -56,6 +56,9 @@ public class Add_DB {
 		} else if(trade_list != null) {
 			int max_pos = trade_list.size()-1;
 			id = trade_list.get(max_pos).id;
+		} else if(location_list != null) {
+			int max_pos = location_list.size()-1;
+			id = location_list.get(max_pos).id;
 		} else {
 			return (Integer) null;
 		}
@@ -174,12 +177,12 @@ public class Add_DB {
 	public static boolean Client(String url, String username, String password, String schema, String first_name, String surname, String phone_number) {
 		@SuppressWarnings("unused")
 		int client_count;
-		if(get_last_record(null,Main.clients_array,null,null) == (Integer) null) {
+		if(get_last_record(null,Main.clients_array,null,null,null) == (Integer) null) {
 			client_count = 0;
 		} else {
-			client_count = get_last_record(null,null,null,Main.trades_array);
+			client_count = get_last_record(null,Main.clients_array,null,null,null);
 		}
-		String id = Create_ID('C', get_last_record(null,Main.clients_array,null,null));
+		String id = Create_ID('C', client_count+1);
 		Client new_client = new Client(id, first_name, surname, phone_number, false);
 		String sql_statement = "INSERT INTO " + schema + ".clients (client_id, first_name, surname, phone_number, previous_client) "
 				+ "VALUES (" + "'" + new_client.id + "'" + "," + "'" + new_client.first_name + "'" + "," + "'" + new_client.surname + "'" + ","
@@ -195,10 +198,10 @@ public class Add_DB {
 	
 	public static boolean Trade(String url, String username, String password, String schema, String title) {
 		int trade_count;
-		if(get_last_record(null,null,null,Main.trades_array) == (Integer) null) {
+		if(get_last_record(null,null,null,Main.trades_array,null) == (Integer) null) {
 			trade_count = 0;
 		} else {
-			trade_count = get_last_record(null,null,null,Main.trades_array);
+			trade_count = get_last_record(null,null,null,Main.trades_array,null);
 		}
 		String id = Create_ID('T', trade_count+1);
 		Trade new_trade = new Trade(id, title);
@@ -216,12 +219,12 @@ public class Add_DB {
 	public static boolean Employee(String url, String username, String password, String schema, String first_name, String surname, String phone_number, boolean employed, String trade_id) {
 		@SuppressWarnings("unused")
 		int employee_count;
-		if(get_last_record(null,null,Main.employees_array,null) == (Integer) null) {
+		if(get_last_record(null,null,Main.employees_array,null,null) == (Integer) null) {
 			employee_count = 0;
 		} else {
-			employee_count = get_last_record(null,null,Main.employees_array,null);
+			employee_count = get_last_record(null,null,Main.employees_array,null,null);
 		}
-		String id = Create_ID('E', get_last_record(null,null,Main.employees_array,null));
+		String id = Create_ID('E', employee_count+1);
 		Employee new_employee = new Employee(id, first_name, surname, phone_number, employed, trade_id);
 		String sql_statement = "INSERT INTO " + schema + ".employees (employee_id, first_name, surname, phone_number, trade_id) "
 				+ "VALUES (" + "'" + new_employee.id + "'" + "," + "'" + new_employee.first_name + "'" + "," + "'" + new_employee.surname + "'" + ","
@@ -236,34 +239,40 @@ public class Add_DB {
 	}	
 		
 	public static boolean Location(String url, String username, String password, String schema, String street_number, String street_name, int postcode, String client_id) {
-		Location new_location = new Location(street_number, street_name, postcode, client_id);
-		String sql_statement = "INSERT INTO " + schema + ".locations (street_number, street_name, postcode, client_id) "
-				+ "VALUES (" + "'" + new_location.street_number + "'" + "," + "'" + new_location.street_name + "'" + "," + new_location.postcode + ","
+		int location_count;
+		if(get_last_record(null,null,null,null,Main.locations_array) == (Integer) null) {
+			location_count = 0;
+		} else {
+			location_count = get_last_record(null,null,null,null,Main.locations_array);
+		} 
+		String id = Create_ID('L', location_count+1);
+		Location new_location = new Location(id, street_number, street_name, postcode, client_id);
+		String sql_statement = "INSERT INTO " + schema + ".locations (location_id, street_number, street_name, postcode, client_id) "
+				+ "VALUES (" + "'" + new_location.id + "'" + "," + "'" + new_location.street_number + "'" + "," + "'" + new_location.street_name + "'" + "," + new_location.postcode + ","
 						+ "" + "'" + new_location.client_id + "'" + ")";
 		if(Connection_Execute.Command_Database(url, username, password, sql_statement)) {
-			System.out.println("Successfully created Location: " + new_location.street_number + " " + new_location.street_name + ", " + new_location.postcode);
+			System.out.println("Successfully created Location: " + new_location.id + ", " + new_location.street_number + " " + new_location.street_name + ", " + new_location.postcode);
 			return true;
 		} else {
-			System.out.println("Failed to create Location: " + new_location.street_number + " " + new_location.street_name + ", " + new_location.postcode);
+			System.out.println("Failed to create Location: " + new_location.id + ", " + new_location.street_number + " " + new_location.street_name + ", " + new_location.postcode);
 			return false;
 		}
 	}
 
-	public static boolean Appointment(String url, String username, String password, String schema, String time, String date, String brief, String feedback, String client_id, String employee_id, String street_number, String street_name, int postcode) {
+	public static boolean Appointment(String url, String username, String password, String schema, String time, String date, String brief, String feedback, String client_id, String employee_id, String location_id) {
 		@SuppressWarnings("unused")
 		int appointment_count;
-		if(get_last_record(Main.appointments_array,null,null,null) == (Integer) null) {
+		if(get_last_record(Main.appointments_array,null,null,null,null) == (Integer) null) {
 			appointment_count = 0;
 		} else {
-			appointment_count = get_last_record(null,null,Main.employees_array,null);
+			appointment_count = get_last_record(Main.appointments_array,null,null,null,null);
 		}
-		String id = Create_ID('A', get_last_record(Main.appointments_array,null,null,null));
-		Appointment new_appointment = new Appointment(id,time,date,brief,feedback,client_id,employee_id,street_number,street_name,postcode);
+		String id = Create_ID('A', get_last_record(Main.appointments_array,null,null,null,null));
+		Appointment new_appointment = new Appointment(id,time,date,brief,feedback,client_id,employee_id,location_id);
 		String sql_statement = "INSERT INTO " + schema + ".appointments (appointment_id, time, date, brief, client_id, employee_id, street_number, street_name, postcode) "
 				+ "VALUES (" + "'" + new_appointment.id + "'" + "," + new_appointment.time + "," + new_appointment.date + ","
 						+ "" + "'" + new_appointment.brief + "'" + "," + "'" + new_appointment.brief + "'" + "," + "'" + new_appointment.client_id + "'" + "," + "'"
-								+ "" + new_appointment.employee_id + "'" + "," + "'" + street_number + "'" + "," + "'" + street_name + "'"
-										+ "" + "," + postcode + ")";
+								+ "" + new_appointment.employee_id + "'" + "," + "'" + new_appointment.location_id + "'" + ")";
 		if(Connection_Execute.Command_Database(url,username,password,sql_statement)) {
 			System.out.println("Successfully created Appointment: " + new_appointment.id);
 			return true;

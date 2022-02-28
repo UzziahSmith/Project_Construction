@@ -1,6 +1,15 @@
 package application;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+
+import com.job_tracker.attribute_creation.Client;
+import com.job_tracker.attribute_creation.Employee;
+import com.job_tracker.attribute_creation.Trade;
+import com.job_tracker.database_interaction.Add_DB;
+import com.job_tracker.database_interaction.Select_DB;
+import com.job_tracker.database_interaction.Update_DB;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,9 +31,35 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 public class Employee_Details_Screen_Administrator_UI { 
+	
+	private String get_record_id(String first_name, String surname, String phone_number, String trade_id) {
+		List<Employee> employees = Main.employees_array;
+		for(Employee employee : employees) {
+			if(first_name.equals(employee.first_name) && surname.equals(employee.surname) && phone_number.equals(employee.phone_number) && trade_id.equals(employee.trade_id)) {
+				return employee.id;
+			}
+		}
+		return null;
+	}
+
+	private void reset_listview(List<Employee> employee, ObservableList<String> observable_list, ListView<String> listview) throws SQLException {
+		Main.employees_array = Select_DB.Extract_Data_Record_Employees(Main.url,Main.user,Main.password,Main.user_data.business);
+		observable_list.clear();
+		if(Main.employees_array != null) {
+			int max_pos = Main.employees_array.size()-1;
+			for(Employee emp : Main.employees_array) {
+				String item_add_string = String.format("(%s)\n%s %s - %s\n%s", Main.employees_array.get(max_pos).id, Main.employees_array.get(max_pos).first_name, Main.employees_array.get(max_pos).surname, Algorithms.output_trade_title(Main.employees_array.get(max_pos).trade_id));
+				observable_list.add(item_add_string);
+				System.out.println(item_add_string);
+			}
+		}
+		listview.setItems(observable_list);
+	}
+	
 	private BorderPane header(Stage primary_stage) {
 		BorderPane header = UI_Templates.header(primary_stage,"Employee Details");
 		
@@ -88,7 +123,7 @@ public class Employee_Details_Screen_Administrator_UI {
 		return header;
 	}
 	
-	private GridPane centre_view(ArrayList<String> trade_title,ArrayList<String> employees) {
+	private GridPane centre_view(Stage primary_stage) {
 		
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
@@ -159,11 +194,29 @@ public class Employee_Details_Screen_Administrator_UI {
 		lbl_trade.setAlignment(Pos.CENTER_RIGHT);
 		UI_Templates.title_label_style(lbl_trade);
 		ComboBox<String> trade_combo_box = new ComboBox<String>();
-		for(String title : trade_title) {
-			trade_combo_box.getItems().add(title);
+		for(Trade trade : Main.trades_array) {
+			trade_combo_box.getItems().add(trade.title);
 		}
 		left_grid.add(lbl_trade,0,4);
 		left_grid.add(trade_combo_box,1,4,4,1);
+		
+		Label lbl_employee_list_view_title = new Label("Employees");
+		lbl_employee_list_view_title.setAlignment(Pos.CENTER);
+		lbl_employee_list_view_title.setMaxWidth(Double.MAX_VALUE);
+		UI_Templates.title_label_style(lbl_employee_list_view_title);
+		lbl_employee_list_view_title.setPadding(new Insets(0,0,Algorithms.dimension_calculator(20.0,true),0));
+		
+		ListView<String> lv_employees = new ListView<String>();
+		ObservableList<String> lv_employee_items = FXCollections.observableArrayList();
+		for(Employee employee : Main.employees_array) {
+			String item_add_string = String.format("(%s)\n%s %s - %s\n%s", employee.id, employee.first_name, employee.surname, Algorithms.output_trade_title(employee.trade_id));
+			lv_employee_items.add(item_add_string);
+		}
+		lv_employees.setItems(lv_employee_items);
+		UI_Templates.list_view_style(lv_employees);
+		lv_employees.setPrefSize(Algorithms.dimension_calculator(300.0,false),Algorithms.dimension_calculator(500.0,true));
+
+		right_vb.getChildren().addAll(lbl_employee_list_view_title, lv_employees);
 		
 		HBox trade_details_button_bar = new HBox();
 		trade_details_button_bar.setSpacing(Algorithms.dimension_calculator(10.0,false));
@@ -197,17 +250,11 @@ public class Employee_Details_Screen_Administrator_UI {
 			@Override
 			public void handle(ActionEvent e) {
 				System.out.println("Add new client");
-				tf_first_name.setText(null);
-				tf_surname.setText(null);
-				tf_phone_number.clear();
-				rb_employed_true.setSelected(false);
-				rb_employed_false.setSelected(false);
-				trade_combo_box.getSelectionModel().clearSelection();
 				UI_Templates.disable_interaction_button(btn_add);
 				UI_Templates.disable_interaction_button(btn_cancel);
 				UI_Templates.enable_interaction_button(btn_new);
 				UI_Templates.enable_interaction_button(btn_update);
-				//String(=7) employee_id
+
 				//String(<36) first_name
 				String first_name_s = tf_first_name.getText();
 				boolean first_name_valid = first_name_s.length() < 36 ? true : false;
@@ -220,13 +267,63 @@ public class Employee_Details_Screen_Administrator_UI {
 				String phone_number_s = tf_phone_number.getText();
 				boolean phone_number_valid = phone_number_s.length() == 10 ? true : false;
 				if(!phone_number_valid) {System.out.println("Logical Error: phone number allowing numbers above or below 10 digits");}
-				//String(=5) trade_id
+				//boolean employed
+				boolean is_employed = rb_employed_true.isSelected() == true ? true : false;
+				
+				if(first_name_valid && surname_valid && phone_number_valid) {
+					try {
+						if(Algorithms.employee_exists(first_name_s, surname_s, phone_number_s, trade_combo_box.getValue())) {
+							String error_message = String.format("Warning: Employee: %s %s (%s) - %s already exists", first_name_s, surname_s, phone_number_s, trade_combo_box.getValue());
+							UI_Templates.error_popup(primary_stage, error_message);
+						} else {
+							Add_DB.Employee(Main.url,Main.user,Main.password,Main.user_data.business,first_name_s,surname_s,phone_number_s,is_employed,trade_combo_box.getValue());
+							Main.employees_array = Select_DB.Extract_Data_Record_Employees(Main.url,Main.user,Main.password,Main.user_data.business);
+						}
+						List<Employee> array = Main.employees_array;
+						int max_pos = Main.employees_array.size()-1;
+						String item_add_string = String.format("(%s)\n%s %s - %s\n%s", array.get(max_pos).id, array.get(max_pos).first_name, array.get(max_pos).surname, Algorithms.output_trade_title(array.get(max_pos).trade_id));
+						lv_employee_items.add(item_add_string);
+						lv_employees.setItems(lv_employee_items);
+					} catch(SQLException e1) {
+						e1.printStackTrace();
+					}
+					tf_first_name.clear();
+					tf_surname.clear();
+					tf_phone_number.clear();
+					rb_employed_true.setSelected(false);
+					rb_employed_false.setSelected(false);
+					trade_combo_box.getSelectionModel().clearSelection();
+				}
 			}
 		});
 		btn_update.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent e) {
-				System.out.println("Updated selected client information");
+				if(Main.employees_array != null) {
+					if(tf_first_name.getText() == null || tf_surname.getText() == null || tf_phone_number.getText() == null || trade_combo_box.getValue() == null) {
+						UI_Templates.error_popup(primary_stage, "Cannot update information when fields are blank.");
+					} else {
+						try {
+							String record_id = get_record_id(tf_first_name.getText(), tf_surname.getText(), tf_phone_number.getText(), trade_combo_box.getValue());
+							if(record_id != null) {
+								boolean is_employed = rb_employed_true.isSelected() == true ? true : false;
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"employees","first_name", record_id, tf_first_name.getText());
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"employees", "surname", record_id, tf_surname.getText());
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"employees", "phone_number", record_id, tf_phone_number.getText());
+								Update_DB.Update_Boolean_Record(Main.url,Main.user,Main.password,Main.user_data.business,"employees", "employed", record_id, is_employed);
+								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"employees", "trade_id", record_id, Algorithms.output_trade_id(trade_combo_box.getValue()));
+								reset_listview(Main.employees_array, lv_employee_items, lv_employees);
+								System.out.println("Updated selected client information");
+							} else {
+								System.out.println("Logic Error: Cannot find client to be updated.");
+							}
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+					}
+				} else {
+					UI_Templates.error_popup(primary_stage, "Cannot update information when there are no records.");
+				}
 			}
 		});
 		btn_cancel.setOnAction(new EventHandler<ActionEvent>() {
@@ -252,22 +349,21 @@ public class Employee_Details_Screen_Administrator_UI {
 		trade_details_button_bar.getChildren().addAll(btn_new, btn_add, btn_update, btn_cancel);
 		left_grid.add(trade_details_button_bar,0,5,5,1);
 		
-		Label lbl_employee_list_view_title = new Label("Employees");
-		lbl_employee_list_view_title.setAlignment(Pos.CENTER);
-		lbl_employee_list_view_title.setMaxWidth(Double.MAX_VALUE);
-		UI_Templates.title_label_style(lbl_employee_list_view_title);
-		lbl_employee_list_view_title.setPadding(new Insets(0,0,Algorithms.dimension_calculator(20.0,true),0));
-		
-		ListView<String> lv_employees = new ListView<String>();
-		ObservableList<String> lv_employee_items = FXCollections.observableArrayList();
-		for(String employee : employees) {
-			lv_employee_items.add(employee);
+		if(Main.trades_array == null) {
+			tf_first_name.setEditable(false);
+			tf_surname.setEditable(false);
+			tf_phone_number.setEditable(false);
+			UI_Templates.disable_interaction_button(btn_add);
+			UI_Templates.enable_interaction_button(btn_new);
+			Popup popup = new Popup();
+			GridPane p_grid = new GridPane();
+			Label lbl_error = new Label("Before adding an employee a title must be defined in trades.");
+			p_grid.add(lbl_error,0,0);
+			p_grid.setPadding(new Insets(Algorithms.dimension_calculator(50.0,true),Algorithms.dimension_calculator(50.0,false),Algorithms.dimension_calculator(50.0,true),Algorithms.dimension_calculator(50.0,false)));
+			UI_Templates.popup_error_style(p_grid); 
+			popup.getContent().add(p_grid);
+			popup.show(popup);
 		}
-		lv_employees.setItems(lv_employee_items);
-		UI_Templates.list_view_style(lv_employees);
-		lv_employees.setPrefSize(Algorithms.dimension_calculator(300.0,false),Algorithms.dimension_calculator(500.0,true));
-
-		right_vb.getChildren().addAll(lbl_employee_list_view_title, lv_employees);
 		
 		grid.add(left_grid,0,0,3,1);
 		grid.add(right_vb,3,0);
@@ -278,20 +374,8 @@ public class Employee_Details_Screen_Administrator_UI {
 	public BorderPane get_scene(Stage primary_stage) {
 		BorderPane border_pane = new BorderPane();
 		
-		ArrayList<String> test_trades = new ArrayList<String>();
-		test_trades.add("Plasterer");
-		test_trades.add("Accountant");
-		test_trades.add("Plumber");
-		test_trades.add("General Labourer");
-		
-		ArrayList<String> test_employees = new ArrayList<String>();
-		test_employees.add("John Green");
-		test_employees.add("Jeremy Turnball");
-		test_employees.add("Michael Bolter");
-		test_employees.add("Sesna 2903");
-		
 		border_pane.setTop(header(primary_stage));
-		border_pane.setCenter(centre_view(test_trades,test_employees));
+		border_pane.setCenter(centre_view(primary_stage));
 		return border_pane;
 	}
 }
