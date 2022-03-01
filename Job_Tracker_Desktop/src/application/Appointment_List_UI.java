@@ -31,11 +31,11 @@ public class Appointment_List_UI {
 	private int current_month = cal.get(Calendar.MONTH);
 	private int current_year = cal.get(Calendar.YEAR);
 	
-	ArrayList<Appointment> day1_array = Algorithms.appointments_by_Date(UI_Templates.date_corrector(current_day,current_month,current_year));
-	ArrayList<Appointment> day2_array = Algorithms.appointments_by_Date(UI_Templates.date_corrector(current_day+1,current_month,current_year));;
-	ArrayList<Appointment> day3_array = Algorithms.appointments_by_Date(UI_Templates.date_corrector(current_day+2,current_month,current_year));;
-	ArrayList<Appointment> day4_array = Algorithms.appointments_by_Date(UI_Templates.date_corrector(current_day+3,current_month,current_year));;
-	ArrayList<Appointment> day5_array = Algorithms.appointments_by_Date(UI_Templates.date_corrector(current_day+4,current_month,current_year));;
+	ArrayList<Appointment> day1_array = Algorithms.appointments_by_date(UI_Templates.date_corrector(current_day,current_month,current_year));
+	ArrayList<Appointment> day2_array = Algorithms.appointments_by_date(UI_Templates.date_corrector(current_day+1,current_month,current_year));;
+	ArrayList<Appointment> day3_array = Algorithms.appointments_by_date(UI_Templates.date_corrector(current_day+2,current_month,current_year));;
+	ArrayList<Appointment> day4_array = Algorithms.appointments_by_date(UI_Templates.date_corrector(current_day+3,current_month,current_year));;
+	ArrayList<Appointment> day5_array = Algorithms.appointments_by_date(UI_Templates.date_corrector(current_day+4,current_month,current_year));;
 	
 	private ArrayList<String> information_extractor(ArrayList<Appointment> array) {
 		ArrayList<String> output_array = null;

@@ -36,6 +36,8 @@ import javafx.stage.Stage;
 
 public class Employee_Details_Screen_Administrator_UI { 
 	
+	private String[] formatted_employees = Algorithms.gather_employees();
+	
 	private String get_record_id(String first_name, String surname, String phone_number, String trade_id) {
 		List<Employee> employees = Main.employees_array;
 		for(Employee employee : employees) {
@@ -58,7 +60,7 @@ public class Employee_Details_Screen_Administrator_UI {
 			}
 		}
 		listview.setItems(observable_list);
-	}
+	} 
 	
 	private BorderPane header(Stage primary_stage) {
 		BorderPane header = UI_Templates.header(primary_stage,"Employee Details");
@@ -208,15 +210,24 @@ public class Employee_Details_Screen_Administrator_UI {
 		
 		ListView<String> lv_employees = new ListView<String>();
 		ObservableList<String> lv_employee_items = FXCollections.observableArrayList();
-		for(Employee employee : Main.employees_array) {
-			String item_add_string = String.format("(%s)\n%s %s - %s\n%s", employee.id, employee.first_name, employee.surname, Algorithms.output_trade_title(employee.trade_id));
-			lv_employee_items.add(item_add_string);
+		for(int i = 0; i < Main.employees_array.size(); i++) {
+			lv_employee_items.add(formatted_employees[i]);
 		}
 		lv_employees.setItems(lv_employee_items);
 		UI_Templates.list_view_style(lv_employees);
 		lv_employees.setPrefSize(Algorithms.dimension_calculator(300.0,false),Algorithms.dimension_calculator(500.0,true));
+		
+		HBox hb_search = new HBox();
+		hb_search.setSpacing(Algorithms.dimension_calculator(10.0, false));
+		Label lbl_search = new Label("Find");
+		lbl_search.setMaxHeight(Double.MAX_VALUE);
+		lbl_search.setAlignment(Pos.CENTER);
+		TextField tf_search = new TextField();
+		Algorithms.item_filter_listener(tf_search, formatted_employees, lv_employee_items, lv_employees);
+		
+		hb_search.getChildren().addAll(lbl_search, tf_search);
 
-		right_vb.getChildren().addAll(lbl_employee_list_view_title, lv_employees);
+		right_vb.getChildren().addAll(lbl_employee_list_view_title,hb_search,lv_employees);
 		
 		HBox trade_details_button_bar = new HBox();
 		trade_details_button_bar.setSpacing(Algorithms.dimension_calculator(10.0,false));
@@ -278,6 +289,7 @@ public class Employee_Details_Screen_Administrator_UI {
 						} else {
 							Add_DB.Employee(Main.url,Main.user,Main.password,Main.user_data.business,first_name_s,surname_s,phone_number_s,is_employed,trade_combo_box.getValue());
 							Main.employees_array = Select_DB.Extract_Data_Record_Employees(Main.url,Main.user,Main.password,Main.user_data.business);
+							formatted_employees = Algorithms.gather_employees();
 						}
 						List<Employee> array = Main.employees_array;
 						int max_pos = Main.employees_array.size()-1;
@@ -312,6 +324,8 @@ public class Employee_Details_Screen_Administrator_UI {
 								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"employees", "phone_number", record_id, tf_phone_number.getText());
 								Update_DB.Update_Boolean_Record(Main.url,Main.user,Main.password,Main.user_data.business,"employees", "employed", record_id, is_employed);
 								Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"employees", "trade_id", record_id, Algorithms.output_trade_id(trade_combo_box.getValue()));
+								Main.employees_array = Select_DB.Extract_Data_Record_Employees(Main.url,Main.user,Main.password,Main.user_data.business);
+								formatted_employees = Algorithms.gather_employees();
 								reset_listview(Main.employees_array, lv_employee_items, lv_employees);
 								System.out.println("Updated selected client information");
 							} else {
@@ -373,7 +387,7 @@ public class Employee_Details_Screen_Administrator_UI {
 	
 	public BorderPane get_scene(Stage primary_stage) {
 		BorderPane border_pane = new BorderPane();
-		
+				
 		border_pane.setTop(header(primary_stage));
 		border_pane.setCenter(centre_view(primary_stage));
 		return border_pane;

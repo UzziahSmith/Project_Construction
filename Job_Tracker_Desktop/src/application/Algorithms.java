@@ -19,7 +19,9 @@ import com.job_tracker.jdbc.Connection_Test;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Screen;
@@ -98,22 +100,19 @@ public class Algorithms {
 		return null;
 	}
 	
-	static ArrayList<Appointment> appointments_by_Date(String date) {
+	static ArrayList<Appointment> appointments_by_date(String date) {
 		ArrayList<Appointment> output_array = new ArrayList<Appointment>();
-		if(output_array != null) {
-			int size = Main.appointments_array.size();
-			for(int i = 0; i < size; i++) {
-				if(date.equals(Main.appointments_array.get(i).date)) {
-					output_array.add(Main.appointments_array.get(i));
-				}
-			}
-			if(output_array.size() > 0) {
-				return output_array;
-			} else {
-				return null;
+		int size = Main.appointments_array.size();
+		for(int i = 0; i < size; i++) {
+			if(date.equals(Main.appointments_array.get(i).date)) {
+				output_array.add(Main.appointments_array.get(i));
 			}
 		}
-		return null;
+		if(output_array.size() > 0) {
+			return output_array;
+		} else {
+			return null;
+		}
 	}
 	
 	static boolean trade_title_exists(String title) throws SQLException {
@@ -285,5 +284,92 @@ public class Algorithms {
 			{return true;}
 		}
 	return false;
+	}
+	
+	static void item_filter_listener(final TextField tf, String[] formatted_items, ObservableList<String> observable_list, ListView<String> listview) {
+		tf.textProperty().addListener(new ChangeListener<String>() {
+			@Override 
+			public void changed(final ObservableValue<? extends String> ov, final String old_value, final String new_value) {
+				observable_list.clear();
+				for(String item_s : formatted_items) {
+					int match_count = 0;
+					int character_pos = 0;
+					for(int i = 0; i < item_s.length(); i++) {
+						if(item_s.charAt(i) == tf.getText().charAt(character_pos)) {
+							character_pos++;
+							match_count++;
+						}
+						if(match_count == tf.getText().length()) {
+							observable_list.add(item_s);
+							break;
+						}
+					}
+				}
+				listview.setItems(observable_list);
+			}
+		});
+	}
+	
+	static String[] gather_clients() {
+		int array_size = Main.clients_array.size();
+		List<Client> clients = Main.clients_array;
+		String[] formatted_clients = new String[array_size];
+		for(int i = 0; i < array_size; i++) {
+			String output = String.format("%s %s - %s", clients.get(i).first_name, clients.get(i).surname,clients.get(i).phone_number);
+			formatted_clients[i] = output;
+		}
+		return formatted_clients;
+	}
+
+	static String[] gather_employees() {
+		int array_size = Main.employees_array.size();
+		List<Employee> employees = Main.employees_array;
+		String[] formatted_employees = new String[array_size];
+		for(int i = 0; i < array_size; i++) {
+			String output = String.format("%s %s %s - %s", employees.get(i).id, employees.get(i).first_name,employees.get(i).surname, employees.get(i).phone_number);
+			formatted_employees[i] = output;
+		}
+		return formatted_employees;
+	}
+	
+	static String[] gather_appointments() {
+		int array_size = Main.appointments_array.size();
+		List<Appointment> appointments = Main.appointments_array;
+		String[] formatted_appointments = new String[array_size];
+		for(int i = 0; i < array_size; i++) {
+			String output = String.format("%s, %s\nClient: %s\nEmployee: %s\nLocation: %s",
+					appointments.get(i).time,
+					appointments.get(i).date,
+					Algorithms.client_details_output(appointments.get(i).client_id),
+					Algorithms.employee_details_output(appointments.get(i).employee_id),
+					Algorithms.location_details(appointments.get(i).location_id));
+			formatted_appointments[i] = output;
+		}
+		return formatted_appointments;
+	}
+	
+	static String[] gather_trades() {
+		int array_size = Main.trades_array.size();
+		List<Trade> trades = Main.trades_array;
+		String[] formatted_trades = new String[array_size];
+		for(int i = 0; i < array_size; i++) {
+			String output = String.format("%s - %s",trades.get(i).id,trades.get(i).title);
+			formatted_trades[i] = output;
+		}
+		return formatted_trades;
+	}
+	
+	static int get_appointment_count(String s) {
+		String integer = null;
+		for(int i = 0; i < s.length(); i++) {
+			if(s.charAt(i) == ':') {
+				return Integer.parseInt(s);
+			} else if(integer != null) {
+				integer = String.valueOf(s.charAt(i));
+			} else {
+				integer = String.valueOf(s.charAt(0));
+			}
+		}
+		return (Integer) null;
 	}
 }

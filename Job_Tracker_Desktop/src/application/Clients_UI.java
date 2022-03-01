@@ -24,11 +24,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class Clients_UI {
 	Rectangle2D screen_bounds = Screen.getPrimary().getBounds();
+	
+	private String[] formatted_clients = Algorithms.gather_clients();
 	
 	private String get_record_id(String first_name, String surname, String phone_number) {
 		List<Client> clients = Main.clients_array;
@@ -191,13 +194,24 @@ public class Clients_UI {
 		UI_Templates.list_view_style(lv_clients);
 		ObservableList<String> lv_clients_items = FXCollections.observableArrayList();
 		if(clients != null) {
-			for(Client client : clients) {
-				String item_add_string = String.format("%s %s - %s",client.first_name,client.surname,client.phone_number);
-				lv_clients_items.add(item_add_string);
+			for(int i = 0; i < Main.clients_array.size(); i++) {
+				lv_clients_items.add(formatted_clients[i]);
 			}
 		}
 		lv_clients.setItems(lv_clients_items);
 		lv_clients.setPrefSize(Algorithms.dimension_calculator(300.0,false),Algorithms.dimension_calculator(500.0,true));
+		
+		HBox hb_search = new HBox();
+		hb_search.setSpacing(Algorithms.dimension_calculator(10.0, false));
+		Label lbl_search = new Label("Find");
+		lbl_search.setMaxHeight(Double.MAX_VALUE);
+		lbl_search.setAlignment(Pos.CENTER);
+		TextField tf_search = new TextField();
+		Algorithms.item_filter_listener(tf_search, formatted_clients, lv_clients_items, lv_clients);
+		
+		VBox vb_clients = new VBox();
+		vb_clients.setSpacing(Algorithms.dimension_calculator(10.0,true));
+		vb_clients.getChildren().addAll(lbl_clients_list_title,hb_search,lv_clients);
 		
 		if(administrator) {
 			TextField tf_first_name = new TextField();
@@ -268,6 +282,7 @@ public class Clients_UI {
 							} else {
 								Add_DB.Client(Main.url,Main.user,Main.password,Main.user_data.business,first_name_s,surname_s,phone_number_s);
 								Main.clients_array = Select_DB.Extract_Data_Record_Clients(Main.url,Main.user,Main.password,Main.user_data.business);	
+								formatted_clients = Algorithms.gather_clients();
 							}
 							List<Client> array = Main.clients_array;
 							int max_pos = Main.clients_array.size()-1;
@@ -296,6 +311,8 @@ public class Clients_UI {
 									Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"clients","first_name", record_id, tf_first_name.getText());
 									Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"clients", "surname", record_id, tf_surname.getText());
 									Update_DB.Update_String_Record(Main.url,Main.user,Main.password,Main.user_data.business,"clients", "phone_number", record_id, tf_phone_number.getText());
+									Main.clients_array = Select_DB.Extract_Data_Record_Clients(Main.url,Main.user,Main.password,Main.user_data.business);
+									formatted_clients = Algorithms.gather_clients();
 									reset_listview(clients, lv_clients_items, lv_clients);
 									System.out.println("Updated selected client information");
 								} else {
@@ -366,8 +383,7 @@ public class Clients_UI {
 		centre_grid.add(lbl_job_history_list_title,0,0);
 		centre_grid.add(lv_job_history,0,1);
 		centre_grid.add(centre_view,1,1);
-		centre_grid.add(lbl_clients_list_title,2,0);
-		centre_grid.add(lv_clients,2,1);
+		centre_grid.add(vb_clients,2,0,1,3);
 		centre_grid.setAlignment(Pos.CENTER);
 		
 		return centre_grid;

@@ -119,7 +119,7 @@ public class Trade_List_Screen_Administrator_UI {
 	}
 	
 	@SuppressWarnings("static-access")
-	private GridPane centre_view(Stage primary_stage, List<Trade> trades) {
+	private GridPane centre_view(Stage primary_stage, List<Trade> trades, String[] formatted_trades) {
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
 		grid.setHgap(Algorithms.dimension_calculator(200.0,false));
@@ -146,17 +146,25 @@ public class Trade_List_Screen_Administrator_UI {
 		lbl_trade_list_view_title.setMaxWidth(Double.MAX_VALUE);
 		lbl_trade_list_view_title.setPadding(new Insets(0,0,Algorithms.dimension_calculator(20.0,true),0));
 		
+		HBox hb_search = new HBox();
+		hb_search.setSpacing(Algorithms.dimension_calculator(10.0, false));
+		Label lbl_search = new Label("Find");
+		lbl_search.setMaxHeight(Double.MAX_VALUE);
+		lbl_search.setAlignment(Pos.CENTER);
+		TextField tf_search = new TextField();
+		hb_search.getChildren().addAll(lbl_search, tf_search);
+		
 		ListView<String> lv_trades = new ListView<String>();
 		UI_Templates.list_view_style(lv_trades);
 		ObservableList<String> lv_trade_items = FXCollections.observableArrayList();
 		if(trades != null) {
-			for(Trade trade : trades) {
-				String item_add_string = String.format("%s - %s",trade.id,trade.title);
-				lv_trade_items.add(item_add_string);
+			for(int i = 0; i < Main.appointments_array.size(); i++) {
+				lv_trade_items.add(formatted_trades[i]);
 			}
 		}
 		lv_trades.setItems(lv_trade_items);
 		lv_trades.setPrefSize(Algorithms.dimension_calculator(300.0,false),Algorithms.dimension_calculator(500.0,true));
+		Algorithms.item_filter_listener(tf_search,formatted_trades,lv_trade_items, lv_trades);
 		lv_trades.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent click) {
@@ -188,7 +196,7 @@ public class Trade_List_Screen_Administrator_UI {
 			}
 		});
 		
-		right_vb.getChildren().addAll(lbl_trade_list_view_title, lv_trades);
+		right_vb.getChildren().addAll(lbl_trade_list_view_title,hb_search,lv_trades);
 		
 		HBox trade_interactive_button_bar = new HBox();
 		trade_interactive_button_bar.setSpacing(Algorithms.dimension_calculator(10.0,false));
@@ -342,9 +350,10 @@ public class Trade_List_Screen_Administrator_UI {
 		BorderPane border_pane = new BorderPane();
 		
 		List<Trade> test_trades = Main.trades_array;
+		String[] formatted_trades = Algorithms.gather_trades();
 		
 		border_pane.setTop(header(primary_stage));
-		border_pane.setCenter(centre_view(primary_stage, test_trades));
+		border_pane.setCenter(centre_view(primary_stage,test_trades,formatted_trades));
 		return border_pane;
 	}
 }

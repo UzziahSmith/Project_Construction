@@ -1,5 +1,10 @@
 package application;
 
+import java.util.Calendar;
+import java.util.List;
+
+import com.job_tracker.attribute_creation.Appointment;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,22 +31,12 @@ public class Home_Screen_Administrator_UI {
 	double screen_width = screen_bounds.getWidth();
 	double screen_height = screen_bounds.getHeight();
 	
-	private Popup appointment_brief(String client_name, String time, String date, String address, String assigned_employee) {
-		Popup popup = new Popup();
-		
-		VBox Vbox = new VBox();
-		popup.getContent().add(Vbox);
-		
-		Label lbl_client_name = new Label(client_name);
-		Label lbl_time = new Label(time);
-		Label lbl_date = new Label(date);
-		Label lbl_address = new Label(address);
-		Label lbl_assigned_employee = new Label(assigned_employee);
-		
-		Vbox.getChildren().addAll(lbl_client_name,lbl_time,lbl_date,lbl_address,lbl_assigned_employee);
-		
-		return popup;
-	}
+	private Calendar cal = Calendar.getInstance();
+	private int current_day = cal.get(Calendar.DAY_OF_MONTH);
+	private int current_month = cal.get(Calendar.MONTH);
+	private int current_year = cal.get(Calendar.YEAR);
+	private String todays_date = UI_Templates.date_corrector(current_day,current_month,current_year);
+	private String tomorrows_date = UI_Templates.date_corrector(current_day+1,current_month,current_year);
 
 	private VBox vb_appointments(Stage primary_stage) {
 		
@@ -59,25 +54,20 @@ public class Home_Screen_Administrator_UI {
 		lbl_todays_appointments.setId("admin_home_listview_label");
 		
 		ListView<String> todays_appointments_list = new ListView<String>();
-		ObservableList<String> todays_appointments_items = FXCollections.observableArrayList("John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken");
+		ObservableList<String> todays_appointments_items = FXCollections.observableArrayList();
+		List<Appointment> todays_appointments = Algorithms.appointments_by_date(todays_date);
+		int counter = 1;
+		for(Appointment appointment : todays_appointments) {
+			String output = String.format("%s: %s, %s\nClient: %s\nEmployee: %s\nLocation: %s",
+					counter,
+					appointment.time,
+					appointment.date,
+					Algorithms.client_details_output(appointment.client_id),
+					Algorithms.employee_details_output(appointment.employee_id),
+					Algorithms.location_details(appointment.location_id));
+			todays_appointments_items.add(output);
+			counter++;
+		}
 		todays_appointments_list.setItems(todays_appointments_items);
 		todays_appointments_list.setPrefWidth(screen_width*0.0695);
 		todays_appointments_list.setPrefHeight(screen_height*0.324);
@@ -91,8 +81,7 @@ public class Home_Screen_Administrator_UI {
 				System.out.println(currentItemSelected);
 				if (click.getClickCount() == 1) {
 					System.out.println("Open Brief");
-					Popup appointment_brief = appointment_brief("Client Name","Appointment Time","Appointment Date",
-							"Appointment Address","Assigned Employee");
+					Popup appointment_brief = UI_Templates.appointment_brief_popup(primary_stage,Main.appointments_array.get(Algorithms.get_appointment_count(currentItemSelected)));
 					if(!appointment_brief.isShowing()) {
 						appointment_brief.show(primary_stage);
 						System.out.println("Open brief");
@@ -102,6 +91,10 @@ public class Home_Screen_Administrator_UI {
 					}
 				} else if (click.getClickCount() == 2) {
 					System.out.println("Open Details");
+					Appointment_Details_UI appointment_details_UI_layout = new Appointment_Details_UI();
+					Scene appointment_details_UI_screen = new Scene(appointment_details_UI_layout.get_scene(primary_stage,true,null,Main.appointments_array.get(Algorithms.get_appointment_count(currentItemSelected))));
+					appointment_details_UI_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+					primary_stage.setScene(appointment_details_UI_screen);
 				}
 			}
 		});
@@ -114,25 +107,17 @@ public class Home_Screen_Administrator_UI {
 		lbl_tomorrows_appointments.setId("admin_home_listview_label");
 		
 		ListView<String> tomorrows_appointments_list = new ListView<String>();
-		ObservableList<String> tomorrows_appointments_items = FXCollections.observableArrayList("Uzziah Gary Smith: 9:00AM\nBull Creek","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken",
-				"John Green","Celery Adams","Barker Chicken");
+		ObservableList<String> tomorrows_appointments_items = FXCollections.observableArrayList();
+		List<Appointment> tomorrows_appointments = Algorithms.appointments_by_date(tomorrows_date);
+		for(Appointment appointment : tomorrows_appointments) {
+			String output = String.format("%s: %s, %s\nClient: %s\nEmployee: %s\nLocation: %s",
+					appointment.time,
+					appointment.date,
+					Algorithms.client_details_output(appointment.client_id),
+					Algorithms.employee_details_output(appointment.employee_id),
+					Algorithms.location_details(appointment.location_id));
+			todays_appointments_items.add(output);
+		}
 		tomorrows_appointments_list.setItems(tomorrows_appointments_items);
 		tomorrows_appointments_list.setPrefWidth(screen_width*0.0695);
 		tomorrows_appointments_list.setPrefHeight(screen_height*0.324);
@@ -146,15 +131,25 @@ public class Home_Screen_Administrator_UI {
 				System.out.println(currentItemSelected);
 				if(click.getClickCount() == 1) {
 					System.out.println("Open Brief");
+					Popup appointment_brief = UI_Templates.appointment_brief_popup(primary_stage,Main.appointments_array.get(Algorithms.get_appointment_count(currentItemSelected)));
+					if(!appointment_brief.isShowing()) {
+						appointment_brief.show(primary_stage);
+						System.out.println("Open brief");
+					} else {
+						appointment_brief.setAutoHide(true);
+						System.out.println("Close brief");
+					}
 				} else if(click.getClickCount() == 2) {
 					System.out.println("Open Details");
+					System.out.println("Open Details");
+					Appointment_Details_UI appointment_details_UI_layout = new Appointment_Details_UI();
+					Scene appointment_details_UI_screen = new Scene(appointment_details_UI_layout.get_scene(primary_stage,true,null,Main.appointments_array.get(Algorithms.get_appointment_count(currentItemSelected))));
+					appointment_details_UI_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+					primary_stage.setScene(appointment_details_UI_screen);
 				} 
 			}
 		});
-		
-		vb_appointments.getChildren().addAll(lbl_todays_appointments,todays_appointments_list,
-				lbl_tomorrows_appointments,tomorrows_appointments_list);
-		
+		vb_appointments.getChildren().addAll(lbl_todays_appointments,todays_appointments_list,lbl_tomorrows_appointments,tomorrows_appointments_list);
 		return vb_appointments;
 	}
 	

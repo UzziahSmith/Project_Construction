@@ -9,6 +9,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+
+import com.job_tracker.attribute_creation.Appointment;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -34,6 +37,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -339,7 +343,7 @@ public class UI_Templates {
 		String appt_date = date_corrector(position_array[Pos],current_month_val,current_year_val);
 		System.out.println("Navigate to Appointment_Details_UI.");
 		Appointment_Details_UI appointment_details_layout = new Appointment_Details_UI();
-		Scene appointment_details_screen = new Scene(appointment_details_layout.get_scene(primary_stage,administrator,appt_date));
+		Scene appointment_details_screen = new Scene(appointment_details_layout.get_scene(primary_stage,administrator,appt_date,null));
 		return appointment_details_screen;
 	}
 	
@@ -1152,5 +1156,43 @@ public class UI_Templates {
 		});
 		picker.getChildren().addAll(tf_hour,lbl_colon,tf_minutes,combo_box,btn_enter_time);
 		return picker;
+	}
+	
+	static Popup appointment_brief_popup(Stage primary_stage, Appointment appointment) {
+		String client_name = Algorithms.client_details_output(appointment.client_id);
+		String address = Algorithms.location_details(appointment.location_id);
+		String assigned_employee = Algorithms.employee_details_output(appointment.employee_id);
+		
+		Popup popup = new Popup();
+		popup.setAutoHide(true);
+		
+		VBox Vbox = new VBox();
+		popup.getContent().add(Vbox);
+		
+		String output = String.format("%s, %s\nClient: %s\nEmployee: %s\nLocation: %s",appointment.time,appointment.date,client_name,assigned_employee,address);
+		Label lbl_output = new Label(output);
+		
+		Button btn_view = new Button("View");		
+		Button btn_close = new Button("Close");
+		btn_view.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent e) {
+				System.out.println("View appointment details");
+				Appointment_Details_UI appointment_details_UI_layout = new Appointment_Details_UI();
+				Scene appointment_details_UI_screen = new Scene(appointment_details_UI_layout.get_scene(primary_stage,true,null,appointment));
+				appointment_details_UI_screen.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+				primary_stage.setScene(appointment_details_UI_screen);
+			}
+		});
+		btn_close.setOnAction(new EventHandler<ActionEvent>() {
+			@Override 
+			public void handle(ActionEvent e) {
+				popup.hide();
+			}
+		});
+		
+		Vbox.getChildren().addAll(lbl_output);
+		
+		return popup;
 	}
 }
